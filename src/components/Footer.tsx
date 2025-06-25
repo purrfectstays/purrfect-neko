@@ -1,0 +1,181 @@
+import React from 'react';
+import { useApp } from '../context/AppContext';
+import { Mail, Shield, FileText, Cookie, Heart } from 'lucide-react';
+
+const Footer: React.FC = () => {
+  const { setCurrentStep } = useApp();
+
+  const handleLegalPageClick = (page: 'privacy' | 'terms' | 'cookies') => {
+    // For now, we'll create a simple router-like system
+    // In a real app, you'd use React Router or similar
+    switch (page) {
+      case 'privacy':
+        setCurrentStep('privacy' as any);
+        break;
+      case 'terms':
+        setCurrentStep('terms' as any);
+        break;
+      case 'cookies':
+        setCurrentStep('cookies' as any);
+        break;
+    }
+  };
+
+  return (
+    <footer className="bg-zinc-900 border-t border-zinc-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid md:grid-cols-4 gap-8">
+          
+          {/* Brand Section */}
+          <div className="md:col-span-2">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-amber-100 to-amber-50 p-1 shadow-lg">
+                <img 
+                  src="https://i.ibb.co/Qp1NKwY/Purrfect-Stays.png" 
+                  alt="Purrfect Stays Logo" 
+                  className="w-full h-full object-contain rounded-lg"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent && !parent.querySelector('.fallback-logo')) {
+                      const fallback = document.createElement('div');
+                      fallback.className = 'fallback-logo w-full h-full flex items-center justify-center text-amber-800 text-xl font-bold rounded-lg bg-amber-100';
+                      fallback.textContent = '🏠🐱';
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-sacramento text-3xl text-white leading-tight text-shadow-custom">Purrfect Stays</span>
+              </div>
+            </div>
+            <p className="font-manrope text-zinc-400 mb-6 max-w-md">
+              Revolutionizing cattery bookings by connecting cat parents with premium catteries. 
+              Join our early access community and help shape the future of cat care.
+            </p>
+            <div className="flex items-center space-x-2 text-sm">
+              <Heart className="h-4 w-4 text-red-400" />
+              <span className="font-manrope text-zinc-400">
+                Made with love for the cat community
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="font-manrope font-bold text-white mb-4">Platform</h3>
+            <ul className="space-y-3">
+              <li>
+                <button
+                  onClick={() => setCurrentStep('landing')}
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
+                >
+                  Home
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setCurrentStep('registration')}
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
+                >
+                  Join Waitlist
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setCurrentStep('explore-catteries')}
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
+                >
+                  Explore Catteries
+                </button>
+              </li>
+              <li>
+                <a
+                  href="mailto:hello@purrfectstays.org"
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors"
+                >
+                  Contact Us
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal & Support */}
+          <div>
+            <h3 className="font-manrope font-bold text-white mb-4">Legal & Support</h3>
+            <ul className="space-y-3">
+              <li>
+                <button
+                  onClick={() => handleLegalPageClick('privacy')}
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2 text-left"
+                >
+                  <Shield className="h-4 w-4" />
+                  <span>Privacy Policy</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleLegalPageClick('terms')}
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2 text-left"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Terms of Service</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleLegalPageClick('cookies')}
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2 text-left"
+                >
+                  <Cookie className="h-4 w-4" />
+                  <span>Cookie Policy</span>
+                </button>
+              </li>
+              <li>
+                <a
+                  href="mailto:support@purrfectstays.org"
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2"
+                >
+                  <Mail className="h-4 w-4" />
+                  <span>Support</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="border-t border-zinc-800 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
+              <p className="font-manrope text-zinc-400 text-sm">
+                © 2025 Purrfect Stays. All rights reserved.
+              </p>
+              <div className="flex items-center space-x-4 text-xs text-zinc-500">
+                <span>🚀 Beta launching Q4 2025</span>
+                <span>•</span>
+                <span>🐱 Built for cat lovers</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-semibold">
+                Early Access Open
+              </div>
+              <div className="text-zinc-400 text-xs">
+                Limited Spots Available
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Extra bottom padding to prevent chatbot overlap */}
+      <div className="h-20"></div>
+    </footer>
+  );
+};
+
+export default Footer;
