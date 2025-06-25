@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://purrfectstays.org/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Disallow admin or sensitive areas (when they exist)
+# Disallow: /admin/
+# Disallow: /api/
+
+# Allow all content for now since we're in pre-launch
