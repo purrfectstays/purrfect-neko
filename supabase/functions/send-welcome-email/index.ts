@@ -95,28 +95,13 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Get site URL with secure fallback
-    let siteUrl = Deno.env.get('SITE_URL');
-    if (!siteUrl) {
-      // Try to extract from request headers as fallback
-      const origin = req.headers.get('origin');
-      const referer = req.headers.get('referer');
-      
-      if (origin && origin.includes('purrfectstays')) {
-        siteUrl = origin;
-      } else if (referer && referer.includes('purrfectstays')) {
-        try {
-          const refererUrl = new URL(referer);
-          siteUrl = `${refererUrl.protocol}//${refererUrl.host}`;
-        } catch (e) {
-          console.error('Failed to parse referer URL:', e);
-        }
-      }
-      
-      // Final secure fallback
-      if (!siteUrl) {
-        siteUrl = 'https://purrfect-neko.vercel.app';
-      }
+    // FORCE: Use working Vercel domain due to SSL issues with custom domain
+    let siteUrl = 'https://purrfect-neko.vercel.app';
+    
+    // Only allow localhost for development
+    const origin = req.headers.get('origin');
+    if (origin && origin.includes('localhost')) {
+      siteUrl = origin;
     }
 
     // Parse and validate request body
