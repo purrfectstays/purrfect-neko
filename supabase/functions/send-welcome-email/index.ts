@@ -2,8 +2,9 @@ import { Resend } from 'npm:resend@3.2.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-requested-with, accept, origin, referer, user-agent',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Max-Age': '86400',
 }
 
 // Input sanitization function
@@ -11,11 +12,11 @@ function sanitizeHtml(str: string): string {
   if (typeof str !== 'string') return '';
   return str.replace(/[<>\"'&]/g, (match) => {
     const entities: Record<string, string> = { 
-      '<': '<', 
-      '>': '>', 
-      '"': '"', 
+      '<': '&lt;', 
+      '>': '&gt;', 
+      '"': '&quot;', 
       "'": '&#39;',
-      '&': '&'
+      '&': '&amp;'
     };
     return entities[match] || match;
   });
@@ -149,17 +150,37 @@ Deno.serve(async (req) => {
 
     const resend = new Resend(resendApiKey);
 
-    // Send welcome email using the production domain
-    const fromAddress = 'Purrfect Stays <hello@purrfectstays.org>';
-    const emailResult = await resend.emails.send({
-      from: fromAddress,
-      to: [email],
-      subject: `🎉 Welcome to Purrfect Stays, ${name.split(' ')[0]}!`,
-      html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email),
-    });
+    // Try custom domain first, fallback to default Resend domain if it fails
+    let emailResult;
+    let fromAddress = 'Purrfect Stays <hello@purrfectstays.org>';
     
-    if (emailResult.error) {
-      throw new Error(`Email sending failed: ${emailResult.error.message}`);
+    try {
+      emailResult = await resend.emails.send({
+        from: fromAddress,
+        to: [email],
+        subject: `🎉 Welcome to Purrfect Stays! You're #${waitlistPosition} in Line`,
+        html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email),
+      });
+      
+      if (emailResult.error) {
+        throw new Error(`Custom domain failed: ${emailResult.error.message}`);
+      }
+    } catch (customDomainError) {
+      console.log('Custom domain failed, trying default Resend domain');
+      
+      // Fallback to default Resend domain
+      fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
+      
+      emailResult = await resend.emails.send({
+        from: fromAddress,
+        to: [email],
+        subject: `🎉 Welcome to Purrfect Stays! You're #${waitlistPosition} in Line`,
+        html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email),
+      });
+      
+      if (emailResult.error) {
+        throw new Error(`Email sending failed: ${emailResult.error.message}`);
+      }
     }
 
     const { data, error } = emailResult;
@@ -703,7 +724,8 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                       <tr>
                         <td align="center">
                           <div class="logo" style="width: 80px; height: 80px; margin: 0 auto 16px; background: white; border-radius: 16px; padding: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
-                            <img src="https://i.ibb.co/Qp1NKcZ/purrfect-stays-logo.png" alt="Purrfect Stays Logo" width="56" height="56" style="display: block; margin: 0 auto;">
+                            <!-- FIX: Use a reliable image hosting service instead of relative path -->
+                            <img src="https://i.ibb.co/Qp1NKwY/Purrfect-Stays.png" alt="Purrfect Stays Logo" width="56" height="56" style="display: block; margin: 0 auto;">
                           </div>
                         </td>
                       </tr>
@@ -905,7 +927,8 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                   <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
                       <td align="center">
-                        <img src="https://i.ibb.co/Qp1NKcZ/purrfect-stays-logo.png" alt="Purrfect Stays" width="40" height="40" style="display: block; margin: 0 auto 16px;">
+                        <!-- FIX: Use a reliable image hosting service instead of relative path -->
+                        <img src="https://i.ibb.co/Qp1NKwY/Purrfect-Stays.png" alt="Purrfect Stays" width="40" height="40" style="display: block; margin: 0 auto 16px;">
                       </td>
                     </tr>
                     <tr>
