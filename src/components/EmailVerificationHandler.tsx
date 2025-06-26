@@ -26,8 +26,7 @@ const EmailVerificationHandler: React.FC = () => {
         if (result.success && result.user) {
           setStatus('success');
           
-          // Set user in context
-          setUser({
+          const userData = {
             id: result.user.id,
             name: result.user.name,
             email: result.user.email,
@@ -35,12 +34,17 @@ const EmailVerificationHandler: React.FC = () => {
             isVerified: true,
             quizCompleted: false,
             waitlistPosition: null
-          });
+          };
+
+          // Set user in context
+          setUser(userData);
+
+          // Store user data in localStorage for persistence across routes
+          localStorage.setItem('purrfect_verified_user', JSON.stringify(userData));
 
           // Redirect to quiz based on user type after a short delay
           setTimeout(() => {
-            setCurrentStep('quiz');
-            navigate('/', { replace: true });
+            navigate('/quiz', { replace: true });
           }, 2000);
         } else {
           setStatus('error');

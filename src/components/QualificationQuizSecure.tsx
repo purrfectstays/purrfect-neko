@@ -10,6 +10,25 @@ const QualificationQuizSecure: React.FC = () => {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+
+  useEffect(() => {
+    // Check if user exists in context, if not check localStorage
+    if (!user) {
+      const storedUser = localStorage.getItem('purrfect_verified_user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setUser(userData);
+          console.log('Loaded user from localStorage:', userData);
+        } catch (error) {
+          console.error('Failed to parse stored user data:', error);
+          localStorage.removeItem('purrfect_verified_user');
+        }
+      }
+    }
+    setIsLoadingUser(false);
+  }, [user, setUser]);
 
   useEffect(() => {
     if (user?.userType) {
@@ -18,12 +37,32 @@ const QualificationQuizSecure: React.FC = () => {
     }
   }, [user]);
 
+  if (isLoadingUser) {
+    return (
+      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="w-16 h-16 mx-auto mb-6">
+            <div className="w-full h-full border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <h2 className="text-2xl font-bold mb-4">Loading Quiz</h2>
+          <p>Please wait while we prepare your personalized quiz...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user || !user.isVerified) {
     return (
       <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
         <div className="text-center text-white">
           <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
-          <p>Please verify your email to access the qualification quiz.</p>
+          <p className="mb-6">Please verify your email to access the qualification quiz.</p>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200"
+          >
+            Go to Home
+          </button>
         </div>
       </div>
     );
@@ -137,6 +176,9 @@ const QualificationQuizSecure: React.FC = () => {
         quizCompleted: true,
         waitlistPosition: result.waitlistPosition
       });
+
+      // Clean up localStorage since quiz is completed
+      localStorage.removeItem('purrfect_verified_user');
 
       // Proceed to success page
       setCurrentStep('success');
