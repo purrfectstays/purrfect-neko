@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface LogoProps {
   className?: string;
@@ -11,37 +11,49 @@ const Logo: React.FC<LogoProps> = ({
   size = 'md',
   variant = 'full' 
 }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
   const imageSizes = {
-    sm: 'h-10',
+    sm: 'h-12',
     md: 'h-16', 
-    lg: 'h-20'
+    lg: 'h-24'
   };
 
   const iconSizes = {
-    sm: 'w-10 h-10',
+    sm: 'w-12 h-12',
     md: 'w-16 h-16',
-    lg: 'w-20 h-20'
+    lg: 'w-24 h-24'
   };
 
-  // Since the logo image already contains the text, we use the same image for both variants
-  return (
-    <div className={`flex items-center ${className}`}>
-      <img 
-        src="/logo.png" 
-        alt="Purrfect Stays" 
-        className={`${variant === 'icon' ? iconSizes[size] : imageSizes[size]} w-auto object-contain`}
-        onError={(e) => {
-          // Fallback to SVG if image fails to load
-          console.log('Logo image failed to load, showing fallback');
-          e.currentTarget.style.display = 'none';
-          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-          if (fallback) fallback.style.display = 'flex';
-        }}
-      />
-      <div 
-        className="flex items-center space-x-3"
-        style={{ display: 'none' }}
-      >
+  useEffect(() => {
+    // Preload the image
+    const img = new Image();
+    img.onload = () => {
+      console.log('Logo image loaded successfully');
+      setImageLoaded(true);
+    };
+    img.onerror = () => {
+      console.error('Logo image failed to load');
+      setImageError(true);
+    };
+    img.src = '/logo.png';
+  }, []);
+
+  const handleImageError = () => {
+    console.error('Logo image failed to load in component');
+    setImageError(true);
+  };
+
+  const handleImageLoad = () => {
+    console.log('Logo image loaded in component');
+    setImageLoaded(true);
+  };
+
+  // Show fallback if image failed to load
+  if (imageError) {
+    return (
+      <div className={`flex items-center space-x-3 ${className}`}>
         <div className={`${iconSizes[size]} rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 p-2 shadow-lg flex items-center justify-center`}>
           <svg 
             viewBox="0 0 24 24" 
@@ -69,11 +81,33 @@ const Logo: React.FC<LogoProps> = ({
           </svg>
         </div>
         <div className="flex flex-col">
-          <span className="font-sacramento text-3xl text-white leading-tight text-shadow-custom">
+          <span className="font-sacramento text-2xl text-white leading-tight text-shadow-custom">
             Purrfect Stays
           </span>
         </div>
       </div>
+    );
+  }
+
+  // Show the logo image
+  return (
+    <div className={`flex items-center ${className}`}>
+      <img 
+        src="/logo.png" 
+        alt="Purrfect Stays" 
+        className={`${variant === 'icon' ? iconSizes[size] : imageSizes[size]} w-auto object-contain`}
+        onError={handleImageError}
+        onLoad={handleImageLoad}
+        style={{ 
+          maxWidth: 'none',
+          display: imageLoaded ? 'block' : 'none'
+        }}
+      />
+      {!imageLoaded && !imageError && (
+        <div className={`${imageSizes[size]} w-auto bg-zinc-800 animate-pulse rounded-lg flex items-center justify-center`}>
+          <span className="text-zinc-400 text-sm">Loading...</span>
+        </div>
+      )}
     </div>
   );
 };
