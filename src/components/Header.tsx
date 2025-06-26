@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Github } from 'lucide-react';
+import Logo from './Logo';
 
 const Header: React.FC = () => {
   const { setCurrentStep } = useApp();
@@ -21,30 +22,7 @@ const Header: React.FC = () => {
     <header className="bg-zinc-900/95 backdrop-blur-sm border-b border-indigo-800/30 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-amber-100 to-amber-50 p-1 shadow-lg">
-              <img 
-                src="https://i.ibb.co/Qp1NKwY/Purrfect-Stays.png" 
-                alt="Purrfect Stays - Three cats with a cozy house representing premium cattery services" 
-                className="w-full h-full object-contain rounded-lg"
-                onError={(e) => {
-                  // Fallback to a cat emoji if image fails to load
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const parent = target.parentElement;
-                  if (parent && !parent.querySelector('.fallback-logo')) {
-                    const fallback = document.createElement('div');
-                    fallback.className = 'fallback-logo w-full h-full flex items-center justify-center text-amber-800 text-xl font-bold rounded-lg bg-amber-100';
-                    fallback.textContent = '🏠🐱';
-                    parent.appendChild(fallback);
-                  }
-                }}
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-sacramento text-3xl text-white leading-tight text-shadow-custom">Purrfect Stays</span>
-            </div>
-          </div>
+          <Logo size="md" variant="full" />
           
           <div className="flex items-center space-x-4">
             {/* GitHub Integration Button */}

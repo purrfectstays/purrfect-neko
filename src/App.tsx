@@ -5,7 +5,6 @@ import LandingPage from './components/LandingPage';
 import RegistrationForm from './components/RegistrationForm';
 import EmailVerification from './components/EmailVerification';
 import QualificationQuizSecure from './components/QualificationQuizSecure';
-import VerifyEmail from './components/VerifyEmail';
 import EmailVerificationHandler from './components/EmailVerificationHandler';
 import SuccessPage from './components/SuccessPage';
 import ExploreCatteries from './components/ExploreCatteries';

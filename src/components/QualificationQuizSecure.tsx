@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { getQuizQuestionsForUser, calculateQuizScore, QuizQuestion } from '../data/quizQuestions';
 import { WaitlistService } from '../services/waitlistService';
+import { analytics } from '../lib/analytics';
 
 const QualificationQuizSecure: React.FC = () => {
   const { user, setCurrentStep, setUser } = useApp();
@@ -32,11 +33,73 @@ const QualificationQuizSecure: React.FC = () => {
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
-  const handleAnswer = (optionIndex: number) => {
+  const handleAnswer = (value: number) => {
     setAnswers(prev => ({
       ...prev,
-      [currentQuestion.id]: optionIndex
+      [currentQuestion.id]: value
     }));
+
+    // Track detailed quiz response for market research
+    const responseValue = currentQuestion.type === 'multiple-choice' && currentQuestion.options 
+      ? currentQuestion.options[value] 
+      : value;
+    
+    analytics.trackQuizResponse(
+      currentQuestion.id,
+      responseValue,
+      user?.userType || 'unknown',
+      currentQuestionIndex
+    );
+
+    // Track specific business intelligence insights
+    if (currentQuestion.id === 'pricing-tier-preference') {
+      analytics.trackPricingPreference(
+        user?.userType || 'unknown',
+        currentQuestion.options?.[value] || 'unknown'
+      );
+    }
+
+    if (currentQuestion.id === 'budget' || currentQuestion.id === 'marketing-spend') {
+      const budgetRange = currentQuestion.options?.[value] || 'unknown';
+      analytics.trackRevenueOpportunity(
+        user?.userType || 'unknown',
+        budgetRange,
+        0 // Will be calculated based on budget range
+      );
+    }
+
+    if (currentQuestion.id === 'challenge' || currentQuestion.id === 'main-challenge') {
+      const painPoint = currentQuestion.options?.[value] || 'unknown';
+      analytics.trackCompetitiveInsight(
+        'existing_solutions',
+        painPoint,
+        user?.userType || 'unknown'
+      );
+    }
+  };
+
+  const handleRangeAnswer = (value: number) => {
+    setAnswers(prev => ({
+      ...prev,
+      [currentQuestion.id]: value
+    }));
+
+    // Track range responses for market research
+    analytics.trackQuizResponse(
+      currentQuestion.id,
+      value,
+      user?.userType || 'unknown',
+      currentQuestionIndex
+    );
+
+    // Track feature interest for product development
+    if (currentQuestion.id === 'feature-interest') {
+      analytics.trackFeatureDemand(
+        'premium_business_features',
+        value,
+        user?.userType || 'unknown'
+      );
+    }
   };
 
   const handleNext = () => {
@@ -57,7 +120,7 @@ const QualificationQuizSecure: React.FC = () => {
     setIsSubmitting(true);
     try {
       // Calculate score
-      const { score, tier, qualified } = calculateQuizScore(answers);
+      calculateQuizScore(answers, user.userType);
       
       // Convert answers to the format expected by the API
       const quizResponses = Object.entries(answers).map(([questionId, answerIndex]) => ({
@@ -126,7 +189,7 @@ const QualificationQuizSecure: React.FC = () => {
           </h2>
           
           <div className="space-y-4">
-            {currentQuestion.options.map((option, index) => {
+            {currentQuestion.type === 'multiple-choice' && currentQuestion.options && currentQuestion.options.map((option, index) => {
               const isSelected = answers[currentQuestion.id] === index;
               return (
                 <button
@@ -151,6 +214,35 @@ const QualificationQuizSecure: React.FC = () => {
                 </button>
               );
             })}
+            
+            {currentQuestion.type === 'range' && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <span className="text-3xl font-bold text-indigo-400">
+                    {answers[currentQuestion.id] || currentQuestion.min || 1}
+                  </span>
+                  <p className="text-slate-400 text-sm mt-1">
+                    {currentQuestion.min} - {currentQuestion.max}
+                  </p>
+                </div>
+                <input
+                  type="range"
+                  min={currentQuestion.min || 1}
+                  max={currentQuestion.max || 10}
+                  step={currentQuestion.step || 1}
+                  value={answers[currentQuestion.id] || currentQuestion.min || 1}
+                  onChange={(e) => handleRangeAnswer(parseInt(e.target.value))}
+                  className="w-full h-3 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
+                  style={{
+                    background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${((answers[currentQuestion.id] || currentQuestion.min || 1) - (currentQuestion.min || 1)) / ((currentQuestion.max || 10) - (currentQuestion.min || 1)) * 100}%, #475569 ${((answers[currentQuestion.id] || currentQuestion.min || 1) - (currentQuestion.min || 1)) / ((currentQuestion.max || 10) - (currentQuestion.min || 1)) * 100}%, #475569 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-sm text-slate-400">
+                  <span>{currentQuestion.min || 1}</span>
+                  <span>{currentQuestion.max || 10}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -165,9 +257,9 @@ const QualificationQuizSecure: React.FC = () => {
           </button>
           
           <div className="text-slate-400 text-sm">
-            {currentQuestion.isQualifying && (
-              <span className="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full">
-                🔥 Qualifying Question
+            {currentQuestion.required && (
+              <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full">
+                * Required
               </span>
             )}
           </div>

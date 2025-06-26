@@ -1,3 +1,4 @@
+/// <reference path="../types.ts" />
 import { Resend } from 'npm:resend@3.2.0'
 
 const corsHeaders = {
@@ -730,7 +731,7 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                         <td align="center">
                           <div class="logo" style="width: 80px; height: 80px; margin: 0 auto 16px; background: white; border-radius: 16px; padding: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
                             <!-- FIX: Use a reliable image hosting service instead of relative path -->
-                            <img src="https://i.ibb.co/Qp1NKwY/Purrfect-Stays.png" alt="Purrfect Stays Logo" width="56" height="56" style="display: block; margin: 0 auto;">
+                            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">🐱</div>
                           </div>
                         </td>
                       </tr>
@@ -835,10 +836,10 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                                 <td align="center">
                                   <div class="share-buttons" style="margin: 24px 0;">
                                     <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just secured spot #${waitlistPosition} on the Purrfect Stays early access waitlist! 🐱 Revolutionary cattery booking platform launching in 2026. Join me!`)}&url=${encodeURIComponent(siteUrl + '?ref=' + waitlistPosition)}" class="share-button" style="display: inline-block; background: white; color: #f59e0b; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; margin: 0 8px;">
-                                      <img src="https://i.ibb.co/ZXvGKsL/twitter.png" alt="Twitter" width="16" height="16" style="vertical-align: middle; margin-right: 8px;"> Share on Twitter
+                                      🐦 Share on Twitter
                                     </a>
                                     <a href="mailto:?subject=${encodeURIComponent('Check out Purrfect Stays!')}&body=${encodeURIComponent(`I just joined the Purrfect Stays early access waitlist and I'm #${waitlistPosition}! This revolutionary cattery booking platform launching in 2026 is exactly what the cat community needs. Join me: ${siteUrl}?ref=${waitlistPosition}`)}" class="share-button" style="display: inline-block; background: white; color: #f59e0b; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; margin: 0 8px;">
-                                      <img src="https://i.ibb.co/kSfRNty/mail.png" alt="Email" width="16" height="16" style="vertical-align: middle; margin-right: 8px;"> Share via Email
+                                      📧 Share via Email
                                     </a>
                                   </div>
                                 </td>
@@ -933,7 +934,7 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                     <tr>
                       <td align="center">
                         <!-- FIX: Use a reliable image hosting service instead of relative path -->
-                        <img src="https://i.ibb.co/Qp1NKwY/Purrfect-Stays.png" alt="Purrfect Stays" width="40" height="40" style="display: block; margin: 0 auto 16px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: bold; margin: 0 auto 16px;">🐱</div>
                       </td>
                     </tr>
                     <tr>
@@ -948,13 +949,13 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                       <td align="center">
                         <div class="social-links" style="margin: 20px 0;">
                           <a href="${siteUrl}/social/twitter" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 16px;">
-                            <img src="https://i.ibb.co/ZXvGKsL/twitter.png" alt="Twitter" width="16" height="16" style="display: inline-block; vertical-align: middle;">
+                            🐦
                           </a>
                           <a href="${siteUrl}/social/facebook" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 16px;">
-                            <img src="https://i.ibb.co/9H3d0zk/facebook.png" alt="Facebook" width="16" height="16" style="display: inline-block; vertical-align: middle;">
+                            📘
                           </a>
                           <a href="${siteUrl}/social/instagram" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 16px;">
-                            <img src="https://i.ibb.co/C5ZssMJ/instagram.png" alt="Instagram" width="16" height="16" style="display: inline-block; vertical-align: middle;">
+                            📷
                           </a>
                         </div>
                       </td>

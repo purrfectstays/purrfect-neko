@@ -1,3 +1,4 @@
+/// <reference path="../types.ts" />
 import { Resend } from 'npm:resend@3.2.0'
 
 const corsHeaders = {
@@ -580,7 +581,7 @@ function getEmailTemplate(name: string, verificationUrl: string, siteUrl: string
                       <tr>
                         <td align="center">
                           <div class="logo" style="width: 80px; height: 80px; margin: 0 auto 16px; background: white; border-radius: 16px; padding: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
-                            <img src="https://i.ibb.co/Qp1NKcZ/purrfect-stays-logo.png" alt="Purrfect Stays Logo" width="56" height="56" style="display: block; margin: 0 auto;">
+                            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">🐱</div>
                           </div>
                         </td>
                       </tr>
@@ -713,7 +714,7 @@ function getEmailTemplate(name: string, verificationUrl: string, siteUrl: string
                   <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
                       <td align="center">
-                        <img src="https://i.ibb.co/Qp1NKcZ/purrfect-stays-logo.png" alt="Purrfect Stays" width="40" height="40" style="display: block; margin: 0 auto 16px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: bold; margin: 0 auto 16px;">🐱</div>
                       </td>
                     </tr>
                     <tr>

@@ -4,9 +4,21 @@ import { useApp } from '../context/AppContext';
 import { WaitlistService } from '../services/waitlistService';
 import { EmailVerificationService } from '../services/emailVerificationService';
 import { analytics } from '../lib/analytics';
+import RegionalUrgency from './RegionalUrgency';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 
 const RegistrationForm: React.FC = () => {
   const { setCurrentStep, setUser, setWaitlistUser } = useApp();
+  const { location, waitlistData } = useGeolocation();
+  
+  // Track registration form behavior for optimization
+  const { trackFormSubmission, trackCustomEvent } = useBehaviorTracking('registration_form', {
+    trackScrollDepth: false,
+    trackTimeOnPage: true,
+    trackClickHeatmap: true,
+    trackFormInteractions: true
+  });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -81,8 +93,18 @@ const RegistrationForm: React.FC = () => {
         throw new Error(verificationResult.error || 'Failed to send verification email');
       }
 
-      // Track successful registration
-      analytics.trackRegistrationComplete(formData.userType);
+      // Track successful registration with enhanced analytics
+      analytics.trackRegistrationComplete(formData.userType, waitlistUser.waitlist_position);
+
+      // Track geographic market insights
+      if (location && waitlistData) {
+        analytics.trackGeographicInsight(
+          location.country,
+          location.region,
+          formData.userType,
+          waitlistData.currentPosition
+        );
+      }
 
       // Update app state
       setWaitlistUser(waitlistUser);
@@ -94,9 +116,15 @@ const RegistrationForm: React.FC = () => {
         quizCompleted: false,
       });
       
+      // Track successful form submission
+      trackFormSubmission('waitlist_registration', true);
+      
       setCurrentStep('verification');
     } catch (error) {
       console.error('Registration error:', error);
+      
+      // Track failed form submission
+      trackFormSubmission('waitlist_registration', false, error instanceof Error ? error.message : 'Unknown error');
       
       // Track registration error
       analytics.trackError('registration_failed', error instanceof Error ? error.message : 'Unknown error');
@@ -116,10 +144,6 @@ const RegistrationForm: React.FC = () => {
     }
   };
 
-  const handleCTAClick = () => {
-    analytics.trackCTAClick('get_started', 'hero_section');
-    setCurrentStep('registration');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-indigo-900/20 flex items-center justify-center p-4">
@@ -136,9 +160,12 @@ const RegistrationForm: React.FC = () => {
           <h1 className="font-manrope font-bold text-3xl text-white mb-4">
             Become an Early Access Member
           </h1>
-          <p className="font-manrope text-zinc-300">
+          <p className="font-manrope text-zinc-300 mb-6">
             Join the exclusive community shaping the future of cattery bookings
           </p>
+          
+          {/* Regional Urgency */}
+          <RegionalUrgency variant="banner" showDetails={false} className="mb-6" />
         </div>
 
         <div className="bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-8 border border-indigo-800/30 shadow-2xl">

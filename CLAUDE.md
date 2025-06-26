@@ -31,6 +31,7 @@ This is a **React + TypeScript + Vite** waitlist landing page for Purrfect Stays
 - **Email Service**: Resend API for verification and welcome emails
 - **State Management**: React Context API (`src/context/AppContext.tsx`)
 - **Routing**: React Router with step-based navigation and lazy loading
+- **Deployment**: Vercel (Static Site Hosting with GitHub integration)
 
 ### Key Application Flow
 The app follows a multi-step user journey managed by `AppContext`:
@@ -70,8 +71,55 @@ VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 RESEND_API_KEY=your_resend_api_key
-VITE_APP_URL=http://localhost:5173
+VITE_APP_URL=https://your-app.vercel.app
 ```
+
+## Deployment
+
+### Vercel Deployment (Recommended)
+
+This project is configured for seamless deployment on Vercel with GitHub integration.
+
+#### Initial Setup:
+1. **Connect GitHub Repository**:
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Vercel will auto-detect the Vite framework
+
+2. **Configure Environment Variables** in Vercel Dashboard:
+   ```bash
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   RESEND_API_KEY=your_resend_api_key
+   VITE_APP_URL=https://your-app.vercel.app
+   SITE_URL=https://your-app.vercel.app
+   VITE_GA_MEASUREMENT_ID=your_google_analytics_id
+   NODE_ENV=production
+   ```
+
+3. **Deploy**:
+   - Vercel automatically deploys on every push to `main` branch
+   - Preview deployments created for pull requests
+   - Production deployment available at your custom domain
+
+#### Vercel Configuration:
+- `vercel.json`: Pre-configured with SPA routing, security headers, and optimization
+- `package.json`: Updated with Vercel-specific build scripts
+- `.vercelignore`: Excludes unnecessary files from deployment
+
+#### Post-Deployment:
+1. **Update Supabase Settings**:
+   - Add Vercel domain to Supabase Auth URL allowlist
+   - Update CORS settings in Edge Functions if needed
+
+2. **Update Environment Variables**:
+   - Replace localhost URLs with your Vercel domain
+   - Update `SITE_URL` in Supabase Edge Functions
+
+3. **Custom Domain** (Optional):
+   - Add custom domain in Vercel dashboard
+   - Update DNS records as instructed
+   - Update environment variables with new domain
 
 ### Build Configuration
 - Uses Vite with performance optimizations (chunk splitting, compression)

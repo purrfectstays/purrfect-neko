@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Mail, Shield, FileText, Cookie, Heart } from 'lucide-react';
+import Logo from './Logo';
 
 const Footer: React.FC = () => {
   const { setCurrentStep } = useApp();
@@ -28,29 +29,7 @@ const Footer: React.FC = () => {
           
           {/* Brand Section */}
           <div className="md:col-span-2">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-amber-100 to-amber-50 p-1 shadow-lg">
-                <img 
-                  src="https://i.ibb.co/Qp1NKwY/Purrfect-Stays.png" 
-                  alt="Purrfect Stays Logo" 
-                  className="w-full h-full object-contain rounded-lg"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent && !parent.querySelector('.fallback-logo')) {
-                      const fallback = document.createElement('div');
-                      fallback.className = 'fallback-logo w-full h-full flex items-center justify-center text-amber-800 text-xl font-bold rounded-lg bg-amber-100';
-                      fallback.textContent = '🏠🐱';
-                      parent.appendChild(fallback);
-                    }
-                  }}
-                />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-sacramento text-3xl text-white leading-tight text-shadow-custom">Purrfect Stays</span>
-              </div>
-            </div>
+            <Logo size="md" variant="full" className="mb-4" />
             <p className="font-manrope text-zinc-400 mb-6 max-w-md">
               Revolutionizing cattery bookings by connecting cat parents with premium catteries. 
               Join our early access community and help shape the future of cat care.

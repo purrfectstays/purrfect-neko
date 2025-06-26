@@ -1,174 +1,237 @@
 export interface QuizQuestion {
   id: string;
   question: string;
-  options: string[];
-  userType?: 'cat-parent' | 'cattery-owner' | 'both';
-  isQualifying?: boolean;
-  weight?: number;
+  type: 'multiple-choice' | 'range' | 'text';
+  options?: string[];
+  min?: number;
+  max?: number;
+  step?: number;
+  required: boolean;
 }
 
-// Following ScoreApp and Daniel Priestley principles:
-// 1. Questions that qualify leads
-// 2. Questions that educate about the value proposition
-// 3. Questions that create desire for the service
-// 4. One qualifying question to filter serious applicants
-
-export const quizQuestions: QuizQuestion[] = [
-  // Question 1: Universal qualifying question
+export const catParentQuestions: QuizQuestion[] = [
   {
-    id: "commitment_level",
-    question: "How committed are you to finding a premium cattery solution in the next 6 months?",
-    options: [
-      "Extremely committed - I need this urgently",
-      "Very committed - actively looking for solutions", 
-      "Somewhat committed - exploring options",
-      "Just browsing - not ready to commit yet"
-    ],
-    userType: "both",
-    isQualifying: true,
-    weight: 3
+    id: 'frequency',
+    question: 'How often do you need cattery services annually?',
+    type: 'multiple-choice',
+    options: ['1-2 times', '3-4 times', '5-8 times', 'More than 8 times'],
+    required: true
   },
-
-  // Question 2: For Cat Parents - Pain Point & Value
   {
-    id: "cat_parent_pain",
-    question: "What's your biggest frustration with current cattery options?",
+    id: 'challenge',
+    question: "What's your biggest challenge when booking catteries?",
+    type: 'multiple-choice',
     options: [
-      "Can't find availability when I need it",
-      "Lack of real-time updates about my cat's wellbeing",
-      "Limited premium facilities in my area", 
-      "Difficulty comparing quality and prices easily"
+      'Finding availability',
+      'Comparing prices',
+      'Reading reviews',
+      'Booking process complexity',
+      'Communication with owners'
     ],
-    userType: "cat-parent",
-    weight: 2
+    required: true
   },
-
-  // Question 3: For Cattery Owners - Business Challenge
   {
-    id: "cattery_owner_challenge", 
-    question: "What's your biggest challenge in growing your cattery business?",
-    options: [
-      "Not enough visibility to attract new clients",
-      "Manual booking system causing scheduling conflicts",
-      "Difficulty showcasing my premium services effectively",
-      "Competing with larger facilities on marketing"
-    ],
-    userType: "cattery-owner",
-    weight: 2
+    id: 'advance-booking',
+    question: 'How far in advance do you typically book?',
+    type: 'multiple-choice',
+    options: ['Same week', '1-2 weeks', '1 month', '2-3 months', '3+ months'],
+    required: true
   },
-
-  // Question 4: Cat Parent - Willingness to Pay for Premium
   {
-    id: "premium_value",
-    question: "How much would you pay EXTRA per day for a cattery that provides real-time photo updates and premium care?",
-    options: [
-      "$15-25 extra per day - peace of mind is priceless",
-      "$10-15 extra per day - worth it for quality",
-      "$5-10 extra per day - reasonable for premium service",
-      "I prefer the cheapest option available"
-    ],
-    userType: "cat-parent",
-    weight: 2
+    id: 'budget',
+    question: "What's your average budget per stay?",
+    type: 'multiple-choice',
+    options: ['Under $50', '$50-100', '$100-200', '$200-300', 'Over $300'],
+    required: true
   },
-
-  // Question 5: Cattery Owner - Revenue Opportunity
   {
-    id: "revenue_opportunity",
-    question: "How much additional monthly revenue would justify using a premium booking platform?",
+    id: 'pricing-tier-preference',
+    question: 'Which pricing tier would you be most interested in for a cattery booking platform?',
+    type: 'multiple-choice',
     options: [
-      "$2,000+ - ready to invest in serious growth",
-      "$1,000-2,000 - would significantly impact my business", 
-      "$500-1,000 - modest but worthwhile improvement",
-      "Any amount - I need more clients desperately"
+      '🐾 Truffle (Starter): FREE Forever - basic search & booking',
+      '🐾 Pepper (Growth): $3.99/month or $38/year (save $10) - advanced filters & priority',
+      '🐾 Chicken (Premium): $7.99/month or $77/year (save $19) - concierge service & premium features',
+      'I prefer pay-per-use instead of subscriptions',
+      'I only want completely free services'
     ],
-    userType: "cattery-owner", 
-    weight: 2
+    required: true
   },
-
-  // Question 6: Universal - Technology Adoption
   {
-    id: "technology_readiness",
-    question: "How do you feel about using innovative technology to solve cattery challenges?",
-    options: [
-      "I'm an early adopter - love trying new solutions",
-      "I embrace technology that clearly adds value",
-      "I'm cautious but open to proven solutions",
-      "I prefer traditional methods over new technology"
-    ],
-    userType: "both",
-    weight: 1
+    id: 'cat-count',
+    question: 'How many cats do you own?',
+    type: 'range',
+    min: 1,
+    max: 10,
+    step: 1,
+    required: true
   },
-
-  // Question 7: Cat Parent - Service Frequency  
   {
-    id: "usage_frequency",
-    question: "How often do you typically need cattery services?",
-    options: [
-      "Monthly or more - I travel frequently for work/leisure",
-      "Every 2-3 months - regular vacation traveler",
-      "2-4 times per year - seasonal travel",
-      "Rarely - only for emergencies"
-    ],
-    userType: "cat-parent",
-    weight: 2
+    id: 'special-needs',
+    question: 'Do any of your cats have special needs (medication, dietary requirements, etc.)?',
+    type: 'multiple-choice',
+    options: ['Yes, multiple cats', 'Yes, one cat', 'No, but interested in advanced care options', 'No special needs'],
+    required: true
   },
-
-  // Question 8: Cattery Owner - Growth Ambition
   {
-    id: "growth_ambition", 
-    question: "What's your primary goal for your cattery business?",
-    options: [
-      "Become the premium cattery leader in my region",
-      "Double my revenue within the next 12 months",
-      "Build a sustainable, profitable family business",
-      "Just maintain my current client base"
-    ],
-    userType: "cattery-owner",
-    weight: 2
+    id: 'booking-method',
+    question: "What's your preferred booking method?",
+    type: 'multiple-choice',
+    options: ['Mobile app', 'Website', 'Phone call', 'Email', 'Concierge service'],
+    required: true
   },
-
-  // Question 9: Universal - Early Access Value
   {
-    id: "early_access_value",
-    question: "Why is being among the first 50 users in your country important to you?",
+    id: 'annual-billing-preference',
+    question: 'Would you prefer annual billing to save money on premium features?',
+    type: 'multiple-choice',
     options: [
-      "I want to shape the platform and influence its development",
-      "Early access gives me a competitive advantage",
-      "I love being part of exclusive, innovative communities", 
-      "I'm not particularly interested in being first"
+      'Yes, annual billing for savings (Pepper: save $10/year, Chicken: save $19/year)',
+      'No, I prefer monthly billing for flexibility',
+      'I only want the free Truffle tier',
+      'I prefer pay-per-use instead',
+      'Depends on the exact savings amount'
     ],
-    userType: "both",
-    isQualifying: true,
-    weight: 2
+    required: true
   }
 ];
 
-// Scoring logic based on ScoreApp principles
-export const calculateQuizScore = (answers: Record<string, number>): { score: number; tier: string; qualified: boolean } => {
+export const catteryOwnerQuestions: QuizQuestion[] = [
+  {
+    id: 'capacity',
+    question: 'How many cats can you accommodate at maximum capacity?',
+    type: 'range',
+    min: 1,
+    max: 100,
+    step: 1,
+    required: true
+  },
+  {
+    id: 'booking-management',
+    question: 'How do you currently manage bookings?',
+    type: 'multiple-choice',
+    options: [
+      'Paper calendar/notebook',
+      'Basic digital calendar',
+      'Spreadsheet',
+      'Specialized software',
+      'Third-party platform'
+    ],
+    required: true
+  },
+  {
+    id: 'occupancy-rate',
+    question: "What's your average occupancy rate?",
+    type: 'multiple-choice',
+    options: ['Under 30%', '30-50%', '50-70%', '70-85%', 'Over 85%'],
+    required: true
+  },
+  {
+    id: 'main-challenge',
+    question: "What's your main business challenge?",
+    type: 'multiple-choice',
+    options: [
+      'Finding new customers',
+      'Managing bookings',
+      'Payment processing',
+      'Marketing',
+      'Seasonal fluctuations'
+    ],
+    required: true
+  },
+  {
+    id: 'pricing-tier-preference',
+    question: 'Which pricing tier would work best for your cattery business?',
+    type: 'multiple-choice',
+    options: [
+      '🐾 Truffle (Starter): $15/month or $144/year (save $36) - basic booking management',
+      '🐾 Pepper (Growth): $29/month or $278/year (save $70) - growth features & analytics',
+      '🐾 Chicken (Premium): $59/month or $566/year (save $142) - full marketing suite & premium support',
+      'I prefer pay-per-booking commission model',
+      'I need custom enterprise pricing'
+    ],
+    required: true
+  },
+  {
+    id: 'feature-interest',
+    question: 'How interested are you in premium business features? (1 = Not interested, 10 = Very interested)',
+    type: 'range',
+    min: 1,
+    max: 10,
+    step: 1,
+    required: true
+  },
+  {
+    id: 'marketing-spend',
+    question: 'How much do you currently spend on marketing monthly?',
+    type: 'multiple-choice',
+    options: ['Nothing', 'Under $50', '$50-150', '$150-300', 'Over $300'],
+    required: true
+  },
+  {
+    id: 'annual-billing-preference',
+    question: 'Would annual billing with significant savings appeal to you?',
+    type: 'multiple-choice',
+    options: [
+      'Yes, annual billing saves money (Truffle: save $36/year, Pepper: save $70/year, Chicken: save $142/year)',
+      'No, I prefer monthly billing for cash flow',
+      'I prefer commission-based pricing instead',
+      'Depends on the exact savings amount',
+      'I need to see the platform first'
+    ],
+    required: true
+  },
+  {
+    id: 'desired-features',
+    question: 'Which tier features would be most valuable for your business?',
+    type: 'multiple-choice',
+    options: [
+      'Truffle: Basic booking management & email notifications ($15/mo or $144/year)',
+      'Pepper: Priority listings, analytics & review management ($29/mo or $278/year)',
+      'Chicken: Full marketing suite, dedicated support & advanced reporting ($59/mo or $566/year)',
+      'Custom enterprise features beyond standard tiers',
+      'Simple, affordable solution is most important'
+    ],
+    required: true
+  },
+  {
+    id: 'years-in-business',
+    question: 'How many years have you been operating your cattery?',
+    type: 'multiple-choice',
+    options: ['Less than 1 year', '1-3 years', '3-5 years', '5-10 years', 'Over 10 years'],
+    required: true
+  }
+];
+
+// Scoring logic for the new quiz structure
+export const calculateQuizScore = (answers: Record<string, number>, userType: 'cat-parent' | 'cattery-owner' = 'cat-parent'): { score: number; tier: string; qualified: boolean } => {
   let totalScore = 0;
   let maxPossibleScore = 0;
+  const questions = userType === 'cat-parent' ? catParentQuestions : catteryOwnerQuestions;
 
-  quizQuestions.forEach(question => {
-    const answerIndex = answers[question.id];
-    const weight = question.weight || 1;
+  questions.forEach(question => {
+    const answerValue = answers[question.id];
     
-    if (answerIndex !== undefined) {
-      // Higher option index = higher score (last option is usually best)
-      const questionScore = answerIndex * weight;
-      totalScore += questionScore;
+    if (answerValue !== undefined) {
+      if (question.type === 'multiple-choice' && question.options) {
+        // For multiple choice, use the answer index
+        totalScore += answerValue;
+        maxPossibleScore += question.options.length - 1;
+      } else if (question.type === 'range') {
+        // For range questions, normalize to 0-3 scale
+        const normalized = ((answerValue - (question.min || 0)) / ((question.max || 10) - (question.min || 0))) * 3;
+        totalScore += normalized;
+        maxPossibleScore += 3;
+      }
     }
-    
-    // Max score is highest option index * weight
-    maxPossibleScore += (question.options.length - 1) * weight;
   });
 
-  const percentage = (totalScore / maxPossibleScore) * 100;
+  const percentage = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
   
-  // Tier classification following ScoreApp methodology
+  // Tier classification
   let tier: string;
   let qualified: boolean;
   
-  if (percentage >= 80) {
+  if (percentage >= 75) {
     tier = "Premium Prospect";
     qualified = true;
   } else if (percentage >= 60) {
@@ -187,5 +250,8 @@ export const calculateQuizScore = (answers: Record<string, number>): { score: nu
 
 // Get questions filtered by user type
 export const getQuizQuestionsForUser = (userType: 'cat-parent' | 'cattery-owner'): QuizQuestion[] => {
-  return quizQuestions.filter(q => q.userType === 'both' || q.userType === userType);
+  return userType === 'cat-parent' ? catParentQuestions : catteryOwnerQuestions;
 };
+
+// Legacy export for compatibility
+export const quizQuestions = [...catParentQuestions, ...catteryOwnerQuestions];

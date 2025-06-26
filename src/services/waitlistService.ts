@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { User } from '../types';
+import { GeolocationService, LocationData } from './geolocationService';
 
 export interface WaitlistUser {
   id: string;
@@ -10,6 +11,14 @@ export interface WaitlistUser {
   quiz_completed: boolean;
   waitlist_position: number | null;
   verification_token: string | null;
+  country?: string;
+  region?: string;
+  city?: string;
+  country_code?: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+  regional_position?: number;
   created_at: string;
   updated_at: string;
 }
@@ -107,6 +116,15 @@ export class WaitlistService {
       // Generate verification token
       const verificationToken = crypto.randomUUID();
 
+      // Get user location for regional tracking
+      let locationData: LocationData | null = null;
+      try {
+        locationData = await GeolocationService.getUserLocation();
+      } catch (error) {
+        console.warn('Failed to get user location:', error);
+        // Continue with registration even if geolocation fails
+      }
+
       // Insert user into database
       const { data, error } = await supabase
         .from('waitlist_users')
@@ -115,6 +133,13 @@ export class WaitlistService {
           email: userData.email,
           user_type: userData.userType,
           verification_token: verificationToken,
+          country: locationData?.country,
+          region: locationData?.region,
+          city: locationData?.city,
+          country_code: locationData?.countryCode,
+          latitude: locationData?.latitude,
+          longitude: locationData?.longitude,
+          timezone: locationData?.timezone,
         })
         .select()
         .single();

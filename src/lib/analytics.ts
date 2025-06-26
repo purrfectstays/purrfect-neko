@@ -232,5 +232,139 @@ export const analytics = {
       to_step,
       user_type
     });
+  },
+
+  // === MARKET RESEARCH & BUSINESS INTELLIGENCE TRACKING ===
+
+  // Detailed quiz response tracking for pricing insights
+  trackQuizResponse: (questionId: string, response: string | number, userType: string, questionIndex: number) => {
+    trackEvent('quiz_response', 'market_research', `${questionId}_${userType}`, typeof response === 'number' ? response : 1);
+    trackConversion('quiz_answer', {
+      question_id: questionId,
+      response_value: response,
+      user_type: userType,
+      question_number: questionIndex + 1,
+      response_type: typeof response
+    });
+  },
+
+  // Pricing tier preference tracking (CRITICAL for business strategy)
+  trackPricingPreference: (userType: string, selectedTier: string, monthlyPrice?: number) => {
+    trackEvent('pricing_preference', 'business_intelligence', `${userType}_${selectedTier}`);
+    trackConversion('pricing_insight', {
+      user_type: userType,
+      preferred_tier: selectedTier,
+      monthly_price: monthlyPrice,
+      tier_category: selectedTier.includes('FREE') ? 'free' : 
+                   selectedTier.includes('3.99') || selectedTier.includes('15') ? 'basic' :
+                   selectedTier.includes('7.99') || selectedTier.includes('29') ? 'growth' : 'premium'
+    });
+  },
+
+  // Geographic market insights
+  trackGeographicInsight: (country: string, region: string, userType: string, regionalPosition: number) => {
+    trackEvent('geographic_data', 'market_research', `${country}_${userType}`, regionalPosition);
+    trackConversion('market_penetration', {
+      country,
+      region,
+      user_type: userType,
+      regional_position: regionalPosition,
+      market_saturation: regionalPosition > 40 ? 'high' : regionalPosition > 20 ? 'medium' : 'low'
+    });
+  },
+
+  // Business model validation
+  trackBusinessModelInsight: (userType: string, frequency: string, budget: string, features: string[]) => {
+    trackEvent('business_model_data', 'product_strategy', `${userType}_${frequency}`);
+    trackConversion('market_validation', {
+      user_type: userType,
+      usage_frequency: frequency,
+      budget_range: budget,
+      desired_features: features.join(','),
+      market_segment: userType === 'cattery-owner' ? 'b2b' : 'b2c'
+    });
+  },
+
+  // Feature demand tracking
+  trackFeatureDemand: (feature: string, importance: number, userType: string, willingness_to_pay?: string) => {
+    trackEvent('feature_demand', 'product_development', `${feature}_${userType}`, importance);
+    trackConversion('feature_validation', {
+      feature_name: feature,
+      importance_score: importance,
+      user_type: userType,
+      willingness_to_pay,
+      demand_level: importance >= 8 ? 'high' : importance >= 6 ? 'medium' : 'low'
+    });
+  },
+
+  // Competitive analysis insights
+  trackCompetitiveInsight: (currentSolution: string, painPoint: string, userType: string) => {
+    trackEvent('competitive_intelligence', 'market_research', `${currentSolution}_${userType}`);
+    trackConversion('competitor_analysis', {
+      current_solution: currentSolution,
+      main_pain_point: painPoint,
+      user_type: userType,
+      opportunity_score: painPoint.includes('availability') ? 'high' : 
+                        painPoint.includes('price') ? 'medium' : 'low'
+    });
+  },
+
+  // Revenue opportunity tracking
+  trackRevenueOpportunity: (userType: string, currentSpend: string, potentialValue: number) => {
+    trackEvent('revenue_opportunity', 'business_intelligence', `${userType}_${currentSpend}`);
+    trackConversion('revenue_validation', {
+      user_type: userType,
+      current_spending: currentSpend,
+      potential_ltv: potentialValue,
+      revenue_tier: potentialValue > 1000 ? 'enterprise' : 
+                   potentialValue > 500 ? 'growth' : 'starter'
+    });
+  },
+
+  // Market timing insights
+  trackMarketTiming: (urgency: string, timeline: string, userType: string) => {
+    trackEvent('market_timing', 'strategy', `${urgency}_${userType}`);
+    trackConversion('timing_insight', {
+      urgency_level: urgency,
+      adoption_timeline: timeline,
+      user_type: userType,
+      market_readiness: urgency.includes('urgent') ? 'ready' : 'developing'
+    });
+  },
+
+  // User journey completion tracking
+  trackJourneyCompletion: (completionRate: number, userType: string, dropOffPoint?: string) => {
+    trackEvent('journey_completion', 'funnel_analysis', userType, Math.round(completionRate * 100));
+    trackConversion('journey_insight', {
+      completion_rate: completionRate,
+      user_type: userType,
+      drop_off_point: dropOffPoint,
+      journey_quality: completionRate > 0.8 ? 'excellent' : 
+                      completionRate > 0.6 ? 'good' : 'needs_improvement'
+    });
+  },
+
+  // Product-market fit indicators
+  trackProductMarketFit: (userType: string, satisfaction: number, likelyToRecommend: number) => {
+    trackEvent('product_market_fit', 'strategic_insights', userType, satisfaction);
+    trackConversion('pmf_indicator', {
+      user_type: userType,
+      satisfaction_score: satisfaction,
+      nps_score: likelyToRecommend,
+      pmf_signal: likelyToRecommend >= 9 ? 'promoter' : 
+                 likelyToRecommend >= 7 ? 'passive' : 'detractor'
+    });
+  },
+
+  // Churn risk assessment
+  trackChurnRisk: (userType: string, engagementLevel: string, timeToComplete: number) => {
+    trackEvent('churn_risk', 'retention_insights', `${userType}_${engagementLevel}`);
+    trackConversion('churn_indicator', {
+      user_type: userType,
+      engagement_level: engagementLevel,
+      completion_time: timeToComplete,
+      churn_risk: timeToComplete > 300 ? 'high' : 
+                 timeToComplete > 120 ? 'medium' : 'low'
+    });
   }
 };

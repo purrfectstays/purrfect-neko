@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Supabase (Edge Functions are handled separately)
+supabase/functions
+supabase/.temp
+supabase/config.toml
+
+# Development only
+src/**/*.test.ts
+src/**/*.spec.ts
+cypress
+__tests__
+.coverage
+
+# Build artifacts (keep dist for static hosting)
+.cache
