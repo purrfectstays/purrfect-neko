@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
       
       // Final secure fallback
       if (!siteUrl) {
-        siteUrl = 'https://purrfectstays.org';
+        siteUrl = 'https://purrfect-neko.vercel.app';
       }
     }
 
