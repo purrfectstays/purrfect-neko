@@ -1,10 +1,11 @@
 export interface User {
+  id: string;
   name: string;
   email: string;
   userType: 'cat-parent' | 'cattery-owner';
   isVerified: boolean;
   quizCompleted: boolean;
-  waitlistPosition?: number;
+  waitlistPosition?: number | null;
 }
 
 export interface QuizAnswer {

@@ -6,6 +6,7 @@ import RegistrationForm from './components/RegistrationForm';
 import EmailVerification from './components/EmailVerification';
 import QualificationQuizSecure from './components/QualificationQuizSecure';
 import VerifyEmail from './components/VerifyEmail';
+import EmailVerificationHandler from './components/EmailVerificationHandler';
 import SuccessPage from './components/SuccessPage';
 import ExploreCatteries from './components/ExploreCatteries';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
@@ -51,7 +52,7 @@ const AppContent: React.FC = () => {
       <Router>
         <Routes>
           {/* Email verification route */}
-          <Route path="/verify" element={<VerifyEmail />} />
+          <Route path="/verify" element={<EmailVerificationHandler />} />
           
           {/* Secure quiz route */}
           <Route path="/quiz" element={<QualificationQuizSecure />} />
