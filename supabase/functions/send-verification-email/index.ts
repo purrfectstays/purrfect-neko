@@ -725,14 +725,14 @@ function getEmailTemplate(name: string, verificationUrl: string, siteUrl: string
                     <tr>
                       <td align="center">
                         <div class="social-links" style="margin: 20px 0;">
-                          <a href="${siteUrl}/social/twitter" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 16px;">
-                            <img src="https://i.ibb.co/ZXvGKsL/twitter.png" alt="Twitter" width="16" height="16" style="display: inline-block; vertical-align: middle;">
+                          <a href="${siteUrl}/social/twitter" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 14px;">
+                            𝕏
                           </a>
-                          <a href="${siteUrl}/social/facebook" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 16px;">
-                            <img src="https://i.ibb.co/9H3d0zk/facebook.png" alt="Facebook" width="16" height="16" style="display: inline-block; vertical-align: middle;">
+                          <a href="${siteUrl}/social/facebook" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 14px;">
+                            f
                           </a>
-                          <a href="${siteUrl}/social/instagram" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 16px;">
-                            <img src="https://i.ibb.co/C5ZssMJ/instagram.png" alt="Instagram" width="16" height="16" style="display: inline-block; vertical-align: middle;">
+                          <a href="${siteUrl}/social/instagram" class="social-link" style="display: inline-block; margin: 0 8px; width: 32px; height: 32px; background: #334155; border-radius: 50%; line-height: 32px; text-align: center; color: white; text-decoration: none; font-size: 14px;">
+                            📷
                           </a>
                         </div>
                       </td>
