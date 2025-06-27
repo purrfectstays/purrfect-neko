@@ -290,7 +290,7 @@ const RegistrationForm: React.FC = () => {
                       🎯 Early Access Special: Help Shape Our Platform
                     </h4>
                     <ul className="font-manrope text-sm text-zinc-300 space-y-1">
-                      <li>• <strong>Limited Offer:</strong> Only 150 early access spots available</li>
+                      <li>• <strong>Limited Offer:</strong> {waitlistData ? `${waitlistData.remainingSpots} spots remaining in ${waitlistData.country}` : 'Limited spots available by country'}</li>
                       <li>• <strong>Shape the platform</strong> - Your input determines features and pricing</li>
                       <li>• <strong>Exclusive to early access members</strong> - Never offered again</li>
                     </ul>

@@ -214,7 +214,7 @@ const ValueProposition: React.FC = () => {
                     <h5 className="font-manrope font-bold text-white">🎯 Shape the Platform</h5>
                     <span className="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-bold">LIMITED</span>
                   </div>
-                  <p className="text-amber-200 text-sm">Only 150 early access spots • Help determine pricing and features • Full platform access included</p>
+                  <p className="text-amber-200 text-sm">Limited spots available by country • Help determine pricing and features • Full platform access included</p>
                 </div>
                 
                 <div className="text-center">
