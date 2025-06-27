@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import LandingPage from './components/LandingPage';
 import RegistrationForm from './components/RegistrationForm';
@@ -20,6 +20,64 @@ import { initGA, trackPageView } from './lib/analytics';
 import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
 import { env } from './lib/environment';
+
+const HomeHandler: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const { currentStep } = useApp();
+  const token = searchParams.get('token');
+  
+  // If there's a token parameter, redirect to verification
+  if (token) {
+    window.location.href = `/verify?token=${token}`;
+    return <div>Redirecting...</div>;
+  }
+  
+  function renderCurrentStep() {
+    switch (currentStep) {
+      case 'landing':
+        return (
+          <>
+            <LandingPage />
+            <Footer />
+          </>
+        );
+      case 'registration':
+        return <RegistrationForm />;
+      case 'verification':
+        return <EmailVerification />;
+      case 'quiz':
+        return <QualificationQuizSecure />;
+      case 'success':
+        return <SuccessPage />;
+      case 'explore-catteries':
+        return <ExploreCatteries />;
+      case 'privacy':
+        return <PrivacyPolicy />;
+      case 'terms':
+        return <TermsOfService />;
+      case 'cookies':
+        return <CookiePolicy />;
+      case 'testing':
+        return <TestingDashboard />;
+      case 'github':
+        return <GitHubIntegration />;
+      default:
+        return (
+          <>
+            <LandingPage />
+            <Footer />
+          </>
+        );
+    }
+  }
+  
+  return (
+    <>
+      {renderCurrentStep()}
+      <ChatbotSupport />
+    </>
+  );
+};
 
 const AppContent: React.FC = () => {
   const { currentStep } = useApp();
@@ -65,12 +123,7 @@ const AppContent: React.FC = () => {
           <Route path="/cookies" element={<CookiePolicy />} />
           
           {/* Main app routes */}
-          <Route path="/" element={
-            <>
-              {renderCurrentStep()}
-              <ChatbotSupport />
-            </>
-          } />
+          <Route path="/" element={<HomeHandler />} />
           
           {/* Catch-all redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -78,45 +131,6 @@ const AppContent: React.FC = () => {
       </Router>
     </ErrorBoundary>
   );
-
-  function renderCurrentStep() {
-    switch (currentStep) {
-      case 'landing':
-        return (
-          <>
-            <LandingPage />
-            <Footer />
-          </>
-        );
-      case 'registration':
-        return <RegistrationForm />;
-      case 'verification':
-        return <EmailVerification />;
-      case 'quiz':
-        return <QualificationQuizSecure />;
-      case 'success':
-        return <SuccessPage />;
-      case 'explore-catteries':
-        return <ExploreCatteries />;
-      case 'privacy':
-        return <PrivacyPolicy />;
-      case 'terms':
-        return <TermsOfService />;
-      case 'cookies':
-        return <CookiePolicy />;
-      case 'testing':
-        return <TestingDashboard />;
-      case 'github':
-        return <GitHubIntegration />;
-      default:
-        return (
-          <>
-            <LandingPage />
-            <Footer />
-          </>
-        );
-    }
-  }
 };
 
 function App() {
