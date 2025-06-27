@@ -12,7 +12,7 @@
   ],
   "routes": [
     {
-      "src": "/verify",
+      "src": "/verify(.*)",
       "dest": "/index.html"
     },
     {
