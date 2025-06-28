@@ -366,5 +366,15 @@ export const analytics = {
       churn_risk: timeToComplete > 300 ? 'high' : 
                  timeToComplete > 120 ? 'medium' : 'low'
     });
+  },
+
+  // Basic event tracking method (required by useBehaviorTracking)
+  trackEvent: (action: string, category: string, label?: string, value?: number) => {
+    trackEvent(action, category, label, value);
+  },
+
+  // Basic conversion tracking method (required by useBehaviorTracking)
+  trackConversion: (event_name: string, parameters?: Record<string, unknown>) => {
+    trackConversion(event_name, parameters);
   }
 };
