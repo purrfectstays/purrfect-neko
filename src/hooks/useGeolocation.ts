@@ -12,7 +12,7 @@ interface UseGeolocationReturn {
 export const useGeolocation = (): UseGeolocationReturn => {
   const [location, setLocation] = useState<LocationData | null>(null);
   const [waitlistData, setWaitlistData] = useState<RegionalWaitlistData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchLocationData = async () => {
@@ -36,9 +36,11 @@ export const useGeolocation = (): UseGeolocationReturn => {
     }
   };
 
-  useEffect(() => {
-    fetchLocationData();
-  }, []);
+  // Don't auto-fetch on mount to avoid permission dialogs and errors
+  // Users can manually trigger via refetch()
+  // useEffect(() => {
+  //   fetchLocationData();
+  // }, []);
 
   const refetch = () => {
     fetchLocationData();

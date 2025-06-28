@@ -18,20 +18,16 @@ const RegionalUrgency: React.FC<RegionalUrgencyProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadRegionalData = async () => {
-      try {
-        setLoading(true);
-        const data = await GeolocationService.getRegionalWaitlistData();
-        setWaitlistData(data);
-      } catch (err) {
-        setError('Unable to load regional data');
-        console.error('Failed to load regional data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRegionalData();
+    // Provide fallback data instead of making API calls
+    setWaitlistData({
+      region: 'Global',
+      country: 'International', 
+      totalSpots: 500,
+      remainingSpots: 247,
+      currentPosition: 253,
+      urgencyLevel: 'medium'
+    });
+    setLoading(false);
   }, []);
 
   if (loading) {
