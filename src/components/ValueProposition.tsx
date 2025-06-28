@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Calendar, DollarSign, Users, BarChart3, Zap, Shield, Star, Clock, TrendingUp, MapPin, Crown, Heart, Sparkles } from 'lucide-react';
+import { Search, Calendar, Users, BarChart3, Zap, Shield, Star, Clock, TrendingUp, MapPin } from 'lucide-react';
 
 const ValueProposition: React.FC = () => {
   const catParentBenefits = [

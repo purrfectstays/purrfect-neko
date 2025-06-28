@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { User } from '../types';
+// import { User } from '../types';
 import { GeolocationService, LocationData } from './geolocationService';
 
 export interface WaitlistUser {

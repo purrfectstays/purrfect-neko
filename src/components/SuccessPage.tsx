@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Users, MapPin, Calendar } from 'lucide-react';
+import { CheckCircle, Calendar } from 'lucide-react';
 import RegionalUrgency from './RegionalUrgency';
 
 const SuccessPage: React.FC = () => {

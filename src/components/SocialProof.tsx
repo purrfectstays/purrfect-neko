@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, TrendingUp, Shield, Users, Star, Clock, Crown } from 'lucide-react';
+import { TrendingUp, Shield, Users, Star, Crown } from 'lucide-react';
 import CountdownTimer from './CountdownTimer';
 
 const SocialProof: React.FC = () => {

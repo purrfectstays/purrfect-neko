@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { WaitlistService } from '../services/waitlistService';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -16,7 +16,7 @@ const CountdownTimer: React.FC = () => {
     verifiedUsers: 0,
     completedQuizzes: 0
   });
-  const [isOffline, setIsOffline] = useState(!isSupabaseConfigured);
+  const [, setIsOffline] = useState(!isSupabaseConfigured);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'offline' | 'error' | 'connecting' | 'cors-error'>('connecting');
   const [retryCount, setRetryCount] = useState(0);
   const [lastSuccessfulFetch, setLastSuccessfulFetch] = useState<Date | null>(null);
@@ -86,7 +86,7 @@ const CountdownTimer: React.FC = () => {
           setCorsErrorDetected(false);
           setLastSuccessfulFetch(new Date());
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Only handle errors if component is still mounted
         if (!isMounted) return;
 

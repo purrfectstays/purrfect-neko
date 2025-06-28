@@ -13,7 +13,7 @@ const RegistrationForm: React.FC = () => {
   const { location, waitlistData } = useGeolocation();
   
   // Track registration form behavior for optimization
-  const { trackFormSubmission, trackCustomEvent } = useBehaviorTracking('registration_form', {
+  const { trackFormSubmission } = useBehaviorTracking('registration_form', {
     trackScrollDepth: false,
     trackTimeOnPage: true,
     trackClickHeatmap: true,

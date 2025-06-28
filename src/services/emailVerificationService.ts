@@ -54,7 +54,7 @@ export class EmailVerificationService {
       }
 
       // Send verification email via edge function
-      const { data, error: emailError } = await supabase.functions.invoke('send-verification-email', {
+      const { error: emailError } = await supabase.functions.invoke('send-verification-email', {
         body: {
           email,
           name,
