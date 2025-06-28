@@ -135,26 +135,30 @@ const AppContent: React.FC = () => {
 
 function App() {
   useEffect(() => {
-    // Initialize Google Analytics
-    if (env.gaMeasurementId) {
-      initGA();
-    }
+    try {
+      // Initialize Google Analytics
+      if (env.gaMeasurementId) {
+        initGA();
+      }
 
-    // Initialize monitoring
-    monitoring.trackUserAction('app_initialized', {
-      version: '1.0.0',
-      environment: env.nodeEnv,
-      hasAnalytics: !!env.gaMeasurementId,
-      hasEmailService: !!env.resendApiKey,
-    });
-
-    // Log app initialization (safe for production)
-    if (env.isDevelopment) {
-      console.log('Purrfect Stays App Initialized', {
+      // Initialize monitoring
+      monitoring.trackUserAction('app_initialized', {
         version: '1.0.0',
         environment: env.nodeEnv,
-        timestamp: new Date().toISOString(),
+        hasAnalytics: !!env.gaMeasurementId,
+        hasEmailService: !!env.resendApiKey,
       });
+
+      // Log app initialization (safe for production)
+      if (env.isDevelopment) {
+        console.log('Purrfect Stays App Initialized', {
+          version: '1.0.0',
+          environment: env.nodeEnv,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+      console.error('App initialization error:', error);
     }
   }, []);
 

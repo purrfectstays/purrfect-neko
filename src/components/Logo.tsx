@@ -10,11 +10,6 @@ const Logo: React.FC<LogoProps> = ({
   className = '', 
   size = 'md',
 }) => {
-  const sizeClasses = {
-    sm: size === 'sm' ? 'h-10' : 'h-12',
-    md: size === 'md' ? 'h-16' : 'h-16', 
-    lg: size === 'lg' ? 'h-20' : 'h-20'
-  };
 
   const textSizes = {
     sm: 'text-xl',
