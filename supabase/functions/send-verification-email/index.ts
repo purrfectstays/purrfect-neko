@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
     // Fetch logo for email attachment
     let logoAttachment = null;
     try {
-      const logoUrl = `${siteUrl}/logo.png`;
+      const logoUrl = `${siteUrl}/logo-email.png`;
       console.log('📷 Fetching logo from:', logoUrl);
       
       const logoResponse = await fetch(logoUrl, {
