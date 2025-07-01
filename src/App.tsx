@@ -110,6 +110,9 @@ const AppContent: React.FC = () => {
           {/* Secure quiz route */}
           <Route path="/quiz" element={<QualificationQuizSecure />} />
           
+          {/* Success page route */}
+          <Route path="/success" element={<SuccessPage />} />
+          
           
           {/* Legal pages routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />

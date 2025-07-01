@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { getQuizQuestionsForUser, calculateQuizScore, QuizQuestion } from '../data/quizQuestions';
 import { WaitlistService } from '../services/waitlistService';
@@ -6,6 +7,7 @@ import { analytics } from '../lib/analytics';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
 const QualificationQuizSecure: React.FC = () => {
+  const navigate = useNavigate();
   const { user, setCurrentStep, setUser } = useApp();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -177,15 +179,20 @@ const QualificationQuizSecure: React.FC = () => {
     console.log('✅ User ID found:', user.id);
     console.log('📋 Quiz answers:', answers);
     
-    // Rate limiting check
+    // Rate limiting check (bypass in development)
+    const isDevelopment = import.meta.env.DEV;
     const clientId = RateLimiter.getClientIdentifier();
     const rateLimitResult = rateLimiter.isAllowed(clientId, 'quiz_submission');
     
-    if (!rateLimitResult.allowed) {
+    if (!rateLimitResult.allowed && !isDevelopment) {
       const minutes = Math.ceil((rateLimitResult.retryAfter || 0) / 60);
       console.warn('🚫 Rate limited');
       alert(`Too many quiz submission attempts. Please try again in ${minutes} minutes.`);
       return;
+    }
+    
+    if (isDevelopment && !rateLimitResult.allowed) {
+      console.log('🛠️ Development mode: Bypassing rate limit');
     }
     
     setIsSubmitting(true);
@@ -219,7 +226,7 @@ const QualificationQuizSecure: React.FC = () => {
 
       console.log('🎉 Navigating to success page...');
       // Proceed to success page
-      setCurrentStep('success');
+      navigate('/success');
       console.log('✅ Navigation completed');
     } catch (error) {
       console.error('❌ Quiz submission failed:', error);
@@ -353,7 +360,7 @@ const QualificationQuizSecure: React.FC = () => {
           {isLastQuestion ? (
             <button
               onClick={handleSubmit}
-              disabled={currentQuestion.required && answers[currentQuestion.id] === undefined || isSubmitting}
+              disabled={(currentQuestion.required && answers[currentQuestion.id] === undefined) || isSubmitting}
               className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold"
             >
               {isSubmitting ? 'Submitting...' : 'Complete Quiz'}

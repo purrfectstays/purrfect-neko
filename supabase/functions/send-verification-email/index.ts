@@ -97,13 +97,19 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Use production domain for email links and assets
-    let siteUrl = 'https://purrfectstays.org';
+    // Use correct domain for email links and assets
+    let siteUrl = 'https://purrfectstays.vercel.app'; // Use actual deployed domain
     
-    // Only allow localhost for development
+    // Allow localhost for development
     const origin = req.headers.get('origin');
     if (origin && origin.includes('localhost')) {
       siteUrl = origin;
+    }
+    
+    // Fallback to SITE_URL environment variable if set
+    const envSiteUrl = Deno.env.get('SITE_URL');
+    if (envSiteUrl && !origin?.includes('localhost')) {
+      siteUrl = envSiteUrl;
     }
 
     // Parse and validate request body
@@ -151,12 +157,24 @@ Deno.serve(async (req) => {
     // Fetch logo for email attachment
     let logoAttachment = null;
     try {
-      console.log('📷 Fetching logo from:', `${siteUrl}/logo.png`);
-      const logoResponse = await fetch(`${siteUrl}/logo.png`);
+      const logoUrl = `${siteUrl}/logo.png`;
+      console.log('📷 Fetching logo from:', logoUrl);
       
-      if (logoResponse.ok) {
+      const logoResponse = await fetch(logoUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Purrfect-Stays-Email-Service/1.0',
+        },
+      });
+      
+      if (logoResponse.ok && logoResponse.status === 200) {
         console.log('✅ Logo fetch successful, converting to base64...');
         const logoBuffer = await logoResponse.arrayBuffer();
+        
+        // Verify we have valid image data
+        if (logoBuffer.byteLength === 0) {
+          throw new Error('Empty logo file received');
+        }
         
         // More robust base64 encoding for Deno
         const logoUint8Array = new Uint8Array(logoBuffer);
@@ -174,11 +192,13 @@ Deno.serve(async (req) => {
         };
         console.log('✅ Logo attachment prepared, size:', logoBase64.length, 'characters');
       } else {
-        console.warn('⚠️ Logo fetch failed:', logoResponse.status, logoResponse.statusText);
+        console.warn('⚠️ Logo fetch failed:', logoResponse.status, logoResponse.statusText, 'URL:', logoUrl);
+        console.warn('⚠️ Response headers:', Object.fromEntries(logoResponse.headers.entries()));
       }
     } catch (error) {
-      console.error('❌ Failed to fetch logo for email attachment:', error);
-      // Continue without logo attachment
+      console.error('❌ Failed to fetch logo for email attachment from:', `${siteUrl}/logo.png`);
+      console.error('❌ Error details:', error);
+      // Continue without logo attachment - email will still send but without logo
     }
 
     // Send email using the production domain

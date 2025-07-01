@@ -1,8 +1,47 @@
-import React from 'react';
-import { CheckCircle, Calendar } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle, Calendar, Share2, Copy, Check } from 'lucide-react';
 import RegionalUrgency from './RegionalUrgency';
 
 const SuccessPage: React.FC = () => {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Purrfect Stays - The Ultimate Cattery Booking Platform',
+      text: 'I just joined the waitlist for Purrfect Stays, the revolutionary platform connecting cat parents with premium catteries! 🐱✨',
+      url: window.location.origin
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: open Twitter share dialog
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`;
+        window.open(twitterUrl, '_blank');
+      }
+    } catch (error) {
+      console.log('Share cancelled or failed');
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.origin);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = window.location.origin;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
   return (
     <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
@@ -82,11 +121,19 @@ const SuccessPage: React.FC = () => {
           </p>
           
           <div className="flex justify-center space-x-4">
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
-              Share on Social Media
+            <button 
+              onClick={handleShare}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Share on Social Media</span>
             </button>
-            <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors">
-              Copy Referral Link
+            <button 
+              onClick={handleCopyLink}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              <span>{copied ? 'Copied!' : 'Copy Referral Link'}</span>
             </button>
           </div>
         </div>
