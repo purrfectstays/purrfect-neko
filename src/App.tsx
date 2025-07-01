@@ -11,11 +11,10 @@ import ExploreCatteries from './components/ExploreCatteries';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
 import TermsOfService from './components/legal/TermsOfService';
 import CookiePolicy from './components/legal/CookiePolicy';
-import TestingDashboard from './components/TestingDashboard';
 import ChatbotSupport from './components/ChatbotSupport';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
-import GitHubIntegration from './components/GitHubIntegration';
+import LaunchReadinessTest from './components/LaunchReadinessTest';
 import { initGA, trackPageView } from './lib/analytics';
 import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
@@ -57,10 +56,8 @@ const HomeHandler: React.FC = () => {
         return <TermsOfService />;
       case 'cookies':
         return <CookiePolicy />;
-      case 'testing':
-        return <TestingDashboard />;
-      case 'github':
-        return <GitHubIntegration />;
+      case 'launch-test':
+        return <LaunchReadinessTest />;
       default:
         return (
           <>
@@ -97,8 +94,7 @@ const AppContent: React.FC = () => {
       privacy: 'Privacy Policy',
       terms: 'Terms of Service',
       cookies: 'Cookie Policy',
-      testing: 'Testing Dashboard',
-      github: 'GitHub Integration'
+      'launch-test': 'Launch Readiness Test',
     };
 
     trackPageView(pageNames[currentStep as keyof typeof pageNames] || 'Unknown Page');
@@ -114,13 +110,14 @@ const AppContent: React.FC = () => {
           {/* Secure quiz route */}
           <Route path="/quiz" element={<QualificationQuizSecure />} />
           
-          {/* GitHub integration route */}
-          <Route path="/github" element={<GitHubIntegration />} />
           
           {/* Legal pages routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+          
+          {/* Testing routes */}
+          <Route path="/launch-test" element={<LaunchReadinessTest />} />
           
           {/* Main app routes */}
           <Route path="/" element={<HomeHandler />} />

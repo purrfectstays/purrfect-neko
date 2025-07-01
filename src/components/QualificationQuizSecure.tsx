@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { getQuizQuestionsForUser, calculateQuizScore, QuizQuestion } from '../data/quizQuestions';
 import { WaitlistService } from '../services/waitlistService';
 import { analytics } from '../lib/analytics';
+import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
 const QualificationQuizSecure: React.FC = () => {
   const { user, setCurrentStep, setUser } = useApp();
@@ -19,8 +20,15 @@ const QualificationQuizSecure: React.FC = () => {
       if (storedUser) {
         try {
           const userData = JSON.parse(storedUser);
-          setUser(userData);
-          console.log('Loaded user from localStorage:', userData);
+          
+          // Verify the user data is valid and verified
+          if (userData && userData.isVerified && userData.id && userData.email) {
+            setUser(userData);
+            console.log('✅ Loaded verified user from localStorage:', userData);
+          } else {
+            console.warn('⚠️ Invalid or unverified user data in localStorage, clearing...');
+            localStorage.removeItem('purrfect_verified_user');
+          }
         } catch (error) {
           console.error('Failed to parse stored user data:', error);
           localStorage.removeItem('purrfect_verified_user');
@@ -52,6 +60,10 @@ const QualificationQuizSecure: React.FC = () => {
   }
 
   if (!user || !user.isVerified) {
+    console.log('🚫 Quiz access denied. User data:', user);
+    console.log('🔍 User verification status:', user?.isVerified);
+    console.log('🔍 LocalStorage data:', localStorage.getItem('purrfect_verified_user'));
+    
     return (
       <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
         <div className="text-center text-white">
@@ -154,10 +166,31 @@ const QualificationQuizSecure: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!user?.id) return;
+    console.log('🎯 Quiz submission started...');
+    
+    if (!user?.id) {
+      console.error('❌ No user ID found');
+      alert('User session not found. Please refresh the page and try again.');
+      return;
+    }
+    
+    console.log('✅ User ID found:', user.id);
+    console.log('📋 Quiz answers:', answers);
+    
+    // Rate limiting check
+    const clientId = RateLimiter.getClientIdentifier();
+    const rateLimitResult = rateLimiter.isAllowed(clientId, 'quiz_submission');
+    
+    if (!rateLimitResult.allowed) {
+      const minutes = Math.ceil((rateLimitResult.retryAfter || 0) / 60);
+      console.warn('🚫 Rate limited');
+      alert(`Too many quiz submission attempts. Please try again in ${minutes} minutes.`);
+      return;
+    }
     
     setIsSubmitting(true);
     try {
+      console.log('📊 Calculating quiz score...');
       // Calculate score
       calculateQuizScore(answers, user.userType);
       
@@ -167,24 +200,35 @@ const QualificationQuizSecure: React.FC = () => {
         answer: answerIndex.toString()
       }));
 
+      console.log('📤 Submitting quiz responses:', quizResponses);
       // Submit quiz responses
       const result = await WaitlistService.submitQuizResponses(user.id, quizResponses);
+      console.log('✅ Quiz submission successful:', result);
       
       // Update user state
-      setUser({
+      const updatedUser = {
         ...user,
         quizCompleted: true,
         waitlistPosition: result.waitlistPosition
-      });
+      };
+      console.log('👤 Updating user state:', updatedUser);
+      setUser(updatedUser);
 
       // Clean up localStorage since quiz is completed
       localStorage.removeItem('purrfect_verified_user');
 
+      console.log('🎉 Navigating to success page...');
       // Proceed to success page
       setCurrentStep('success');
+      console.log('✅ Navigation completed');
     } catch (error) {
-      console.error('Failed to submit quiz:', error);
-      // Handle error - maybe show a toast or error message
+      console.error('❌ Quiz submission failed:', error);
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        alert(`Quiz submission failed: ${error.message}\n\nPlease try again or contact support if the problem persists.`);
+      } else {
+        alert('Quiz submission failed. Please try again or contact support if the problem persists.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -309,7 +353,7 @@ const QualificationQuizSecure: React.FC = () => {
           {isLastQuestion ? (
             <button
               onClick={handleSubmit}
-              disabled={answers[currentQuestion.id] === undefined || isSubmitting}
+              disabled={currentQuestion.required && answers[currentQuestion.id] === undefined || isSubmitting}
               className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold"
             >
               {isSubmitting ? 'Submitting...' : 'Complete Quiz'}
@@ -317,7 +361,7 @@ const QualificationQuizSecure: React.FC = () => {
           ) : (
             <button
               onClick={handleNext}
-              disabled={answers[currentQuestion.id] === undefined}
+              disabled={currentQuestion.required && answers[currentQuestion.id] === undefined}
               className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next

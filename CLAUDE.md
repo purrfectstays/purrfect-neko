@@ -132,6 +132,39 @@ This project is configured for seamless deployment on Vercel with GitHub integra
 - Welcome emails triggered after quiz completion
 - Uses Resend API with custom email templates
 
+## MCP (Model Context Protocol) Integration
+
+This project now includes comprehensive MCP server configurations to enhance AI-assisted development workflows.
+
+### Available MCP Servers
+
+**Critical Priority MCPs:**
+- **Supabase MCP**: Database operations, Edge Functions, schema management
+- **GitHub MCP**: Development workflow, issue tracking, repository management  
+- **Vercel MCP**: Deployment monitoring, configuration management
+- **Resend MCP**: Email deliverability debugging, template management
+
+**Secondary Priority MCPs:**
+- **Google Analytics MCP**: Conversion tracking, user behavior analysis
+- **Linear MCP**: Project management, feature tracking
+- **Sentry MCP**: Error tracking, performance monitoring
+
+### Setup Instructions
+
+1. **Configuration**: See `.mcp/mcp-config.json` for server configurations
+2. **Setup Guide**: Follow detailed instructions in `.mcp/setup.md`
+3. **Security**: Replace placeholder tokens with actual API keys
+4. **AI Tool Integration**: Import configuration into Claude Desktop, Cursor, or other compatible tools
+
+### Benefits
+
+With MCP integration, you can:
+- Query Supabase database through natural language
+- Manage GitHub issues and PRs conversationally
+- Monitor Vercel deployments and debug configurations
+- Analyze email deliverability and manage templates
+- Track project progress and analyze user behavior
+
 ## Working with This Codebase
 
 - **Adding new components**: Follow existing patterns in `src/components/`

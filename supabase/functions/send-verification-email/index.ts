@@ -97,8 +97,8 @@ Deno.serve(async (req) => {
       )
     }
 
-    // FORCE: Use working Vercel domain due to SSL issues with custom domain
-    let siteUrl = 'https://purrfect-neko.vercel.app';
+    // Use production domain for email links and assets
+    let siteUrl = 'https://purrfectstays.org';
     
     // Only allow localhost for development
     const origin = req.headers.get('origin');
@@ -148,14 +148,54 @@ Deno.serve(async (req) => {
     console.log('Sending verification email to:', email);
     console.log('Verification URL:', verificationUrl);
 
+    // Fetch logo for email attachment
+    let logoAttachment = null;
+    try {
+      console.log('📷 Fetching logo from:', `${siteUrl}/logo.png`);
+      const logoResponse = await fetch(`${siteUrl}/logo.png`);
+      
+      if (logoResponse.ok) {
+        console.log('✅ Logo fetch successful, converting to base64...');
+        const logoBuffer = await logoResponse.arrayBuffer();
+        
+        // More robust base64 encoding for Deno
+        const logoUint8Array = new Uint8Array(logoBuffer);
+        let binaryString = '';
+        for (let i = 0; i < logoUint8Array.length; i++) {
+          binaryString += String.fromCharCode(logoUint8Array[i]);
+        }
+        const logoBase64 = btoa(binaryString);
+        
+        logoAttachment = {
+          filename: 'logo.png',
+          content: logoBase64,
+          cid: 'logo',
+          contentType: 'image/png'
+        };
+        console.log('✅ Logo attachment prepared, size:', logoBase64.length, 'characters');
+      } else {
+        console.warn('⚠️ Logo fetch failed:', logoResponse.status, logoResponse.statusText);
+      }
+    } catch (error) {
+      console.error('❌ Failed to fetch logo for email attachment:', error);
+      // Continue without logo attachment
+    }
+
     // Send email using the production domain
     const fromAddress = 'Purrfect Stays <hello@purrfectstays.org>';
-    const emailResult = await resend.emails.send({
+    const emailPayload: any = {
       from: fromAddress,
       to: [email],
       subject: '🚀 Verify Your Email - Purrfect Stays Early Access',
       html: getEmailTemplate(name, verificationUrl, siteUrl, email, userType),
-    });
+    };
+
+    // Add logo attachment if available
+    if (logoAttachment) {
+      emailPayload.attachments = [logoAttachment];
+    }
+
+    const emailResult = await resend.emails.send(emailPayload);
     
     if (emailResult.error) {
       throw new Error(`Email sending failed: ${emailResult.error.message}`);
@@ -556,7 +596,7 @@ function getEmailTemplate(name: string, verificationUrl: string, siteUrl: string
                       <tr>
                         <td align="center">
                           <div class="logo" style="width: 80px; height: 80px; margin: 0 auto 16px; background: white; border-radius: 16px; padding: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
-                            <img src="${siteUrl}/logo.png" alt="Purrfect Stays Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+                            <img src="cid:logo" alt="Purrfect Stays Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
                           </div>
                         </td>
                       </tr>
@@ -690,7 +730,7 @@ function getEmailTemplate(name: string, verificationUrl: string, siteUrl: string
                     <tr>
                       <td align="center">
                         <div style="width: 40px; height: 40px; background: white; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 16px; padding: 4px;">
-                          <img src="${siteUrl}/logo.png" alt="Purrfect Stays" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
+                          <img src="cid:logo" alt="Purrfect Stays" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
                         </div>
                       </td>
                     </tr>

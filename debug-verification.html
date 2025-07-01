@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Verification</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #fff; }
+        .step { margin: 10px 0; padding: 10px; background: #333; border-radius: 5px; }
+        .success { background: #2d5016; }
+        .error { background: #5d1616; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>Email Verification Debug Tool</h1>
+    
+    <div class="step">
+        <h3>Step 1: Test Database Connection</h3>
+        <button onclick="testConnection()">Test Supabase Connection</button>
+        <div id="connection-result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 2: Register Test User</h3>
+        <input type="text" id="test-name" placeholder="Test Name" value="Test User">
+        <input type="email" id="test-email" placeholder="test@example.com" value="test@example.com">
+        <select id="test-usertype">
+            <option value="cat-parent">Cat Parent</option>
+            <option value="cattery-owner">Cattery Owner</option>
+        </select>
+        <button onclick="registerTestUser()">Register Test User</button>
+        <div id="register-result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 3: Test Verification</h3>
+        <input type="text" id="verify-token" placeholder="Verification Token">
+        <button onclick="testVerification()">Test Verification</button>
+        <div id="verify-result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 4: List All Users</h3>
+        <button onclick="listUsers()">List All Waitlist Users</button>
+        <div id="users-result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 5: Create User for App Testing</h3>
+        <input type="text" id="app-name" placeholder="App Test User" value="App Test User">
+        <input type="email" id="app-email" placeholder="apptest@example.com" value="apptest@example.com">
+        <select id="app-usertype">
+            <option value="cat-parent">Cat Parent</option>
+            <option value="cattery-owner">Cattery Owner</option>
+        </select>
+        <button onclick="createUserForAppTest()">Create User (Don't Verify)</button>
+        <div id="app-result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 5b: Test Complete Registration Flow</h3>
+        <input type="text" id="flow-name" placeholder="Flow Test User" value="Flow Test User">
+        <input type="email" id="flow-email" placeholder="flowtest@example.com" value="flowtest@example.com">
+        <select id="flow-usertype">
+            <option value="cat-parent">Cat Parent</option>
+            <option value="cattery-owner">Cattery Owner</option>
+        </select>
+        <button onclick="testFullRegistrationFlow()">Test Full Registration Flow</button>
+        <div id="flow-result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 6: Database Cleanup</h3>
+        <button onclick="cleanupTestUsers()">Delete All Test Users</button>
+        <div id="cleanup-result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 7: Clear App Data</h3>
+        <button onclick="clearAppData()">Clear LocalStorage & User Data</button>
+        <div id="clear-result"></div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+        
+        const supabaseUrl = 'https://wllsdbhjhzquiyfklhei.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsbHNkYmhqaHpxdWl5ZmtsaGVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3NTg0OTgsImV4cCI6MjA2NTMzNDQ5OH0.ky41Rcy9ZsmYStEIdC6jGqNer6WBcpbDVFvQs6Mk0Go'
+        const supabase = createClient(supabaseUrl, supabaseKey)
+        
+        window.testConnection = async function() {
+            const resultDiv = document.getElementById('connection-result')
+            try {
+                const { data, error } = await supabase.from('waitlist_users').select('count').limit(1)
+                if (error) throw error
+                resultDiv.innerHTML = '<div class="success">✅ Database connection successful!</div>'
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Connection failed: ${error.message}</div>`
+            }
+        }
+        
+        window.registerTestUser = async function() {
+            const resultDiv = document.getElementById('register-result')
+            const name = document.getElementById('test-name').value
+            const email = document.getElementById('test-email').value
+            const userType = document.getElementById('test-usertype').value
+            
+            try {
+                // Generate a simple verification token
+                const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+                
+                const { data, error } = await supabase
+                    .from('waitlist_users')
+                    .insert({
+                        name: name,
+                        email: email,
+                        user_type: userType,
+                        is_verified: false,
+                        quiz_completed: false,
+                        verification_token: verificationToken
+                    })
+                    .select()
+                    .single()
+                
+                if (error) throw error
+                
+                document.getElementById('verify-token').value = verificationToken
+                resultDiv.innerHTML = `<div class="success">✅ User registered! Token: ${verificationToken}</div>`
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Registration failed: ${error.message}</div>`
+            }
+        }
+        
+        window.testVerification = async function() {
+            const resultDiv = document.getElementById('verify-result')
+            const token = document.getElementById('verify-token').value
+            
+            try {
+                // First check if user exists with this token
+                const { data: searchData, error: searchError } = await supabase
+                    .from('waitlist_users')
+                    .select('*')
+                    .eq('verification_token', token)
+                
+                if (searchError) throw searchError
+                
+                if (!searchData || searchData.length === 0) {
+                    resultDiv.innerHTML = '<div class="error">❌ No user found with this token</div>'
+                    return
+                }
+                
+                // Now try to verify
+                const { data, error } = await supabase
+                    .from('waitlist_users')
+                    .update({
+                        is_verified: true,
+                        verification_token: null,
+                    })
+                    .eq('verification_token', token)
+                    .select()
+                    .single()
+                
+                if (error) throw error
+                
+                resultDiv.innerHTML = `<div class="success">✅ Verification successful! User: ${data.name}</div>`
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Verification failed: ${error.message}</div>`
+            }
+        }
+        
+        window.listUsers = async function() {
+            const resultDiv = document.getElementById('users-result')
+            try {
+                const { data, error } = await supabase
+                    .from('waitlist_users')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(10)
+                
+                if (error) throw error
+                
+                let html = '<div class="success">📋 Recent Users:</div>'
+                data.forEach(user => {
+                    html += `<div style="margin: 5px 0; padding: 5px; background: #444;">
+                        ${user.name} (${user.email}) - 
+                        Verified: ${user.is_verified ? '✅' : '❌'} - 
+                        Token: ${user.verification_token || 'None'}
+                    </div>`
+                })
+                
+                resultDiv.innerHTML = html
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Failed to list users: ${error.message}</div>`
+            }
+        }
+        
+        window.clearAppData = function() {
+            const resultDiv = document.getElementById('clear-result')
+            try {
+                // Clear localStorage
+                localStorage.removeItem('purrfect_verified_user')
+                localStorage.removeItem('purrfect_user_session')
+                
+                // Clear any other relevant data
+                sessionStorage.clear()
+                
+                resultDiv.innerHTML = '<div class="success">✅ App data cleared! localStorage and sessionStorage cleaned.</div>'
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Failed to clear data: ${error.message}</div>`
+            }
+        }
+        
+        window.createUserForAppTest = async function() {
+            const resultDiv = document.getElementById('app-result')
+            const name = document.getElementById('app-name').value
+            const email = document.getElementById('app-email').value
+            const userType = document.getElementById('app-usertype').value
+            
+            try {
+                resultDiv.innerHTML = '<div>🔄 Creating user for app testing...</div>'
+                
+                // Delete existing user with this email
+                await supabase
+                    .from('waitlist_users')
+                    .delete()
+                    .eq('email', email)
+                
+                // Create user with verification token (simulating WaitlistService.registerUser)
+                const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+                
+                const { data: newUser, error: insertError } = await supabase
+                    .from('waitlist_users')
+                    .insert({
+                        name: name,
+                        email: email,
+                        user_type: userType,
+                        is_verified: false,
+                        quiz_completed: false,
+                        verification_token: verificationToken
+                    })
+                    .select()
+                    .single()
+                
+                if (insertError) throw insertError
+                
+                // Generate verification URL
+                const verificationUrl = `${window.location.origin}/verify?token=${encodeURIComponent(verificationToken)}`
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ User created with active token!</div>
+                    <div class="success">🔗 <strong>Click to test app verification:</strong><br>
+                    <a href="${verificationUrl}" target="_blank" style="color: #60a5fa; word-break: break-all;">${verificationUrl}</a></div>
+                    <div style="margin-top: 10px; padding: 10px; background: #444; border-radius: 5px;">
+                        <strong>Token:</strong> ${verificationToken}<br>
+                        <strong>Email:</strong> ${email}
+                    </div>
+                `
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Failed to create user: ${error.message}</div>`
+            }
+        }
+        
+        window.testFullRegistrationFlow = async function() {
+            const resultDiv = document.getElementById('flow-result')
+            const name = document.getElementById('flow-name').value
+            const email = document.getElementById('flow-email').value
+            const userType = document.getElementById('flow-usertype').value
+            
+            try {
+                resultDiv.innerHTML = '<div>🔄 Testing complete registration flow...</div>'
+                
+                // Step 1: Check if user already exists
+                const { data: existingUser } = await supabase
+                    .from('waitlist_users')
+                    .select('*')
+                    .eq('email', email)
+                    .single()
+                
+                if (existingUser) {
+                    resultDiv.innerHTML = '<div class="error">❌ User already exists with this email. Try a different email.</div>'
+                    return
+                }
+                
+                // Step 2: Create user with verification token (simulating WaitlistService.registerUser)
+                const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+                
+                const { data: newUser, error: insertError } = await supabase
+                    .from('waitlist_users')
+                    .insert({
+                        name: name,
+                        email: email,
+                        user_type: userType,
+                        is_verified: false,
+                        quiz_completed: false,
+                        verification_token: verificationToken
+                    })
+                    .select()
+                    .single()
+                
+                if (insertError) throw insertError
+                
+                resultDiv.innerHTML += '<div class="success">✅ Step 1: User created successfully</div>'
+                
+                // Step 3: Simulate sending verification email (show what would be sent)
+                const verificationUrl = `${window.location.origin}/verify?token=${encodeURIComponent(verificationToken)}`
+                
+                resultDiv.innerHTML += `<div class="success">✅ Step 2: Verification URL would be: <br><a href="${verificationUrl}" target="_blank">${verificationUrl}</a></div>`
+                
+                // Step 4: Test the verification process immediately
+                resultDiv.innerHTML += '<div>🔄 Step 3: Testing verification process...</div>'
+                
+                const { data: verifyData, error: verifyError } = await supabase
+                    .from('waitlist_users')
+                    .update({
+                        is_verified: true,
+                        verification_token: null,
+                    })
+                    .eq('verification_token', verificationToken)
+                    .select()
+                    .single()
+                
+                if (verifyError || !verifyData) {
+                    resultDiv.innerHTML += `<div class="error">❌ Step 3 FAILED: Verification failed - ${verifyError?.message || 'No data returned'}</div>`
+                } else {
+                    resultDiv.innerHTML += '<div class="success">✅ Step 3: Verification successful!</div>'
+                    resultDiv.innerHTML += `<div class="success">🎯 COMPLETE FLOW WORKS! Click the verification link above to test in browser.</div>`
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML += `<div class="error">❌ Flow test failed: ${error.message}</div>`
+            }
+        }
+        
+        window.cleanupTestUsers = async function() {
+            const resultDiv = document.getElementById('cleanup-result')
+            try {
+                // Delete test users (be careful - only delete obvious test accounts)
+                const { data, error } = await supabase
+                    .from('waitlist_users')
+                    .delete()
+                    .or('email.like.%@example.com,email.like.%test%,name.like.%Test%,name.like.%Dennis Aguila%')
+                    .select()
+                
+                if (error) throw error
+                
+                resultDiv.innerHTML = `<div class="success">✅ Deleted ${data.length} test users</div>`
+                
+                // Also clear any orphaned quiz responses
+                await supabase
+                    .from('quiz_responses')
+                    .delete()
+                    .not('user_id', 'in', `(SELECT id FROM waitlist_users)`)
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Cleanup failed: ${error.message}</div>`
+            }
+        }
+    </script>
+</body>
+</html>

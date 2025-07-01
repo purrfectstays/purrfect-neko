@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Mail, User, ArrowRight, ArrowLeft, Shield, TrendingUp } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { WaitlistService } from '../services/waitlistService';
-import { EmailVerificationService } from '../services/emailVerificationService';
 import { analytics } from '../lib/analytics';
 import RegionalUrgency from './RegionalUrgency';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
+import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
 const RegistrationForm: React.FC = () => {
   const { setCurrentStep, setUser, setWaitlistUser } = useApp();
@@ -52,6 +52,18 @@ const RegistrationForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Rate limiting check
+    const clientId = RateLimiter.getClientIdentifier();
+    const rateLimitResult = rateLimiter.isAllowed(clientId, 'registration');
+    
+    if (!rateLimitResult.allowed) {
+      const minutes = Math.ceil((rateLimitResult.retryAfter || 0) / 60);
+      setErrors({ 
+        submit: `Too many registration attempts. Please try again in ${minutes} minutes.` 
+      });
+      return;
+    }
+    
     // Track registration start
     analytics.trackRegistrationStart();
     
@@ -74,24 +86,15 @@ const RegistrationForm: React.FC = () => {
         return;
       }
 
-      // Register new user
-      const { user: waitlistUser } = await WaitlistService.registerUser({
+      // Register new user (this automatically sends verification email)
+      console.log('📝 Registering user:', formData);
+      const { user: waitlistUser, verificationToken } = await WaitlistService.registerUser({
         name: formData.name,
         email: formData.email,
         userType: formData.userType as 'cat-parent' | 'cattery-owner',
       });
-
-      // Send verification email
-      const verificationResult = await EmailVerificationService.sendVerificationEmail(
-        waitlistUser.id,
-        formData.email,
-        formData.name,
-        formData.userType as 'cat-parent' | 'cattery-owner'
-      );
-
-      if (!verificationResult.success) {
-        throw new Error(verificationResult.error || 'Failed to send verification email');
-      }
+      console.log('✅ User registered successfully:', waitlistUser);
+      console.log('📧 Verification token created:', verificationToken ? 'Yes' : 'No');
 
       // Track successful registration with enhanced analytics
       analytics.trackRegistrationComplete(formData.userType, waitlistUser.waitlist_position);
@@ -109,11 +112,13 @@ const RegistrationForm: React.FC = () => {
       // Update app state
       setWaitlistUser(waitlistUser);
       setUser({
+        id: waitlistUser.id,
         name: formData.name,
         email: formData.email,
         userType: formData.userType as 'cat-parent' | 'cattery-owner',
         isVerified: false,
         quizCompleted: false,
+        waitlistPosition: waitlistUser.waitlist_position
       });
       
       // Track successful form submission

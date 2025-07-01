@@ -95,8 +95,8 @@ Deno.serve(async (req) => {
       )
     }
 
-    // FORCE: Use working Vercel domain due to SSL issues with custom domain
-    let siteUrl = 'https://purrfect-neko.vercel.app';
+    // Use production domain for email links and assets
+    let siteUrl = 'https://purrfectstays.org';
     
     // Only allow localhost for development
     const origin = req.headers.get('origin');
@@ -141,16 +141,59 @@ Deno.serve(async (req) => {
 
     const resend = new Resend(resendApiKey);
 
+    // Fetch logo for email attachment
+    let logoAttachment = null;
+    try {
+      console.log('📷 Fetching logo from:', `${siteUrl}/logo.png`);
+      const logoResponse = await fetch(`${siteUrl}/logo.png`);
+      
+      if (logoResponse.ok) {
+        console.log('✅ Logo fetch successful, converting to base64...');
+        const logoBuffer = await logoResponse.arrayBuffer();
+        
+        // More robust base64 encoding for Deno
+        const logoUint8Array = new Uint8Array(logoBuffer);
+        let binaryString = '';
+        for (let i = 0; i < logoUint8Array.length; i++) {
+          binaryString += String.fromCharCode(logoUint8Array[i]);
+        }
+        const logoBase64 = btoa(binaryString);
+        
+        logoAttachment = {
+          filename: 'logo.png',
+          content: logoBase64,
+          cid: 'logo',
+          contentType: 'image/png'
+        };
+        console.log('✅ Logo attachment prepared, size:', logoBase64.length, 'characters');
+      } else {
+        console.warn('⚠️ Logo fetch failed:', logoResponse.status, logoResponse.statusText);
+      }
+    } catch (error) {
+      console.error('❌ Failed to fetch logo for email attachment:', error);
+      // Continue without logo attachment
+    }
+
+    // Prepare email payload
+    const emailPayload: any = {
+      to: [email],
+      subject: `🎉 Welcome to Purrfect Stays! You're #${waitlistPosition} in Line`,
+      html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email),
+    };
+
+    // Add logo attachment if available
+    if (logoAttachment) {
+      emailPayload.attachments = [logoAttachment];
+    }
+
     // Try custom domain first, fallback to default Resend domain if it fails
     let emailResult;
     let fromAddress = 'Purrfect Stays <hello@purrfectstays.org>';
     
     try {
       emailResult = await resend.emails.send({
+        ...emailPayload,
         from: fromAddress,
-        to: [email],
-        subject: `🎉 Welcome to Purrfect Stays! You're #${waitlistPosition} in Line`,
-        html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email),
       });
       
       if (emailResult.error) {
@@ -163,10 +206,8 @@ Deno.serve(async (req) => {
       fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
       
       emailResult = await resend.emails.send({
+        ...emailPayload,
         from: fromAddress,
-        to: [email],
-        subject: `🎉 Welcome to Purrfect Stays! You're #${waitlistPosition} in Line`,
-        html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email),
       });
       
       if (emailResult.error) {
@@ -715,7 +756,7 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                       <tr>
                         <td align="center">
                           <div class="logo" style="width: 80px; height: 80px; margin: 0 auto 16px; background: white; border-radius: 16px; padding: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
-                            <img src="${siteUrl}/logo.png" alt="Purrfect Stays Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+                            <img src="cid:logo" alt="Purrfect Stays Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
                           </div>
                         </td>
                       </tr>
@@ -917,8 +958,8 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                   <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
                       <td align="center">
-                        <div style="width: 40px; height: 40px; background: white; border-radius: 8px; padding: 4px; margin: 0 auto 16px; display: inline-block;">
-                          <img src="${siteUrl}/logo.png" alt="Purrfect Stays" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
+                        <div style="width: 40px; height: 40px; background: white; border-radius: 8px; padding: 4px; margin: 0 auto 16px; display: inline-flex; align-items: center; justify-content: center;">
+                          <img src="cid:logo" alt="Purrfect Stays" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
                         </div>
                       </td>
                     </tr>

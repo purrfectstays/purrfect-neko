@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { EmailVerificationService } from '../services/emailVerificationService';
+import { WaitlistService } from '../services/waitlistService';
 import { useApp } from '../context/AppContext';
+import LoadingSpinner from './LoadingSpinner';
 
 const EmailVerificationHandler: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -13,47 +14,65 @@ const EmailVerificationHandler: React.FC = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       const token = searchParams.get('token');
+      console.log('🔗 Full URL:', window.location.href);
+      console.log('🎫 Token from URL:', token);
+      console.log('📋 All URL params:', Object.fromEntries(searchParams.entries()));
       
       if (!token) {
+        console.error('❌ No token found in URL');
         setStatus('error');
         setErrorMessage('Invalid verification link. No token provided.');
         return;
       }
 
       try {
-        const result = await EmailVerificationService.verifyEmailToken(token);
+        console.log('🔐 Verifying email token:', token);
+        console.log('🔍 Token length:', token.length);
+        console.log('🔍 Token characters:', token.split('').map(c => c.charCodeAt(0)));
         
-        if (result.success && result.user) {
-          setStatus('success');
-          
-          const userData = {
-            id: result.user.id,
-            name: result.user.name,
-            email: result.user.email,
-            userType: result.user.user_type,
-            isVerified: true,
-            quizCompleted: false,
-            waitlistPosition: null
-          };
+        const user = await WaitlistService.verifyEmail(token);
+        console.log('✅ Email verification successful:', user);
+        
+        setStatus('success');
+        
+        const userData = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          userType: user.user_type,
+          isVerified: true,
+          quizCompleted: user.quiz_completed,
+          waitlistPosition: user.waitlist_position
+        };
 
-          // Set user in context
-          setUser(userData);
+        console.log('💾 Saving verified user data:', userData);
 
-          // Store user data in localStorage for persistence across routes
-          localStorage.setItem('purrfect_verified_user', JSON.stringify(userData));
+        // Set user in context
+        setUser(userData);
 
-          // Redirect to quiz based on user type after a short delay
-          setTimeout(() => {
-            navigate('/quiz', { replace: true });
-          }, 2000);
-        } else {
-          setStatus('error');
-          setErrorMessage(result.error || 'Verification failed. Please try again.');
-        }
+        // Store user data in localStorage for persistence across routes
+        localStorage.setItem('purrfect_verified_user', JSON.stringify(userData));
+        
+        console.log('✅ User data saved to localStorage');
+        console.log('🔍 Verification status in saved data:', userData.isVerified);
+
+        // Redirect to quiz based on user type after a short delay
+        setTimeout(() => {
+          navigate('/quiz', { replace: true });
+        }, 2000);
       } catch (error) {
+        console.error('❌ Email verification failed:', error);
+        
+        // Clear any existing user data on verification failure
+        localStorage.removeItem('purrfect_verified_user');
+        setUser(null);
+        
         setStatus('error');
-        setErrorMessage('An unexpected error occurred during verification.');
-        console.error('Verification error:', error);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage('An unexpected error occurred during verification.');
+        }
       }
     };
 
@@ -71,9 +90,7 @@ const EmailVerificationHandler: React.FC = () => {
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl">
           {status === 'verifying' && (
             <>
-              <div className="w-16 h-16 mx-auto mb-6">
-                <div className="w-full h-full border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-              </div>
+              <LoadingSpinner size="lg" text="Verifying Your Email" className="mb-6" />
               <h2 className="text-2xl font-bold text-white mb-4">Verifying Your Email</h2>
               <p className="text-slate-300">
                 Please wait while we verify your email address...

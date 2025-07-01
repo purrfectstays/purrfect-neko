@@ -1,6 +1,5 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Github } from 'lucide-react';
 import Logo from './Logo';
 
 const Header: React.FC = () => {
@@ -10,13 +9,10 @@ const Header: React.FC = () => {
     setCurrentStep('explore-catteries');
   };
 
-  const handleTestingClick = () => {
-    setCurrentStep('testing' as any);
+  const handleLaunchTestClick = () => {
+    setCurrentStep('launch-test');
   };
 
-  const handleGitHubClick = () => {
-    setCurrentStep('github');
-  };
 
   return (
     <header className="bg-zinc-900/95 backdrop-blur-sm border-b border-indigo-800/30 sticky top-0 z-50">
@@ -25,22 +21,13 @@ const Header: React.FC = () => {
           <Logo size="md" variant="full" />
           
           <div className="flex items-center space-x-4">
-            {/* GitHub Integration Button */}
-            <button
-              onClick={handleGitHubClick}
-              className="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg font-manrope font-semibold text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
-            >
-              <Github className="h-4 w-4" />
-              <span>GitHub Integration</span>
-            </button>
-            
-            {/* Testing Dashboard Button - Development Only */}
+            {/* Launch Test Button - Development/Testing */}
             {import.meta.env.DEV && (
               <button
-                onClick={handleTestingClick}
-                className="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-2 rounded-lg font-manrope font-semibold text-sm hover:from-red-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-red-500/25"
+                onClick={handleLaunchTestClick}
+                className="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-4 py-2 rounded-lg font-manrope font-semibold text-sm hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-orange-500/25"
               >
-                <span>🧪 Testing Dashboard</span>
+                <span>🚀 Launch Test</span>
               </button>
             )}
             

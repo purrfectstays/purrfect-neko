@@ -220,7 +220,7 @@ export class EmailVerificationService {
       }
 
       return { valid: true };
-    } catch (error) {
+    } catch {
       return { 
         valid: false, 
         error: 'Access validation failed. Please verify your email again.' 

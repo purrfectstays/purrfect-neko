@@ -12,11 +12,26 @@ const SuccessPage: React.FC = () => {
           </div>
           
           <h1 className="text-4xl font-bold text-white mb-4">
-            Welcome to Purrfect Stays! 🎉
+            Congratulations! 🎉
           </h1>
           
-          <p className="text-xl text-slate-300 mb-8">
-            You've successfully secured your spot in our exclusive early access program.
+          <p className="text-xl text-slate-300 mb-4">
+            Thank you for taking the time to complete our qualification quiz!
+          </p>
+          
+          <p className="text-lg text-green-400 mb-8 font-semibold">
+            🎊 You've successfully joined the Purrfect Stays waitlist and secured your spot in our exclusive early access program!
+          </p>
+        </div>
+
+        {/* Thank You Message */}
+        <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl p-6 mb-8 text-center">
+          <h3 className="text-xl font-semibold text-green-400 mb-3">
+            🙏 Thank You for Joining Us!
+          </h3>
+          <p className="text-slate-300">
+            Your responses help us build a platform that truly serves the needs of cat parents and cattery owners. 
+            We're excited to have you as part of our founding community and can't wait to share this journey with you!
           </p>
         </div>
 

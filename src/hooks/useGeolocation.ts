@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { GeolocationService, LocationData, RegionalWaitlistData } from '../services/geolocationService';
 
 interface UseGeolocationReturn {

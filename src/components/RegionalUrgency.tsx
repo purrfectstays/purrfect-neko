@@ -15,7 +15,7 @@ const RegionalUrgency: React.FC<RegionalUrgencyProps> = ({
 }) => {
   const [waitlistData, setWaitlistData] = useState<RegionalWaitlistData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
 
   useEffect(() => {
     // Provide fallback data instead of making API calls

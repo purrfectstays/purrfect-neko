@@ -46,7 +46,7 @@ export class GeolocationService {
         this.cachedLocation = browserLocation;
         return browserLocation;
       }
-    } catch (error) {
+    } catch {
       console.log('Browser geolocation failed, trying IP-based location');
     }
 

@@ -1,5 +1,4 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-// import { User } from '../types';
 import { GeolocationService, LocationData } from './geolocationService';
 
 export interface WaitlistUser {
@@ -125,7 +124,7 @@ export class WaitlistService {
         // Continue with registration even if geolocation fails
       }
 
-      // Insert user into database
+      // Insert user into database with basic fields first
       const { data, error } = await supabase
         .from('waitlist_users')
         .insert({
@@ -133,13 +132,8 @@ export class WaitlistService {
           email: userData.email,
           user_type: userData.userType,
           verification_token: verificationToken,
-          country: locationData?.country,
-          region: locationData?.region,
-          city: locationData?.city,
-          country_code: locationData?.countryCode,
-          latitude: locationData?.latitude,
-          longitude: locationData?.longitude,
-          timezone: locationData?.timezone,
+          // Skip location data for now to avoid schema errors
+          // TODO: Add location data after database migration is applied
         })
         .select()
         .single();
@@ -202,22 +196,63 @@ export class WaitlistService {
     }
 
     try {
+      console.log('🔍 Searching for user with verification token:', token);
+      console.log('🔍 Token received in service - length:', token.length);
+      console.log('🔍 Token received in service - value:', JSON.stringify(token));
+      
+      // Let's also check what tokens exist in the database
+      const { data: allTokens, error: allTokensError } = await supabase
+        .from('waitlist_users')
+        .select('verification_token, email, name')
+        .not('verification_token', 'is', null);
+      
+      console.log('🔍 All tokens in database:', allTokens);
+      
+      // First, let's check if there are any users with this token
+      const { data: searchData, error: searchError } = await supabase
+        .from('waitlist_users')
+        .select('*')
+        .eq('verification_token', token);
+      
+      console.log('🔍 Search results:', searchData);
+      console.log('🔍 Search error:', searchError);
+      
+      if (!searchData || searchData.length === 0) {
+        console.error('❌ No user found with verification token:', token);
+        throw new Error('Invalid or expired verification token');
+      }
+      
+      const user = searchData[0];
+      console.log('✅ Found user:', user);
+      
+      // Now update the user to mark as verified using the user ID (more reliable)
       const { data, error } = await supabase
         .from('waitlist_users')
         .update({
           is_verified: true,
           verification_token: null,
         })
-        .eq('verification_token', token)
+        .eq('id', user.id)
         .select()
         .single();
 
-      if (error || !data) {
-        throw new Error('Invalid or expired verification token');
+      console.log('📝 Update result:', data);
+      console.log('📝 Update error:', error);
+
+      if (error) {
+        console.error('❌ Failed to update user verification status:', error);
+        throw new Error('Failed to update verification status');
       }
 
+      if (!data) {
+        console.error('❌ No data returned from update');
+        throw new Error('Verification update failed');
+      }
+
+      console.log('✅ User verification completed successfully');
       return data;
     } catch (error) {
+      console.error('❌ verifyEmail error:', error);
       throw handleServiceError(error, 'verifyEmail');
     }
   }

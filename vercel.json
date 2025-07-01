@@ -20,10 +20,6 @@
       "dest": "/index.html"
     },
     {
-      "src": "/github",
-      "dest": "/index.html"
-    },
-    {
       "src": "/privacy",
       "dest": "/index.html"
     },

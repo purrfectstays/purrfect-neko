@@ -11,13 +11,13 @@ const Footer: React.FC = () => {
     // In a real app, you'd use React Router or similar
     switch (page) {
       case 'privacy':
-        setCurrentStep('privacy' as any);
+        setCurrentStep('privacy' as const);
         break;
       case 'terms':
-        setCurrentStep('terms' as any);
+        setCurrentStep('terms' as const);
         break;
       case 'cookies':
-        setCurrentStep('cookies' as any);
+        setCurrentStep('cookies' as const);
         break;
     }
   };
