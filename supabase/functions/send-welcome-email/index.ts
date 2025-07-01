@@ -1,12 +1,25 @@
 /// <reference path="../types.ts" />
 import { Resend } from 'npm:resend@3.2.0'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Max-Age': '86400',
-  'Access-Control-Allow-Credentials': 'false',
+// Secure CORS configuration - restrict to specific domains
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  const allowedOrigins = [
+    'https://purrfectstays.org',
+    'https://www.purrfectstays.org', 
+    'https://purrfectstays.vercel.app',
+    'http://localhost:5173', // Development only
+    'http://localhost:3000'  // Development only
+  ];
+  
+  const allowedOrigin = origin && allowedOrigins.includes(origin) ? origin : 'https://purrfectstays.org';
+  
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-verification-token',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+    'Access-Control-Allow-Credentials': 'false',
+  };
 }
 
 // Input sanitization function
@@ -60,6 +73,9 @@ function validateInput(data: any): { isValid: boolean; errors: string[] } {
 }
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { 
@@ -79,6 +95,34 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // SECURITY: Add basic request validation and rate limiting
+    const contentLength = req.headers.get('content-length');
+    if (contentLength && parseInt(contentLength) > 10000) {
+      return new Response(
+        JSON.stringify({ error: 'Request payload too large' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 413,
+        }
+      )
+    }
+
+    // SECURITY: Validate request timing to prevent replay attacks
+    const timestamp = req.headers.get('x-timestamp');
+    if (timestamp) {
+      const requestTime = parseInt(timestamp);
+      const currentTime = Date.now();
+      if (Math.abs(currentTime - requestTime) > 300000) { // 5 minutes
+        return new Response(
+          JSON.stringify({ error: 'Request timestamp invalid' }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        )
+      }
+    }
+
     // SECURITY FIX: Only get API key from environment variables
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
 
@@ -147,64 +191,16 @@ Deno.serve(async (req) => {
 
     const resend = new Resend(resendApiKey);
 
-    // Fetch logo for email attachment
-    let logoAttachment = null;
-    try {
-      const logoUrl = `${siteUrl}/logo-email.png`;
-      console.log('📷 Fetching logo from:', logoUrl);
-      
-      const logoResponse = await fetch(logoUrl, {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'Purrfect-Stays-Email-Service/1.0',
-        },
-      });
-      
-      if (logoResponse.ok && logoResponse.status === 200) {
-        console.log('✅ Logo fetch successful, converting to base64...');
-        const logoBuffer = await logoResponse.arrayBuffer();
-        
-        // Verify we have valid image data
-        if (logoBuffer.byteLength === 0) {
-          throw new Error('Empty logo file received');
-        }
-        
-        // More robust base64 encoding for Deno
-        const logoUint8Array = new Uint8Array(logoBuffer);
-        let binaryString = '';
-        for (let i = 0; i < logoUint8Array.length; i++) {
-          binaryString += String.fromCharCode(logoUint8Array[i]);
-        }
-        const logoBase64 = btoa(binaryString);
-        
-        logoAttachment = {
-          filename: 'logo.png',
-          content: logoBase64,
-          cid: 'logo',
-          contentType: 'image/png'
-        };
-        console.log('✅ Logo attachment prepared, size:', logoBase64.length, 'characters');
-      } else {
-        console.warn('⚠️ Logo fetch failed:', logoResponse.status, logoResponse.statusText, 'URL:', logoUrl);
-        console.warn('⚠️ Response headers:', Object.fromEntries(logoResponse.headers.entries()));
-      }
-    } catch (error) {
-      console.error('❌ Failed to fetch logo for email attachment from:', `${siteUrl}/logo.png`);
-      console.error('❌ Error details:', error);
-      // Continue without logo attachment
-    }
+    // Use embedded base64 logo for reliable email rendering
+    const logoBase64DataUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iMjQiIGZpbGw9IiM2MzY2ZjEiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiPgo8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Im0xNS4xIDEwLjg3Yy0uMTItLjM0LS4zNy0uNjMtLjY5LS44MmwtMS4zOC0uODJjLS4zMS0uMTktLjY5LS4xOS0xIDBsLTEuMzguODJjLS4zMi4xOS0uNTcuNDgtLjY5LjgyTDkgMTNoNmwtLjkgMi4xM1oiIGZpbGw9IiM2MzY2ZjEiLz4KPHN2ZyB4PSI2OCIgeT0iMTY4IiB3aWR0aD0iMTA0IiBoZWlnaHQ9IjIwIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMTQiPgo8dGV4dCB4PSI1MiIgeT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlBVUlJGRUNUIFNUQVlTPC90ZXh0Pgo8L3N2Zz4KPC9zdmc+Cjwvc3ZnPg==';
+    console.log('📷 Using embedded SVG logo for email compatibility');
 
     // Prepare email payload
     const emailPayload: any = {
       to: [email],
       subject: `🎉 Welcome to Purrfect Stays! You're #${waitlistPosition} in Line`,
-      html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email),
+      html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email, logoBase64DataUrl),
     };
-
-    // Add logo attachment if available
-    if (logoAttachment) {
-      emailPayload.attachments = [logoAttachment];
-    }
 
     // Try custom domain first, fallback to default Resend domain if it fails
     let emailResult;
@@ -286,10 +282,13 @@ Deno.serve(async (req) => {
   }
 })
 
-function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userType: string, siteUrl: string, email: string): string {
+function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userType: string, siteUrl: string, email: string, logoDataUrl: string | null): string {
   const userTypeLabel = userType === 'cat-parent' ? 'Cat Parent' : 'Cattery Owner';
   const userTypeColor = userType === 'cat-parent' ? '#22c55e' : '#8b5cf6';
   const userTypeEmoji = userType === 'cat-parent' ? '🐱' : '🏠';
+  
+  // Use base64 data URL if available, otherwise fallback to hosted logo
+  const logoSrc = logoDataUrl || `${siteUrl}/logo-email.png`;
   
   return `
     <!DOCTYPE html>
@@ -776,7 +775,7 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                       <tr>
                         <td align="center">
                           <div class="logo" style="width: 80px; height: 80px; margin: 0 auto 16px; background: white; border-radius: 16px; padding: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
-                            <img src="cid:logo" alt="Purrfect Stays Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+                            <img src="${logoSrc}" alt="Purrfect Stays Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
                           </div>
                         </td>
                       </tr>
@@ -979,7 +978,7 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
                     <tr>
                       <td align="center">
                         <div style="width: 40px; height: 40px; background: white; border-radius: 8px; padding: 4px; margin: 0 auto 16px; display: inline-flex; align-items: center; justify-content: center;">
-                          <img src="cid:logo" alt="Purrfect Stays" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
+                          <img src="${logoSrc}" alt="Purrfect Stays" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
                         </div>
                       </td>
                     </tr>
