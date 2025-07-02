@@ -137,4 +137,4 @@ The app is ready for deployment on platforms like Vercel, Netlify, or any static
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License - see LICENSE file for details# Trigger fresh deployment
