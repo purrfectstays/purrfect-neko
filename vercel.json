@@ -1,15 +1,6 @@
 {
   "version": 2,
   "name": "purrfect-stays",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
   "routes": [
     {
       "src": "/landingpage(.*)",
@@ -88,11 +79,5 @@
       ]
     }
   ],
-  "functions": {
-    "app/api/**/*.js": {
-      "maxDuration": 10
-    }
-  },
-  "regions": ["syd1", "sfo1"],
-  "framework": "vite"
+  "regions": ["syd1", "sfo1"]
 }
