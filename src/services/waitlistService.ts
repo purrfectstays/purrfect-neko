@@ -39,7 +39,7 @@ const handleServiceError = (error: any, operation: string): Error => {
   if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
     console.error('🚨 CORS Error Detected in WaitlistService!');
     console.error('Please configure CORS in your Supabase project:');
-    console.error('1. Go to: https://supabase.com/dashboard/project/wllsdbhjhzquiyfklhei/settings/api');
+    console.error('1. Go to your Supabase Dashboard settings/api page');
     console.error('2. Add http://localhost:5173 to CORS origins');
     console.error('3. Add https://purrfectstays.org to CORS origins');
     
@@ -373,7 +373,7 @@ export class WaitlistService {
       if (error?.name === 'TypeError' && error?.message?.includes('Failed to fetch')) {
         console.error('🚨 CORS Error in getWaitlistStats!');
         console.error('To fix this issue:');
-        console.error('1. Open your Supabase Dashboard: https://supabase.com/dashboard/project/wllsdbhjhzquiyfklhei/settings/api');
+        console.error('1. Open your Supabase Dashboard settings/api page');
         console.error('2. Scroll to the CORS section');
         console.error('3. Add these origins:');
         console.error('   - http://localhost:5173');

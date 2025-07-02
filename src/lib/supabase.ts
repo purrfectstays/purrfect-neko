@@ -73,7 +73,8 @@ if (isConfigValid && supabaseUrl && supabaseAnonKey) {
           console.error('3. Scroll down to CORS section');
           console.error('4. Add the origins listed above');
           console.error('');
-          console.error('Supabase Dashboard: https://supabase.com/dashboard/project/wllsdbhjhzquiyfklhei/settings/api');
+          const projectId = supabaseUrl.split('.')[0].replace('https://', '');
+          console.error(`Supabase Dashboard: https://supabase.com/dashboard/project/${projectId}/settings/api`);
         } else {
           console.warn('Supabase connection test failed:', error.message);
         }
@@ -87,7 +88,8 @@ if (isConfigValid && supabaseUrl && supabaseAnonKey) {
         console.error('This is likely a CORS configuration issue in your Supabase project.');
         console.error('');
         console.error('Quick Fix:');
-        console.error('1. Open: https://supabase.com/dashboard/project/wllsdbhjhzquiyfklhei/settings/api');
+        const projectId = supabaseUrl.split('.')[0].replace('https://', '');
+        console.error(`1. Open: https://supabase.com/dashboard/project/${projectId}/settings/api`);
         console.error('2. Scroll to CORS section');
         console.error('3. Add: http://localhost:5173');
         console.error('4. Add: https://purrfectstays.org');

@@ -199,7 +199,7 @@ const CountdownTimer: React.FC = () => {
       <div className="mt-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg text-xs text-red-300">
         <div className="font-semibold mb-2">🚨 CORS Configuration Required</div>
         <div className="space-y-1 text-red-200">
-          <div>1. Open <a href="https://supabase.com/dashboard/project/wllsdbhjhzquiyfklhei/settings/api" target="_blank" rel="noopener noreferrer" className="text-red-400 underline">Supabase Dashboard</a></div>
+          <div>1. Open your Supabase Dashboard</div>
           <div>2. Go to Project Settings → API</div>
           <div>3. Scroll to CORS section</div>
           <div>4. Add: <code className="bg-red-800/50 px-1 rounded">http://localhost:5173</code></div>
