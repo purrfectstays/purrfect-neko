@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
+import MainSite from './components/MainSite';
 import LandingPage from './components/LandingPage';
 import RegistrationForm from './components/RegistrationForm';
 import EmailVerification from './components/EmailVerification';
@@ -8,9 +9,11 @@ import QualificationQuizSecure from './components/QualificationQuizSecure';
 import EmailVerificationHandler from './components/EmailVerificationHandler';
 import SuccessPage from './components/SuccessPage';
 import ExploreCatteries from './components/ExploreCatteries';
+import SupportPage from './components/SupportPage';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
 import TermsOfService from './components/legal/TermsOfService';
 import CookiePolicy from './components/legal/CookiePolicy';
+import QRCodePage from './components/QRCodePage';
 import ChatbotSupport from './components/ChatbotSupport';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -56,6 +59,8 @@ const HomeHandler: React.FC = () => {
         return <TermsOfService />;
       case 'cookies':
         return <CookiePolicy />;
+      case 'qr':
+        return <QRCodePage />;
       case 'launch-test':
         return <LaunchReadinessTest />;
       default:
@@ -76,6 +81,17 @@ const HomeHandler: React.FC = () => {
   );
 };
 
+// Component to handle scroll to top on route changes
+const ScrollToTop: React.FC = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+  
+  return null;
+};
+
 const AppContent: React.FC = () => {
   const { currentStep } = useApp();
 
@@ -94,6 +110,7 @@ const AppContent: React.FC = () => {
       privacy: 'Privacy Policy',
       terms: 'Terms of Service',
       cookies: 'Cookie Policy',
+      qr: 'QR Code Page',
       'launch-test': 'Launch Readiness Test',
     };
 
@@ -103,29 +120,37 @@ const AppContent: React.FC = () => {
   return (
     <ErrorBoundary>
       <Router>
+        <ScrollToTop />
         <Routes>
-          {/* Email verification route */}
+          {/* Main site route */}
+          <Route path="/" element={<MainSite />} />
+          
+          {/* Landing page routes with full app functionality */}
+          <Route path="/landingpage" element={<HomeHandler />} />
+          
+          {/* Landing page sub-routes */}
+          <Route path="/landingpage/verify" element={<EmailVerificationHandler />} />
+          <Route path="/landingpage/quiz" element={<QualificationQuizSecure />} />
+          <Route path="/landingpage/success" element={<SuccessPage />} />
+          
+          {/* Legacy routes for backward compatibility */}
           <Route path="/verify" element={<EmailVerificationHandler />} />
-          
-          {/* Secure quiz route */}
           <Route path="/quiz" element={<QualificationQuizSecure />} />
-          
-          {/* Success page route */}
           <Route path="/success" element={<SuccessPage />} />
-          
           
           {/* Legal pages routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/support" element={<SupportPage />} />
+          
+          {/* QR Code page */}
+          <Route path="/qr" element={<QRCodePage />} />
           
           {/* Testing routes */}
           <Route path="/launch-test" element={<LaunchReadinessTest />} />
           
-          {/* Main app routes */}
-          <Route path="/" element={<HomeHandler />} />
-          
-          {/* Catch-all redirect to home */}
+          {/* Catch-all redirect to main site */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

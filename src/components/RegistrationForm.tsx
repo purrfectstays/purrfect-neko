@@ -159,7 +159,7 @@ const RegistrationForm: React.FC = () => {
             className="inline-flex items-center space-x-2 text-indigo-400 hover:text-indigo-300 transition-colors mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="font-manrope">Back to Home</span>
+            <span className="font-manrope">Back to Landing Page</span>
           </button>
           
           <h1 className="font-manrope font-bold text-3xl text-white mb-4">

@@ -7,6 +7,9 @@ import compression from 'vite-plugin-compression';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Configure base path - keep root for now since we're handling routing in React
+  base: '/',
+  
   plugins: [
     react(),
     // Generates bundle analysis at build/dist

@@ -12,11 +12,19 @@
   ],
   "routes": [
     {
+      "src": "/landingpage(.*)",
+      "dest": "/index.html"
+    },
+    {
       "src": "/verify(.*)",
       "dest": "/index.html"
     },
     {
       "src": "/quiz",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/success",
       "dest": "/index.html"
     },
     {
@@ -29,6 +37,14 @@
     },
     {
       "src": "/cookies",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/support",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/launch-test",
       "dest": "/index.html"
     },
     {

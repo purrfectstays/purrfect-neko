@@ -18,7 +18,7 @@ export interface QuizData {
   completedAt: Date;
 }
 
-export type AppStep = 'landing' | 'registration' | 'verification' | 'quiz' | 'success' | 'explore-catteries' | 'privacy' | 'terms' | 'cookies' | 'testing';
+export type AppStep = 'landing' | 'registration' | 'verification' | 'quiz' | 'success' | 'explore-catteries' | 'privacy' | 'terms' | 'cookies' | 'qr' | 'testing';
 
 export interface Cattery {
   id: string;

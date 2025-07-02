@@ -1,26 +1,11 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Mail, Shield, FileText, Cookie, Heart } from 'lucide-react';
+import { Mail, Shield, FileText, Cookie, Heart, QrCode } from 'lucide-react';
+import { navigateToLandingPage, navigateToSupport, navigateToPrivacy, navigateToTerms, navigateToCookies, navigateToQRCode } from '../utils/navigation';
 import Logo from './Logo';
 
 const Footer: React.FC = () => {
   const { setCurrentStep } = useApp();
-
-  const handleLegalPageClick = (page: 'privacy' | 'terms' | 'cookies') => {
-    // For now, we'll create a simple router-like system
-    // In a real app, you'd use React Router or similar
-    switch (page) {
-      case 'privacy':
-        setCurrentStep('privacy' as const);
-        break;
-      case 'terms':
-        setCurrentStep('terms' as const);
-        break;
-      case 'cookies':
-        setCurrentStep('cookies' as const);
-        break;
-    }
-  };
 
   return (
     <footer className="bg-zinc-900 border-t border-zinc-800">
@@ -48,10 +33,10 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li>
                 <button
-                  onClick={() => setCurrentStep('landing')}
+                  onClick={navigateToLandingPage}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
                 >
-                  Home
+                  Landing Page
                 </button>
               </li>
               <li>
@@ -59,7 +44,7 @@ const Footer: React.FC = () => {
                   onClick={() => setCurrentStep('registration')}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
                 >
-                  Join Waitlist
+                  Join Early Access
                 </button>
               </li>
               <li>
@@ -67,7 +52,16 @@ const Footer: React.FC = () => {
                   onClick={() => setCurrentStep('explore-catteries')}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
                 >
-                  Explore Catteries
+                  Preview Platform
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={navigateToQRCode}
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2 text-left"
+                >
+                  <QrCode className="h-4 w-4" />
+                  <span>QR Code</span>
                 </button>
               </li>
               <li>
@@ -87,7 +81,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li>
                 <button
-                  onClick={() => handleLegalPageClick('privacy')}
+                  onClick={navigateToPrivacy}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2 text-left"
                 >
                   <Shield className="h-4 w-4" />
@@ -96,7 +90,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLegalPageClick('terms')}
+                  onClick={navigateToTerms}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2 text-left"
                 >
                   <FileText className="h-4 w-4" />
@@ -105,7 +99,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLegalPageClick('cookies')}
+                  onClick={navigateToCookies}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2 text-left"
                 >
                   <Cookie className="h-4 w-4" />
@@ -113,13 +107,13 @@ const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
-                <a
-                  href="mailto:support@purrfectstays.org"
-                  className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2"
+                <button
+                  onClick={navigateToSupport}
+                  className="font-manrope text-zinc-400 hover:text-white transition-colors flex items-center space-x-2 text-left"
                 >
                   <Mail className="h-4 w-4" />
                   <span>Support</span>
-                </a>
+                </button>
               </li>
             </ul>
           </div>
