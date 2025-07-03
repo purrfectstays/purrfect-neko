@@ -4,8 +4,8 @@ import { Resend } from 'npm:resend@3.2.0'
 // Secure CORS configuration - restrict to specific domains
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const allowedOrigins = [
-    'https://purrfectstays.org',
-    'https://www.purrfectstays.org', 
+    'https://purrfectstays.org',        // Non-www domain (CURRENT ISSUE)
+    'https://www.purrfectstays.org',    // www domain
     'https://purrfect-landingpage.netlify.app',
     'https://purrfect-stays.netlify.app', // Alternative Netlify domain
     'http://localhost:5173', // Development only
@@ -16,7 +16,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-verification-token',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-verification-token, origin, accept, x-requested-with, cache-control, pragma',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Max-Age': '86400',
     'Access-Control-Allow-Credentials': 'false',
