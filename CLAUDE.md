@@ -76,48 +76,48 @@ VITE_APP_URL=https://your-app.vercel.app
 
 ## Deployment
 
-### Vercel Deployment (Recommended)
+### Netlify Deployment (Recommended)
 
-This project is configured for seamless deployment on Vercel with GitHub integration.
+This project is configured for seamless deployment on Netlify with GitHub integration.
 
 #### Initial Setup:
 1. **Connect GitHub Repository**:
-   - Go to [vercel.com](https://vercel.com)
+   - Go to [app.netlify.com](https://app.netlify.com)
    - Import your GitHub repository
-   - Vercel will auto-detect the Vite framework
+   - Netlify will auto-detect the Vite framework
 
-2. **Configure Environment Variables** in Vercel Dashboard:
+2. **Configure Environment Variables** in Netlify Dashboard:
    ```bash
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   RESEND_API_KEY=your_resend_api_key
-   VITE_APP_URL=https://your-app.vercel.app
-   SITE_URL=https://your-app.vercel.app
+   VITE_APP_URL=https://purrfect-landingpage.netlify.app
    VITE_GA_MEASUREMENT_ID=your_google_analytics_id
    NODE_ENV=production
    ```
 
 3. **Deploy**:
-   - Vercel automatically deploys on every push to `main` branch
+   - Netlify automatically deploys on every push to `main` branch
    - Preview deployments created for pull requests
    - Production deployment available at your custom domain
 
-#### Vercel Configuration:
-- `vercel.json`: Pre-configured with SPA routing, security headers, and optimization
-- `package.json`: Updated with Vercel-specific build scripts
-- `.vercelignore`: Excludes unnecessary files from deployment
+#### Netlify Configuration:
+- `netlify.toml`: Pre-configured with SPA routing, security headers, and optimization
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Node version: 18
 
 #### Post-Deployment:
 1. **Update Supabase Settings**:
-   - Add Vercel domain to Supabase Auth URL allowlist
+   - Add Netlify domain to Supabase Auth URL allowlist
    - Update CORS settings in Edge Functions if needed
+   - Set `SITE_URL` in Edge Functions to your Netlify URL
 
 2. **Update Environment Variables**:
-   - Replace localhost URLs with your Vercel domain
-   - Update `SITE_URL` in Supabase Edge Functions
+   - Replace localhost URLs with your Netlify domain
+   - Ensure all API keys are properly set
 
 3. **Custom Domain** (Optional):
-   - Add custom domain in Vercel dashboard
+   - Add custom domain in Netlify dashboard
    - Update DNS records as instructed
    - Update environment variables with new domain
 

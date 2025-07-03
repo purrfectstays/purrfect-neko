@@ -7,7 +7,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
     'https://purrfectstays.org',
     'https://www.purrfectstays.org', 
     'https://purrfect-landingpage.netlify.app',
-    'https://purrfectstays.vercel.app',
+    'https://purrfect-stays.netlify.app', // Alternative Netlify domain
     'http://localhost:5173', // Development only
     'http://localhost:3000'  // Development only
   ];
