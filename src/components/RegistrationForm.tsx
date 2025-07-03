@@ -124,7 +124,15 @@ const RegistrationForm: React.FC = () => {
       // Track successful form submission
       trackFormSubmission('waitlist_registration', true);
       
-      setCurrentStep('verification');
+      // Show success message before redirecting
+      setErrors({ 
+        success: 'Registration successful! Check your email for the verification link.' 
+      });
+      
+      // Delay navigation to show success message
+      setTimeout(() => {
+        setCurrentStep('verification');
+      }, 2000);
     } catch (error) {
       console.error('Registration error:', error);
       
@@ -327,6 +335,13 @@ const RegistrationForm: React.FC = () => {
                     </p>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {errors.success && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+                <p className="text-green-400 font-manrope text-sm">{errors.success}</p>
               </div>
             )}
 

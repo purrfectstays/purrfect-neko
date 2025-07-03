@@ -156,6 +156,11 @@ export class WaitlistService {
         if (emailError) {
           console.error('Failed to send verification email:', emailError);
           
+          // Check for CORS error
+          if (emailError.message && emailError.message.includes('CORS')) {
+            throw new Error('Email service configuration error. Please contact support at support@purrfectstays.org');
+          }
+          
           // Provide more detailed error information
           let errorMessage = 'Failed to send verification email. ';
           
@@ -172,16 +177,23 @@ export class WaitlistService {
             verificationToken
           });
           
-          throw new Error(errorMessage);
+          // Don't throw error - user is registered but email failed
+          console.warn('User registered but email failed to send. User can request resend.');
         }
 
         // Log successful email response for debugging
         if (emailData) {
           console.log('Verification email sent successfully:', emailData);
         }
-      } catch (emailError) {
+      } catch (emailError: any) {
         // If email sending fails due to network issues, still return the user
-        console.warn('Email sending failed, but user was registered:', emailError);
+        console.error('Email sending failed, but user was registered:', emailError);
+        
+        // Check if it's a CORS error
+        if (emailError.message && (emailError.message.includes('CORS') || emailError.message.includes('Failed to send a request'))) {
+          console.error('CORS error detected. User registered but email could not be sent.');
+          // Don't throw - allow registration to complete
+        }
       }
 
       return { user: data, verificationToken };

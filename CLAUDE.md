@@ -176,7 +176,7 @@ When working with this codebase, follow these essential rules:
 5. **Please every step of the way just give me a high level explanation of what changes you made**
 6. **Make every task and code change you do as simple as possible. We want to avoid making any massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.**
 7. **All data and information displayed to users must be factual and accurate. Never show simulated, mock, or fake data - only real information or clearly marked placeholders.**
-8. **Only use Opus 4 for planning, not for executing. Use Sonnet for all code execution and implementation tasks.**
+8. **Only use Opus 4 when I tell you exactly to use it and only for that command or prompt. Use Sonnet 4 for everything besides that time that I exactly tell you to use Opus 4.**
 9. **Finally, add a review section to the [todo.md](http://todo.md/) file with a summary of the changes you made and any other relevant information.**
 
 ## Working with This Codebase
