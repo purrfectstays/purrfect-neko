@@ -141,7 +141,7 @@ Deno.serve(async (req) => {
     }
 
     // Use correct domain for email links and assets
-    let siteUrl = 'https://purrfectstays.vercel.app'; // Use actual deployed domain
+    let siteUrl = 'https://purrfect-landingpage.netlify.app'; // Default to Netlify domain
     
     // Allow localhost for development
     const origin = req.headers.get('origin');
@@ -149,10 +149,15 @@ Deno.serve(async (req) => {
       siteUrl = origin;
     }
     
-    // Fallback to SITE_URL environment variable if set
+    // Use environment variable if set (but ensure it has https://)
     const envSiteUrl = Deno.env.get('SITE_URL');
     if (envSiteUrl && !origin?.includes('localhost')) {
-      siteUrl = envSiteUrl;
+      // Ensure the URL has a protocol
+      if (envSiteUrl.startsWith('http://') || envSiteUrl.startsWith('https://')) {
+        siteUrl = envSiteUrl;
+      } else {
+        siteUrl = `https://${envSiteUrl}`;
+      }
     }
 
     // Parse and validate request body
