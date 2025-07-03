@@ -224,8 +224,8 @@ Deno.serve(async (req) => {
     } catch (customDomainError) {
       console.log('Custom domain failed, trying default Resend domain');
       
-      // Fallback to default Resend domain
-      fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
+      // Fallback to noreply address on verified domain
+      fromAddress = 'Purrfect Stays <noreply@purrfectstays.org>';
       
       emailResult = await resend.emails.send({
         ...emailPayload,

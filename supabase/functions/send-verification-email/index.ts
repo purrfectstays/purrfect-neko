@@ -208,8 +208,8 @@ Deno.serve(async (req) => {
     const logoBase64DataUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iMjQiIGZpbGw9IiM2MzY2ZjEiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiPgo8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Im0xNS4xIDEwLjg3Yy0uMTItLjM0LS4zNy0uNjMtLjY5LS44MmwtMS4zOC0uODJjLS4zMS0uMTktLjY5LS4xOS0xIDBsLTEuMzguODJjLS4zMi4xOS0uNTcuNDgtLjY5LjgyTDkgMTNoNmwtLjkgMi4xM1oiIGZpbGw9IiM2MzY2ZjEiLz4KPHN2ZyB4PSI2OCIgeT0iMTY4IiB3aWR0aD0iMTA0IiBoZWlnaHQ9IjIwIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMTQiPgo8dGV4dCB4PSI1MiIgeT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlBVUlJGRUNUIFNUQVlTPC90ZXh0Pgo8L3N2Zz4KPC9zdmc+Cjwvc3ZnPg==';
     console.log('📷 Using embedded SVG logo for email compatibility');
 
-    // Send email using Resend's default domain (update to custom domain after verification)
-    const fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
+    // Send email using verified custom domain
+    const fromAddress = 'Purrfect Stays <noreply@purrfectstays.org>';
     const emailPayload: any = {
       from: fromAddress,
       to: [email],
