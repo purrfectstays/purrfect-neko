@@ -6,6 +6,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   const allowedOrigins = [
     'https://purrfectstays.org',
     'https://www.purrfectstays.org', 
+    'https://purrfect-landingpage.netlify.app',
     'https://purrfectstays.vercel.app',
     'http://localhost:5173', // Development only
     'http://localhost:3000'  // Development only
