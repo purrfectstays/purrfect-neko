@@ -257,7 +257,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         messageId: data?.id,
-        note: fromAddress.includes('resend.dev') ? 'Sent using default domain. Custom domain verification needed.' : 'Sent using custom domain.'
+        note: fromAddress.includes('purrfectstays.org') ? 'Sent using custom domain.' : 'Sent using default domain. Custom domain verification needed.'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
