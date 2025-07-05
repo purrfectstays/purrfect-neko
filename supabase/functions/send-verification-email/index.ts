@@ -209,6 +209,8 @@ Deno.serve(async (req) => {
     const verificationUrl = `${siteUrl}/verify?token=${encodeURIComponent(verificationToken)}`;
 
     console.log('Sending verification email to:', email);
+    console.log('Verification token received:', verificationToken);
+    console.log('Verification token length:', verificationToken.length);
     console.log('Verification URL:', verificationUrl);
 
     // Use embedded base64 logo for reliable email rendering

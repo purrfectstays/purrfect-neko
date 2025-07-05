@@ -34,10 +34,15 @@ BEGIN
                 'success', false,
                 'error', 'Email already verified'
             );
+        ELSIF EXISTS (SELECT 1 FROM waitlist_users WHERE verification_token = token_param) THEN
+            RETURN json_build_object(
+                'success', false,
+                'error', 'User found but could not be verified'
+            );
         ELSE
             RETURN json_build_object(
                 'success', false,
-                'error', 'Invalid or expired verification token'
+                'error', 'No user found with verification token'
             );
         END IF;
     END IF;

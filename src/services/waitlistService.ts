@@ -112,7 +112,7 @@ export class WaitlistService {
     }
 
     try {
-      // Generate verification token
+      // Generate verification token (secure random string)
       const verificationToken = crypto.randomUUID();
 
       // Get user location for regional tracking
@@ -208,114 +208,92 @@ export class WaitlistService {
     }
 
     try {
-      console.log('🔍 Searching for user with verification token:', token);
-      console.log('🔍 Token received in service - length:', token.length);
-      console.log('🔍 Token received in service - value:', JSON.stringify(token));
+      console.log('🔍 Verifying email with token:', token);
+      console.log('🔍 Token length:', token.length);
       
-      // Let's also check what tokens exist in the database
-      const { data: allTokens, error: allTokensError } = await supabase
-        .from('waitlist_users')
-        .select('verification_token, email, name')
-        .not('verification_token', 'is', null);
-      
-      console.log('🔍 All tokens in database:', allTokens);
-      
-      // First, let's check if there are any users with this token
-      const { data: searchData, error: searchError } = await supabase
-        .from('waitlist_users')
-        .select('*')
-        .eq('verification_token', token);
-      
-      console.log('🔍 Search results:', searchData);
-      console.log('🔍 Search error:', searchError);
-      
-      if (!searchData || searchData.length === 0) {
-        console.error('❌ No user found with verification token:', token);
-        throw new Error('Invalid or expired verification token');
+      // Clean and validate token
+      const cleanToken = token.trim();
+      if (!cleanToken) {
+        throw new Error('Invalid verification token');
       }
       
-      const user = searchData[0];
-      console.log('✅ Found user:', user);
-      
-      // Now update the user to mark as verified
-      // First attempt: update using the verification token (satisfies RLS policy)
-      const { data: updateData, error: updateError } = await supabase
-        .from('waitlist_users')
-        .update({
-          is_verified: true,
-          verification_token: null,
-        })
-        .eq('verification_token', token)
-        .select()
-        .single();
-
-      if (updateError) {
-        console.error('❌ First update attempt failed:', {
-          error: updateError,
-          code: updateError.code,
-          message: updateError.message,
-          details: updateError.details,
-          hint: updateError.hint,
-          statusCode: (updateError as any).statusCode
-        });
+      // Use the stored procedure first as it bypasses RLS issues
+      console.log('🔄 Using stored procedure for verification...');
+      const { data: rpcData, error: rpcError } = await supabase
+        .rpc('verify_email_with_token', { token_param: cleanToken });
         
-        // Fallback: try updating by ID if token update fails
-        const { data, error } = await supabase
+      if (rpcError) {
+        console.error('❌ Stored procedure failed:', rpcError);
+        
+        // Fallback to direct database query for debugging
+        console.log('🔄 Falling back to direct database query...');
+        
+        // First, let's check if there are any users with this token
+        const { data: searchData, error: searchError } = await supabase
+          .from('waitlist_users')
+          .select('id, email, name, user_type, is_verified, verification_token')
+          .eq('verification_token', cleanToken);
+        
+        console.log('🔍 Search results:', searchData);
+        console.log('🔍 Search error:', searchError);
+        
+        if (searchError) {
+          throw new Error(`Database query failed: ${searchError.message}`);
+        }
+        
+        if (!searchData || searchData.length === 0) {
+          console.error('❌ No user found with verification token:', cleanToken);
+          
+          // Check if there are any tokens in the database at all
+          const { data: allTokens } = await supabase
+            .from('waitlist_users')
+            .select('verification_token, email')
+            .not('verification_token', 'is', null)
+            .limit(5);
+          
+          console.log('🔍 Sample tokens in database:', allTokens?.map(t => ({ 
+            token: t.verification_token, 
+            email: t.email,
+            length: t.verification_token?.length 
+          })));
+          
+          throw new Error('No user found with verification token');
+        }
+        
+        const user = searchData[0];
+        console.log('✅ Found user:', user);
+        
+        if (user.is_verified) {
+          throw new Error('Email already verified');
+        }
+        
+        // Try direct update
+        const { data: updateData, error: updateError } = await supabase
           .from('waitlist_users')
           .update({
             is_verified: true,
             verification_token: null,
           })
-          .eq('id', user.id)
-          .eq('verification_token', token)
+          .eq('verification_token', cleanToken)
           .select()
           .single();
-          
-        if (error) {
-          console.error('❌ Failed to update user verification status:', {
-            error: error,
-            code: error.code,
-            message: error.message,
-            details: error.details,
-            hint: error.hint,
-            statusCode: (error as any).statusCode,
-            userId: user.id,
-            token: token
-          });
-          
-          // Check for specific error codes
-          if (error.code === 'PGRST301' || (error as any).statusCode === 406) {
-            // Try stored procedure as final fallback for RLS issues
-            console.log('🔄 RLS policy violation detected. Attempting stored procedure fallback...');
-            
-            const { data: rpcData, error: rpcError } = await supabase
-              .rpc('verify_email_with_token', { token_param: token });
-              
-            if (rpcError) {
-              console.error('❌ Stored procedure failed:', rpcError);
-              throw new Error('Row Level Security policy violation. The verification token may be invalid or the security policy needs updating.');
-            }
-            
-            if (!rpcData?.success) {
-              console.error('❌ Stored procedure returned failure:', rpcData);
-              throw new Error(rpcData?.error || 'Failed to verify email');
-            }
-            
-            console.log('✅ Verification successful via stored procedure');
-            return rpcData.user;
-          } else if (error.code === '42501') {
-            throw new Error('Permission denied. Please check Row Level Security policies.');
-          }
-          
-          throw new Error(`Failed to update verification status: ${error.message || 'Unknown error'}`);
-        }
-        
-        return data;
-      }
 
-      console.log('📝 Update result:', updateData);
-      console.log('✅ User verification completed successfully');
-      return updateData;
+        if (updateError) {
+          console.error('❌ Direct update failed:', updateError);
+          throw new Error(`Failed to update verification status: ${updateError.message}`);
+        }
+
+        console.log('✅ Direct update successful');
+        return updateData;
+      }
+      
+      if (!rpcData?.success) {
+        console.error('❌ Stored procedure returned failure:', rpcData);
+        throw new Error(rpcData?.error || 'Failed to verify email');
+      }
+      
+      console.log('✅ Verification successful via stored procedure');
+      return rpcData.user;
     } catch (error) {
       console.error('❌ verifyEmail error:', error);
       throw handleServiceError(error, 'verifyEmail');

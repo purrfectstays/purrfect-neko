@@ -25,12 +25,21 @@ const EmailVerificationHandler: React.FC = () => {
         return;
       }
 
+      // Clean and validate token
+      const cleanToken = token.trim();
+      if (!cleanToken) {
+        console.error('❌ Empty token after cleaning');
+        setStatus('error');
+        setErrorMessage('Invalid verification token format.');
+        return;
+      }
+
       try {
-        console.log('🔐 Verifying email token:', token);
-        console.log('🔍 Token length:', token.length);
-        console.log('🔍 Token characters:', token.split('').map(c => c.charCodeAt(0)));
+        console.log('🔐 Verifying email token:', cleanToken);
+        console.log('🔍 Token length:', cleanToken.length);
+        console.log('🔍 Token format check:', /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(cleanToken));
         
-        const user = await WaitlistService.verifyEmail(token);
+        const user = await WaitlistService.verifyEmail(cleanToken);
         console.log('✅ Email verification successful:', user);
         
         setStatus('success');
