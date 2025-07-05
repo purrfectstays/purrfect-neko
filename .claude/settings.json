@@ -1,0 +1,39 @@
+{
+  "tools": {
+    "bash": {
+      "enabled": true,
+      "commands": ["npm", "git", "ls", "cat", "mkdir", "cp", "mv"]
+    },
+    "edit": {
+      "enabled": true,
+      "auto_save": true
+    },
+    "read": {
+      "enabled": true
+    },
+    "todo": {
+      "enabled": true,
+      "auto_update": true
+    }
+  },
+  "project": {
+    "name": "Purrfect Stays",
+    "type": "react-typescript-supabase",
+    "context_engineering": {
+      "enabled": true,
+      "prp_directory": "PRPs",
+      "examples_directory": "examples",
+      "validation_commands": [
+        "npm run typecheck",
+        "npm run lint", 
+        "npm run build"
+      ]
+    }
+  },
+  "rules": {
+    "always_read_claude_md": true,
+    "use_todo_for_complex_tasks": true,
+    "validate_before_completion": true,
+    "follow_existing_patterns": true
+  }
+}

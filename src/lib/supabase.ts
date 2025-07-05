@@ -45,12 +45,6 @@ export const supabase = createClient<Database>(
         eventsPerSecond: 2,
       },
     },
-    global: {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      },
-    },
   }
 );
 

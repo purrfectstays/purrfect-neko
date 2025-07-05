@@ -176,8 +176,17 @@ When working with this codebase, follow these essential rules:
 5. **Please every step of the way just give me a high level explanation of what changes you made**
 6. **Make every task and code change you do as simple as possible. We want to avoid making any massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.**
 7. **All data and information displayed to users must be factual and accurate. Never show simulated, mock, or fake data - only real information or clearly marked placeholders.**
-8. **Only use Opus 4 when I tell you exactly to use it and only for that command or prompt. Use Sonnet 4 for everything besides that time that I exactly tell you to use Opus 4.**
+8. **Never use Opus 4 not unless I ask you to use it.**
 9. **Finally, add a review section to the [todo.md](http://todo.md/) file with a summary of the changes you made and any other relevant information.**
+10. **ALWAYS provide detailed step-by-step instructions for non-technical users. Since the user has zero coding experience, include:**
+    - Exact button names and locations
+    - What screens should look like
+    - Where to click, what to type (exactly)
+    - Expected results after each step
+    - Simple explanations of what's happening
+    - Screenshots descriptions when helpful
+    - Common mistakes to avoid
+    - What to do if something goes wrong
 
 ## Working with This Codebase
 
@@ -187,3 +196,140 @@ When working with this codebase, follow these essential rules:
 - **State management**: Extend `AppContext` for global state, use local state for component-specific data
 - **Styling**: Use Tailwind CSS classes, follow the dark theme with indigo accents
 - **Type safety**: Add types to `src/types/` and import as needed
+
+## Context Engineering Integration
+
+This project uses Context Engineering principles to ensure high-quality, consistent AI-assisted development.
+
+### 🔄 Project Awareness & Context
+
+- **Always check `examples/` directory** for patterns before implementing new features
+- **Read relevant PRPs** in `PRPs/` for detailed implementation blueprints
+- **Use TodoWrite tool** to plan complex features before implementation
+- **Follow existing patterns** rather than introducing new ones
+
+### 🧱 Code Structure & Modularity
+
+#### React Component Guidelines
+- **Component files < 300 lines**. Split into smaller components if larger
+- **One component per file** with clear, descriptive names
+- **Organize by feature** in subdirectories (e.g., `components/waitlist/`, `components/quiz/`)
+- **Use TypeScript interfaces** for all props and state
+- **Export types separately** from `src/types/` for reusability
+
+#### Service Layer Rules
+- **Services handle all external API calls** (Supabase, Resend, etc.)
+- **Return typed responses** with proper error handling
+- **Use async/await** consistently, never mix with .then()
+- **Implement retry logic** for critical operations
+- **Log errors** but don't expose sensitive data
+
+### 🧪 Testing & Reliability
+
+- **Write tests for new features** using Vitest patterns
+- **Test file structure**: `__tests__/` folders next to components
+- **Include tests for**:
+  - Happy path (expected behavior)
+  - Error states (API failures, validation errors)
+  - Edge cases (empty data, boundary conditions)
+  - Loading states
+- **Mock external services** (Supabase, Resend) in tests
+- **Maintain > 80% coverage** for new code
+
+### ✅ Validation Commands
+
+Before committing any changes, run:
+```bash
+# TypeScript type checking
+npm run typecheck
+
+# ESLint for code quality
+npm run lint
+
+# Build to ensure no compilation errors
+npm run build
+
+# Run tests (when implemented)
+npm run test
+```
+
+### 📎 Style & Conventions
+
+#### TypeScript Conventions
+- **Strict mode enabled** - no `any` types unless absolutely necessary
+- **Use type inference** where possible, explicit types where helpful
+- **Prefer interfaces over types** for object shapes
+- **Use enums** for fixed sets of values
+- **Generic types** for reusable components/hooks
+
+#### React Patterns
+- **Functional components only** - no class components
+- **Custom hooks** for reusable logic (prefix with `use`)
+- **Memoization** for expensive computations (React.memo, useMemo)
+- **Error boundaries** for graceful error handling
+- **Suspense boundaries** for code splitting
+
+#### Tailwind CSS Guidelines
+- **Mobile-first responsive design** (use sm:, md:, lg: prefixes)
+- **Dark theme by default** with indigo accent colors
+- **Consistent spacing** using Tailwind's spacing scale
+- **No custom CSS** unless absolutely necessary
+- **Component variants** using cn() utility for conditional classes
+
+### 📚 Documentation & Examples
+
+- **Update examples/** when adding new patterns
+- **Document complex logic** with inline comments
+- **JSDoc comments** for exported functions and components
+- **README updates** for new features or setup changes
+
+### 🧠 AI Behavior Rules
+
+- **Never assume context** - read existing code first
+- **Follow established patterns** from examples/
+- **Validate against TypeScript** before considering task complete
+- **Check for existing utilities** before creating new ones
+- **Respect file organization** - don't create files in wrong directories
+
+### 🔐 Security Guidelines
+
+- **Never commit sensitive data** (API keys, secrets)
+- **Validate all user inputs** on both client and server
+- **Use Supabase RLS** for data access control
+- **Sanitize data** before rendering to prevent XSS
+- **Follow OWASP guidelines** for web security
+
+### 🚀 Performance Considerations
+
+- **Lazy load heavy components** (already implemented for Quiz)
+- **Optimize images** with proper sizing and formats
+- **Minimize bundle size** - check before adding dependencies
+- **Use React.memo** for expensive re-renders
+- **Implement proper loading states** for better UX
+
+## PRP (Product Requirements Prompt) Workflow
+
+### When to Use PRPs
+
+Use PRPs for:
+- Features requiring 3+ files or components
+- Complex integrations (new APIs, services)
+- Multi-step user flows
+- Database schema changes
+- Major refactoring
+
+### How to Generate PRPs
+
+1. Create an INITIAL.md file describing your feature
+2. Run: `/generate-prp INITIAL.md`
+3. Review the generated PRP in `PRPs/`
+4. Execute with: `/execute-prp PRPs/your-feature.md`
+
+### PRP Success Criteria
+
+Every PRP must include:
+- Clear goal and success metrics
+- All necessary documentation links
+- Code examples from this project
+- Validation commands that must pass
+- Error handling requirements

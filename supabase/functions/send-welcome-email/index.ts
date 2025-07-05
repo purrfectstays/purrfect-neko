@@ -4,22 +4,29 @@ import { Resend } from 'npm:resend@3.2.0'
 // Secure CORS configuration - restrict to specific domains
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const allowedOrigins = [
-    'https://purrfectstays.org',        // Non-www domain (CURRENT ISSUE)
+    'https://purrfect-landingpage.netlify.app', // Primary Netlify domain
+    'https://purrfectstays.org',        // Custom domain
     'https://www.purrfectstays.org',    // www domain
-    'https://purrfect-landingpage.netlify.app',
     'https://purrfect-stays.netlify.app', // Alternative Netlify domain
     'http://localhost:5173', // Development only
     'http://localhost:3000'  // Development only
   ];
   
-  const allowedOrigin = origin && allowedOrigins.includes(origin) ? origin : 'https://purrfectstays.org';
+  // For development, be more permissive with localhost
+  const isDevelopment = origin && origin.includes('localhost');
+  const allowedOrigin = isDevelopment && allowedOrigins.includes(origin) 
+    ? origin 
+    : origin && allowedOrigins.includes(origin) 
+      ? origin 
+      : 'https://purrfect-landingpage.netlify.app';
   
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-verification-token, origin, accept, x-requested-with, cache-control, pragma',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, origin, accept, x-requested-with, cache-control, pragma, access-control-allow-origin, access-control-allow-headers',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Max-Age': '86400',
-    'Access-Control-Allow-Credentials': 'false',
+    'Access-Control-Allow-Credentials': 'true',
+    'Vary': 'Origin',
   };
 }
 
