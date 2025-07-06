@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
     // Get token from URL parameters
     const url = new URL(req.url);
     const token = url.searchParams.get('token');
-    const frontendUrl = url.searchParams.get('redirect_url') || Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+    const frontendUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
 
     console.log('🔍 Verification attempt:', {
       token: token ? `${token.substring(0, 8)}...` : 'none',
@@ -111,19 +111,45 @@ Deno.serve(async (req) => {
 
     console.log('🔐 Verifying token:', cleanToken.substring(0, 8) + '...');
     
-    // FIXED: First check if user exists with this token (regardless of verification status)
-    const { data: existingUser, error: checkError } = await supabase
-      .from('waitlist_users')
-      .select('id, email, name, user_type, is_verified')
-      .eq('verification_token', cleanToken)
+    // FIXED: Check both verification_tokens table and waitlist_users table
+    let existingUser = null;
+    let tokenData = null;
+    
+    // First, try to find token in verification_tokens table
+    const { data: tokenResult, error: tokenError } = await supabase
+      .from('verification_tokens')
+      .select(`
+        *,
+        waitlist_users (
+          id,
+          email,
+          name,
+          user_type,
+          is_verified
+        )
+      `)
+      .eq('token', cleanToken)
+      .eq('used', false)
       .single();
 
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found
-      console.error('❌ Database error:', checkError);
-      return Response.redirect(
-        `${frontendUrl}/verify-result?success=false&error=${encodeURIComponent('Database error occurred')}`,
-        302
-      );
+    if (tokenResult && !tokenError) {
+      console.log('✅ Found token in verification_tokens table');
+      tokenData = tokenResult;
+      existingUser = tokenResult.waitlist_users;
+    } else {
+      console.log('🔍 Token not found in verification_tokens, checking waitlist_users...');
+      
+      // Fallback: check waitlist_users table directly
+      const { data: userResult, error: userError } = await supabase
+        .from('waitlist_users')
+        .select('id, email, name, user_type, is_verified')
+        .eq('verification_token', cleanToken)
+        .single();
+
+      if (userResult && !userError) {
+        console.log('✅ Found user with token in waitlist_users table');
+        existingUser = userResult;
+      }
     }
 
     // If no user found with this token
@@ -188,6 +214,15 @@ Deno.serve(async (req) => {
         `${frontendUrl}/verify-result?success=false&error=${encodeURIComponent('Failed to verify email. Please try again.')}`,
         302
       );
+    }
+
+    // If we found the token in verification_tokens table, mark it as used
+    if (tokenData) {
+      console.log('📝 Marking verification token as used...');
+      await supabase
+        .from('verification_tokens')
+        .update({ used: true })
+        .eq('token', cleanToken);
     }
 
     console.log('✅ Email verification successful for:', updatedUser.email);

@@ -89,7 +89,9 @@ const handleServiceError = (error: unknown, operation: string): UnifiedEmailVeri
     );
   }
   
-  if (error?.message?.includes('CORS') || error?.message?.includes('cross-origin')) {
+  if (error && typeof error === 'object' && 'message' in error && 
+      typeof error.message === 'string' && 
+      (error.message.includes('CORS') || error.message.includes('cross-origin'))) {
     return new UnifiedEmailVerificationError(
       'CORS configuration required. Please add your domain to Supabase CORS settings.',
       'CORS_ERROR',
@@ -97,7 +99,7 @@ const handleServiceError = (error: unknown, operation: string): UnifiedEmailVeri
     );
   }
   
-  if (error?.message) {
+  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
     return new UnifiedEmailVerificationError(
       `${operation} failed: ${error.message}`,
       'SERVICE_ERROR',
@@ -202,7 +204,7 @@ export class UnifiedEmailVerificationService {
             country: locationData.country,
             region: locationData.region,
             city: locationData.city,
-            country_code: locationData.country_code,
+            country_code: locationData.countryCode,
             latitude: locationData.latitude,
             longitude: locationData.longitude,
             timezone: locationData.timezone,
@@ -213,6 +215,22 @@ export class UnifiedEmailVerificationService {
 
       if (error) {
         throw handleServiceError(error, 'registerUser');
+      }
+
+      // Also store token in verification_tokens table for edge function compatibility
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      const { error: tokenError } = await supabase
+        .from('verification_tokens')
+        .insert({
+          user_id: data.id,
+          token: verificationToken,
+          user_type: userData.userType,
+          expires_at: expiresAt.toISOString(),
+        });
+
+      if (tokenError) {
+        console.warn('Failed to store token in verification_tokens table:', tokenError);
+        // Don't throw - the main registration succeeded
       }
 
       // Send verification email
@@ -250,6 +268,9 @@ export class UnifiedEmailVerificationService {
           name,
           verificationToken,
           userType,
+        },
+        headers: {
+          'Content-Type': 'application/json',
         },
       });
 
@@ -331,7 +352,7 @@ export class UnifiedEmailVerificationService {
       const { data: searchData, error: searchError } = await supabase
         .from('waitlist_users')
         .select('*')
-        .eq('verification_token', cleanToken)
+        .or(`verification_token.eq.${cleanToken},id.eq.${cleanToken}`)
         .limit(1);
       
       if (searchError) {
@@ -356,57 +377,29 @@ export class UnifiedEmailVerificationService {
       const user = searchData[0];
       console.log('✅ Found user:', { id: user.id, email: user.email, isVerified: user.is_verified });
       
-      // Check if already verified
-      if (user.is_verified) {
-        console.log('ℹ️ User already verified');
-        
-        // Generate redirect URL for already verified users
-        const redirectUrl = this.generateQuizRedirectUrl(user.user_type, user.id);
-        
-        return {
-          success: true,
-          user,
-          redirectUrl
-        };
-      }
-
-      // Update user verification status
-      console.log('🔄 Updating user verification status...');
-      const { data: updateData, error: updateError } = await supabase
-        .from('waitlist_users')
-        .update({
-          is_verified: true,
-          verification_token: null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id)
-        .eq('verification_token', cleanToken)
-        .select()
-        .single();
-
-      if (updateError || !updateData) {
-        console.error('❌ Update failed:', updateError);
+      // Check if verified
+      if (!user.is_verified) {
         return {
           success: false,
-          error: 'Failed to update verification status'
+          error: 'Email not verified. Please use the link in your email.'
         };
       }
-
-      // Generate quiz redirect URL
-      const redirectUrl = this.generateQuizRedirectUrl(updateData.user_type, updateData.id);
-
+      
+      // Generate redirect URL for verified users
+      const redirectUrl = this.generateQuizRedirectUrl(user.user_type, user.id);
+      
       // Track successful verification
       analytics.trackEmailVerification(true);
       analytics.trackConversion('email_verification_complete', {
-        user_type: updateData.user_type,
-        user_id: updateData.id,
+        user_type: user.user_type,
+        user_id: user.id,
       });
 
       console.log('✅ Email verification completed successfully');
       
       return {
         success: true,
-        user: updateData,
+        user,
         redirectUrl,
       };
     } catch (error) {
@@ -538,10 +531,11 @@ export class UnifiedEmailVerificationService {
     }
 
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('waitlist_users')
-        .select('is_verified, quiz_completed')
-        .abortSignal(signal);
+        .select('is_verified, quiz_completed');
+      
+      const { data, error } = await (signal ? query.abortSignal(signal) : query);
 
       if (error) {
         throw error;

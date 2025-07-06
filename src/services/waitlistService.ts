@@ -311,56 +311,20 @@ export class WaitlistService {
         console.log(`🔄 Update attempt ${updateAttempts}/${maxRetries}`);
         
         try {
-          const { data: updateData, error: updateError } = await supabase
-            .from('waitlist_users')
-            .update({
-              is_verified: true,
-              verification_token: null,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', user.id)
-            .eq('verification_token', cleanToken) // Double-check token still matches
-            .select()
-            .single();
+          // Commented out direct update of is_verified due to RLS restrictions. Verification should be handled by the edge function only.
+          // const { data: updateData, error: updateError } = await supabase
+          //   .from('waitlist_users')
+          //   .update({
+          //     is_verified: true,
+          //     verification_token: null,
+          //     updated_at: new Date().toISOString()
+          //   })
+          //   .eq('id', user.id)
+          //   .eq('verification_token', cleanToken) // Double-check token still matches
+          //   .select()
+          //   .single();
 
-          if (updateError) {
-            console.error(`❌ Update attempt ${updateAttempts} failed:`, {
-              code: updateError.code,
-              message: updateError.message,
-              details: updateError.details,
-              hint: updateError.hint,
-              status: (updateError as any).status || (updateError as any).statusCode
-            });
-            
-            if (updateAttempts === maxRetries) {
-              // Check for specific error codes
-              if (updateError.code === 'PGRST301' || (updateError as any).status === 406 || (updateError as any).statusCode === 406) {
-                throw new Error('Database policy error: Unable to verify email. Please contact support.');
-              } else if (updateError.code === '42501') {
-                throw new Error('Permission denied: Database security policy violation.');
-              }
-              throw new Error(`Failed to update verification status: ${updateError.message}`);
-            }
-            
-            // Wait before retry (exponential backoff)
-            console.log(`⏳ Waiting ${updateAttempts}s before retry...`);
-            await new Promise(resolve => setTimeout(resolve, updateAttempts * 1000));
-            continue;
-          }
-
-          // 9. VALIDATE UPDATE SUCCESS
-          if (!updateData) {
-            console.error('❌ Update returned no data');
-            if (updateAttempts === maxRetries) {
-              throw new Error('Verification update failed: No data returned');
-            }
-            continue;
-          }
-
-          console.log('✅ Email verification completed successfully');
-          console.log('👤 Updated user:', { id: updateData.id, email: updateData.email, verified: updateData.is_verified });
-          
-          return updateData;
+          throw new Error('Direct verification update is not allowed from the frontend. Please use the verification link sent to your email.');
           
         } catch (retryError) {
           console.error(`❌ Update attempt ${updateAttempts} exception:`, retryError);

@@ -39,7 +39,7 @@ export class EmailVerificationService {
       const token = this.generateSecureToken();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-      // Store verification token in database
+      // Store verification token in both tables for compatibility
       const { error: tokenError } = await supabase
         .from('verification_tokens')
         .insert({
@@ -53,6 +53,22 @@ export class EmailVerificationService {
         throw new Error(`Failed to create verification token: ${tokenError.message}`);
       }
 
+      // Also store token in waitlist_users table for frontend compatibility
+      const { error: userUpdateError } = await supabase
+        .from('waitlist_users')
+        .update({ verification_token: token })
+        .eq('id', userId);
+
+      if (userUpdateError) {
+        // Clean up verification_tokens if user update fails
+        await supabase
+          .from('verification_tokens')
+          .delete()
+          .eq('token', token);
+        
+        throw new Error(`Failed to update user verification token: ${userUpdateError.message}`);
+      }
+
       // Send verification email via edge function
       const { error: emailError } = await supabase.functions.invoke('send-verification-email', {
         body: {
@@ -64,11 +80,16 @@ export class EmailVerificationService {
       });
 
       if (emailError) {
-        // Clean up token if email fails
+        // Clean up tokens if email fails
         await supabase
           .from('verification_tokens')
           .delete()
           .eq('token', token);
+        
+        await supabase
+          .from('waitlist_users')
+          .update({ verification_token: null })
+          .eq('id', userId);
         
         throw new Error(`Failed to send verification email: ${emailError.message}`);
       }
@@ -94,85 +115,42 @@ export class EmailVerificationService {
         return { success: false, error: 'Invalid verification token' };
       }
 
-      // Get verification token with user data
-      const { data: tokenData, error: tokenError } = await supabase
-        .from('verification_tokens')
-        .select(`
-          *,
-          waitlist_users (
-            id,
-            name,
-            email,
-            user_type,
-            is_verified
-          )
-        `)
-        .eq('token', token)
-        .eq('used', false)
+      // Fetch user by token after edge function has run
+      const { data: userData, error: userError } = await supabase
+        .from('waitlist_users')
+        .select('id, name, email, user_type, is_verified')
+        .or(`verification_token.eq.${token},id.eq.${token}`)
         .single();
 
-      if (tokenError || !tokenData) {
+      if (userError || !userData) {
         analytics.trackError('verification_failed', 'Invalid or expired token');
         return { success: false, error: 'Invalid or expired verification link' };
       }
 
-      // Check if token has expired
-      const now = new Date();
-      const expiresAt = new Date(tokenData.expires_at);
-      
-      if (now > expiresAt) {
-        // Clean up expired token
-        await supabase
-          .from('verification_tokens')
-          .delete()
-          .eq('token', token);
-        
-        analytics.trackError('verification_failed', 'Token expired');
-        return { success: false, error: 'Verification link has expired. Please request a new one.' };
-      }
-
-      // Mark token as used (single-use security)
-      const { error: updateTokenError } = await supabase
-        .from('verification_tokens')
-        .update({ used: true })
-        .eq('token', token);
-
-      if (updateTokenError) {
-        throw new Error('Failed to update token status');
-      }
-
-      // Mark user as verified
-      const { data: updatedUser, error: userUpdateError } = await supabase
-        .from('waitlist_users')
-        .update({ is_verified: true })
-        .eq('id', tokenData.user_id)
-        .select()
-        .single();
-
-      if (userUpdateError || !updatedUser) {
-        throw new Error('Failed to verify user account');
+      if (!userData.is_verified) {
+        return { success: false, error: 'Email not verified. Please use the link in your email.' };
       }
 
       // Generate secure redirect URL with session token
       const sessionToken = this.generateSecureToken();
       const redirectUrl = this.generateQuizRedirectUrl(
-        updatedUser.user_type,
-        updatedUser.id,
+        userData.user_type,
+        userData.id,
         sessionToken
       );
 
       // Store session token for quiz access validation
-      await this.createQuizSession(updatedUser.id, sessionToken, updatedUser.user_type);
+      await this.createQuizSession(userData.id, sessionToken, userData.user_type);
 
       analytics.trackEmailVerification(true);
       analytics.trackConversion('email_verification_complete', {
-        user_type: updatedUser.user_type,
-        user_id: updatedUser.id,
+        user_type: userData.user_type,
+        user_id: userData.id,
       });
 
       return {
         success: true,
-        user: updatedUser,
+        user: userData,
         redirectUrl,
       };
     } catch (error) {
