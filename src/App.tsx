@@ -7,6 +7,7 @@ import RegistrationForm from './components/RegistrationForm';
 import EmailVerification from './components/EmailVerification';
 import QualificationQuizSecure from './components/QualificationQuizSecure';
 import EmailVerificationHandler from './components/EmailVerificationHandler';
+import VerificationResult from './components/VerificationResult';
 import SuccessPage from './components/SuccessPage';
 import ExploreCatteries from './components/ExploreCatteries';
 import SupportPage from './components/SupportPage';
@@ -18,6 +19,7 @@ import ChatbotSupport from './components/ChatbotSupport';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import LaunchReadinessTest from './components/LaunchReadinessTest';
+import DiagnosticTool from './components/DiagnosticTool';
 import { initGA, trackPageView } from './lib/analytics';
 import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
@@ -135,6 +137,7 @@ const AppContent: React.FC = () => {
           
           {/* Legacy routes for backward compatibility */}
           <Route path="/verify" element={<EmailVerificationHandler />} />
+          <Route path="/verify-result" element={<VerificationResult />} />
           <Route path="/quiz" element={<QualificationQuizSecure />} />
           <Route path="/success" element={<SuccessPage />} />
           
@@ -149,6 +152,7 @@ const AppContent: React.FC = () => {
           
           {/* Testing routes */}
           <Route path="/launch-test" element={<LaunchReadinessTest />} />
+          <Route path="/diagnostic" element={<DiagnosticTool />} />
           
           {/* Catch-all redirect to main site */}
           <Route path="*" element={<Navigate to="/" replace />} />

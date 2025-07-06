@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CheckCircle, XCircle, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
-import { WaitlistService } from '../services/waitlistService';
+import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
 import { monitoring } from '../lib/monitoring';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
@@ -110,7 +110,7 @@ const LaunchReadinessTest: React.FC = () => {
       
       async () => {
         try {
-          const stats = await WaitlistService.getWaitlistStats();
+          const stats = await UnifiedEmailVerificationService.getWaitlistStats();
           return { status: 'passed' as const, message: `Connected successfully. ${stats.totalUsers} users in database.` };
         } catch {
           return { status: 'failed' as const, message: `Connection failed: ${(error as Error).message}` };

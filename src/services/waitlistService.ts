@@ -151,6 +151,9 @@ export class WaitlistService {
             verificationToken,
             userType: userData.userType,
           },
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
 
         if (emailError) {
@@ -203,100 +206,257 @@ export class WaitlistService {
   }
 
   static async verifyEmail(token: string): Promise<WaitlistUser> {
+    console.log('🔐 Starting email verification process...');
+    
+    // 1. VALIDATE INPUTS
     if (!isSupabaseConfigured) {
+      console.error('❌ Supabase not configured');
       throw new Error('Service unavailable: Database configuration is invalid');
     }
 
+    if (!token || typeof token !== 'string') {
+      console.error('❌ Invalid token type:', typeof token, token);
+      throw new Error('Invalid verification token provided');
+    }
+
+    // 2. CLEAN AND VALIDATE TOKEN
+    const cleanToken = token.trim();
+    if (!cleanToken || cleanToken.length < 10) {
+      console.error('❌ Invalid token format:', { token: cleanToken, length: cleanToken.length });
+      throw new Error('Invalid verification token format');
+    }
+
+    console.log('🎫 Token validated:', cleanToken.substring(0, 8) + '...');
+    console.log('📏 Token length:', cleanToken.length);
+
     try {
-      console.log('🔍 Verifying email with token:', token);
-      console.log('🔍 Token length:', token.length);
+      // 3. TEST DATABASE CONNECTION FIRST
+      console.log('🔄 Testing database connection...');
+      const { data: testData, error: testError } = await supabase
+        .from('waitlist_users')
+        .select('count')
+        .limit(1);
       
-      // Clean and validate token
-      const cleanToken = token.trim();
-      if (!cleanToken) {
-        throw new Error('Invalid verification token');
+      if (testError) {
+        console.error('❌ Database connection failed:', testError);
+        throw new Error(`Database connection error: ${testError.message}`);
       }
       
-      // Use the stored procedure first as it bypasses RLS issues
-      console.log('🔄 Using stored procedure for verification...');
-      const { data: rpcData, error: rpcError } = await supabase
-        .rpc('verify_email_with_token', { token_param: cleanToken });
+      console.log('✅ Database connection verified');
+
+      // 4. SEARCH FOR USER WITH TOKEN
+      console.log('🔍 Searching for user with token...');
+      const { data: searchData, error: searchError } = await supabase
+        .from('waitlist_users')
+        .select('id, email, name, user_type, is_verified, verification_token')
+        .eq('verification_token', cleanToken)
+        .limit(1);
+      
+      if (searchError) {
+        console.error('❌ Database search failed:', searchError);
+        throw new Error(`Database query failed: ${searchError.message}`);
+      }
+      
+      console.log('🔍 Search results:', searchData?.length || 0, 'users found');
+
+      // 5. VALIDATE USER EXISTS
+      if (!searchData || searchData.length === 0) {
+        console.error('❌ No user found with verification token');
         
-      if (rpcError) {
-        console.error('❌ Stored procedure failed:', rpcError);
-        
-        // Fallback to direct database query for debugging
-        console.log('🔄 Falling back to direct database query...');
-        
-        // First, let's check if there are any users with this token
-        const { data: searchData, error: searchError } = await supabase
-          .from('waitlist_users')
-          .select('id, email, name, user_type, is_verified, verification_token')
-          .eq('verification_token', cleanToken);
-        
-        console.log('🔍 Search results:', searchData);
-        console.log('🔍 Search error:', searchError);
-        
-        if (searchError) {
-          throw new Error(`Database query failed: ${searchError.message}`);
-        }
-        
-        if (!searchData || searchData.length === 0) {
-          console.error('❌ No user found with verification token:', cleanToken);
-          
-          // Check if there are any tokens in the database at all
+        // Debug: Show sample tokens in database
+        try {
           const { data: allTokens } = await supabase
             .from('waitlist_users')
-            .select('verification_token, email')
+            .select('verification_token, email, created_at')
             .not('verification_token', 'is', null)
-            .limit(5);
+            .order('created_at', { ascending: false })
+            .limit(3);
           
-          console.log('🔍 Sample tokens in database:', allTokens?.map(t => ({ 
-            token: t.verification_token, 
+          console.log('🔍 Sample recent tokens in database:', allTokens?.map(t => ({ 
+            tokenPreview: t.verification_token?.substring(0, 8) + '...',
             email: t.email,
+            created: t.created_at,
             length: t.verification_token?.length 
           })));
+        } catch (debugError) {
+          console.error('❌ Debug query failed:', debugError);
+        }
+        
+        throw new Error('Invalid or expired verification token');
+      }
+      
+      const user = searchData[0];
+      console.log('✅ Found user:', { id: user.id, email: user.email, isVerified: user.is_verified });
+      
+      // 6. CHECK IF ALREADY VERIFIED
+      if (user.is_verified) {
+        console.log('ℹ️ User already verified');
+        return user; // Return user data, don't throw error
+      }
+
+      // 7. VALIDATE EMAIL FORMAT
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(user.email)) {
+        console.error('❌ Invalid email format:', user.email);
+        throw new Error('Invalid email format in user record');
+      }
+
+      // 8. UPDATE USER WITH RETRY LOGIC
+      console.log('🔄 Updating user verification status...');
+      let updateAttempts = 0;
+      const maxRetries = 3;
+      
+      while (updateAttempts < maxRetries) {
+        updateAttempts++;
+        console.log(`🔄 Update attempt ${updateAttempts}/${maxRetries}`);
+        
+        try {
+          const { data: updateData, error: updateError } = await supabase
+            .from('waitlist_users')
+            .update({
+              is_verified: true,
+              verification_token: null,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', user.id)
+            .eq('verification_token', cleanToken) // Double-check token still matches
+            .select()
+            .single();
+
+          if (updateError) {
+            console.error(`❌ Update attempt ${updateAttempts} failed:`, {
+              code: updateError.code,
+              message: updateError.message,
+              details: updateError.details,
+              hint: updateError.hint,
+              status: (updateError as any).status || (updateError as any).statusCode
+            });
+            
+            if (updateAttempts === maxRetries) {
+              // Check for specific error codes
+              if (updateError.code === 'PGRST301' || (updateError as any).status === 406 || (updateError as any).statusCode === 406) {
+                throw new Error('Database policy error: Unable to verify email. Please contact support.');
+              } else if (updateError.code === '42501') {
+                throw new Error('Permission denied: Database security policy violation.');
+              }
+              throw new Error(`Failed to update verification status: ${updateError.message}`);
+            }
+            
+            // Wait before retry (exponential backoff)
+            console.log(`⏳ Waiting ${updateAttempts}s before retry...`);
+            await new Promise(resolve => setTimeout(resolve, updateAttempts * 1000));
+            continue;
+          }
+
+          // 9. VALIDATE UPDATE SUCCESS
+          if (!updateData) {
+            console.error('❌ Update returned no data');
+            if (updateAttempts === maxRetries) {
+              throw new Error('Verification update failed: No data returned');
+            }
+            continue;
+          }
+
+          console.log('✅ Email verification completed successfully');
+          console.log('👤 Updated user:', { id: updateData.id, email: updateData.email, verified: updateData.is_verified });
           
-          throw new Error('No user found with verification token');
+          return updateData;
+          
+        } catch (retryError) {
+          console.error(`❌ Update attempt ${updateAttempts} exception:`, retryError);
+          if (updateAttempts === maxRetries) {
+            throw retryError;
+          }
+          console.log(`⏳ Waiting ${updateAttempts}s before retry...`);
+          await new Promise(resolve => setTimeout(resolve, updateAttempts * 1000));
         }
-        
-        const user = searchData[0];
-        console.log('✅ Found user:', user);
-        
-        if (user.is_verified) {
-          throw new Error('Email already verified');
-        }
-        
-        // Try direct update
-        const { data: updateData, error: updateError } = await supabase
-          .from('waitlist_users')
-          .update({
-            is_verified: true,
-            verification_token: null,
-          })
-          .eq('verification_token', cleanToken)
-          .select()
-          .single();
-
-        if (updateError) {
-          console.error('❌ Direct update failed:', updateError);
-          throw new Error(`Failed to update verification status: ${updateError.message}`);
-        }
-
-        console.log('✅ Direct update successful');
-        return updateData;
       }
       
-      if (!rpcData?.success) {
-        console.error('❌ Stored procedure returned failure:', rpcData);
-        throw new Error(rpcData?.error || 'Failed to verify email');
-      }
+      throw new Error('All update attempts failed');
       
-      console.log('✅ Verification successful via stored procedure');
-      return rpcData.user;
     } catch (error) {
       console.error('❌ verifyEmail error:', error);
+      console.error('❌ Error details:', {
+        name: (error as Error).name,
+        message: (error as Error).message,
+        stack: (error as Error).stack?.split('\n').slice(0, 3).join('\n')
+      });
       throw handleServiceError(error, 'verifyEmail');
+    }
+  }
+
+  // Database connection test function
+  static async testDatabaseConnection(): Promise<{ success: boolean; message: string; details?: any }> {
+    console.log('🔧 Testing database connection...');
+    
+    try {
+      if (!isSupabaseConfigured) {
+        return { 
+          success: false, 
+          message: 'Supabase configuration is invalid',
+          details: { configured: false }
+        };
+      }
+
+      // Test basic connection
+      const { data: testData, error: testError } = await supabase
+        .from('waitlist_users')
+        .select('count')
+        .limit(1);
+      
+      if (testError) {
+        return { 
+          success: false, 
+          message: `Database connection failed: ${testError.message}`,
+          details: testError
+        };
+      }
+
+      // Test RLS policies
+      const { data: rlsTest, error: rlsError } = await supabase
+        .from('waitlist_users')
+        .select('id, email, is_verified')
+        .limit(1);
+        
+      if (rlsError) {
+        return { 
+          success: false, 
+          message: `RLS policy test failed: ${rlsError.message}`,
+          details: rlsError
+        };
+      }
+
+      // Test token search capability
+      const { data: tokenTest, error: tokenError } = await supabase
+        .from('waitlist_users')
+        .select('verification_token')
+        .not('verification_token', 'is', null)
+        .limit(1);
+        
+      if (tokenError) {
+        return { 
+          success: false, 
+          message: `Token search test failed: ${tokenError.message}`,
+          details: tokenError
+        };
+      }
+
+      return { 
+        success: true, 
+        message: 'Database connection successful',
+        details: { 
+          hasData: rlsTest && rlsTest.length > 0,
+          hasTokens: tokenTest && tokenTest.length > 0,
+          rowCount: rlsTest?.length || 0
+        }
+      };
+      
+    } catch (error) {
+      return { 
+        success: false, 
+        message: `Connection test exception: ${(error as Error).message}`,
+        details: error
+      };
     }
   }
 
@@ -344,6 +504,9 @@ export class WaitlistService {
             name: data.name,
             waitlistPosition: data.waitlist_position,
             userType: data.user_type,
+          },
+          headers: {
+            'Content-Type': 'application/json',
           },
         });
 

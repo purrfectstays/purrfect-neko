@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { User, QuizData, AppStep } from '../types';
-import { WaitlistUser } from '../services/waitlistService';
+import { WaitlistUser } from '../services/unifiedEmailVerificationService';
 
 interface AppContextType {
   currentStep: AppStep;

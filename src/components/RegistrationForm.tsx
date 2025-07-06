@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, User, ArrowRight, ArrowLeft, Shield, TrendingUp } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { WaitlistService } from '../services/waitlistService';
+import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
 import { analytics } from '../lib/analytics';
 import RegionalUrgency from './RegionalUrgency';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -79,7 +79,7 @@ const RegistrationForm: React.FC = () => {
     
     try {
       // Check if user already exists
-      const existingUser = await WaitlistService.getUserByEmail(formData.email);
+      const existingUser = await UnifiedEmailVerificationService.getUserByEmail(formData.email);
       if (existingUser) {
         setErrors({ email: 'This email is already registered' });
         setIsSubmitting(false);
@@ -88,7 +88,7 @@ const RegistrationForm: React.FC = () => {
 
       // Register new user (this automatically sends verification email)
       console.log('📝 Registering user:', formData);
-      const { user: waitlistUser, verificationToken } = await WaitlistService.registerUser({
+      const { user: waitlistUser, verificationToken } = await UnifiedEmailVerificationService.registerUser({
         name: formData.name,
         email: formData.email,
         userType: formData.userType as 'cat-parent' | 'cattery-owner',

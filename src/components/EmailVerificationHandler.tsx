@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { WaitlistService } from '../services/waitlistService';
+import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
 import { useApp } from '../context/AppContext';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -39,7 +39,14 @@ const EmailVerificationHandler: React.FC = () => {
         console.log('🔍 Token length:', cleanToken.length);
         console.log('🔍 Token format check:', /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(cleanToken));
         
-        const user = await WaitlistService.verifyEmail(cleanToken);
+        const result = await UnifiedEmailVerificationService.verifyEmail(cleanToken);
+        console.log('✅ Email verification result:', result);
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Verification failed');
+        }
+        
+        const user = result.user!;
         console.log('✅ Email verification successful:', user);
         
         setStatus('success');
@@ -65,9 +72,13 @@ const EmailVerificationHandler: React.FC = () => {
         console.log('✅ User data saved to localStorage');
         console.log('🔍 Verification status in saved data:', userData.isVerified);
 
-        // Redirect to quiz based on user type after a short delay
+        // Redirect to quiz using the URL from the service or default
         setTimeout(() => {
-          navigate('/quiz', { replace: true });
+          if (result.redirectUrl) {
+            window.location.href = result.redirectUrl;
+          } else {
+            navigate('/quiz', { replace: true });
+          }
         }, 2000);
       } catch (error) {
         console.error('❌ Email verification failed:', error);

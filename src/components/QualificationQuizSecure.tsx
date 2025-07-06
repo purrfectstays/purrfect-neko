@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { getQuizQuestionsForUser, calculateQuizScore, QuizQuestion } from '../data/quizQuestions';
-import { WaitlistService } from '../services/waitlistService';
+import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
 import { analytics } from '../lib/analytics';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
@@ -209,7 +209,7 @@ const QualificationQuizSecure: React.FC = () => {
 
       console.log('📤 Submitting quiz responses:', quizResponses);
       // Submit quiz responses
-      const result = await WaitlistService.submitQuizResponses(user.id, quizResponses);
+      const result = await UnifiedEmailVerificationService.submitQuizResponses(user.id, quizResponses);
       console.log('✅ Quiz submission successful:', result);
       
       // Update user state

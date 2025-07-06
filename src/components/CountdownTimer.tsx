@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { WaitlistService } from '../services/waitlistService';
+import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
 import { isSupabaseConfigured } from '../lib/supabase';
 
 const CountdownTimer: React.FC = () => {
@@ -71,7 +71,7 @@ const CountdownTimer: React.FC = () => {
           }
         }, 30000); // 30 second timeout
         
-        const waitlistStats = await WaitlistService.getWaitlistStats(currentController.signal);
+        const waitlistStats = await UnifiedEmailVerificationService.getWaitlistStats(currentController.signal);
         
         // Clear the timeout since the request completed successfully
         clearTimeout(timeoutId);

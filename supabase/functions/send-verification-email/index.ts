@@ -1,16 +1,28 @@
 /// <reference path="../types.ts" />
 import { Resend } from 'npm:resend@3.2.0'
 
-// Secure CORS configuration - restrict to specific domains
+// Environment-driven CORS configuration
 function getCorsHeaders(origin: string | null): Record<string, string> {
-  const allowedOrigins = [
-    'https://purrfect-landingpage.netlify.app', // Primary Netlify domain
-    'https://purrfectstays.org',        // Custom domain
-    'https://www.purrfectstays.org',    // www domain
-    'https://purrfect-stays.netlify.app', // Alternative Netlify domain
-    'http://localhost:5173', // Development only
-    'http://localhost:3000'  // Development only
-  ];
+  // Get allowed origins from environment variables
+  const envOrigins = Deno.env.get('ALLOWED_ORIGINS');
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+  
+  let allowedOrigins: string[];
+  
+  if (envOrigins) {
+    // Parse comma-separated origins from environment
+    allowedOrigins = envOrigins.split(',').map(url => url.trim());
+  } else {
+    // Fallback to default origins
+    allowedOrigins = [
+      siteUrl,
+      'https://purrfect-landingpage.netlify.app',
+      'https://purrfectstays.org',
+      'https://www.purrfectstays.org',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
+  }
   
   // For development, be more permissive with localhost
   const isDevelopment = origin && origin.includes('localhost');
@@ -137,10 +149,12 @@ Deno.serve(async (req) => {
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
 
     if (!resendApiKey) {
-      console.error('Email service configuration error');
+      console.error('❌ Email service configuration error: RESEND_API_KEY not found');
+      console.error('📧 Available env vars:', Object.keys(Deno.env.toObject()).filter(k => k.includes('RESEND') || k.includes('EMAIL')));
       return new Response(
         JSON.stringify({ 
           error: 'Service temporarily unavailable. Please try again later.',
+          debug: 'Email service not configured'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -149,23 +163,34 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Use correct domain for email links and assets
-    let siteUrl = 'https://purrfect-landingpage.netlify.app'; // Default to Netlify domain
+    // Validate API key format
+    if (!resendApiKey.startsWith('re_')) {
+      console.error('❌ Invalid Resend API key format');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Service temporarily unavailable. Please try again later.',
+          debug: 'Invalid email service configuration'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 503,
+        }
+      )
+    }
+
+    console.log('✅ Email service configured with key:', resendApiKey.substring(0, 8) + '...');
+
+    // Use environment-driven site URL configuration
+    let siteUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
     
     // Allow localhost for development
-    const origin = req.headers.get('origin');
-    if (origin && origin.includes('localhost')) {
-      siteUrl = origin;
-    }
-    
-    // Use environment variable if set (but ensure it has https://)
-    const envSiteUrl = Deno.env.get('SITE_URL');
-    if (envSiteUrl && !origin?.includes('localhost')) {
-      // Ensure the URL has a protocol
-      if (envSiteUrl.startsWith('http://') || envSiteUrl.startsWith('https://')) {
-        siteUrl = envSiteUrl;
-      } else {
-        siteUrl = `https://${envSiteUrl}`;
+    const requestOrigin = req.headers.get('origin');
+    if (requestOrigin && requestOrigin.includes('localhost')) {
+      siteUrl = requestOrigin;
+    } else {
+      // Ensure the URL has a protocol for production
+      if (!siteUrl.startsWith('http://') && !siteUrl.startsWith('https://')) {
+        siteUrl = `https://${siteUrl}`;
       }
     }
 
@@ -205,17 +230,34 @@ Deno.serve(async (req) => {
     const userType = requestBody.userType;
 
     const resend = new Resend(resendApiKey);
-    // IMPORTANT: Fix the verification URL to use the correct path
-    const verificationUrl = `${siteUrl}/verify?token=${encodeURIComponent(verificationToken)}`;
+    // IMPORTANT: Use Edge Function for server-side verification (bypasses RLS)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const verificationUrl = `${supabaseUrl}/functions/v1/verify-email?token=${encodeURIComponent(verificationToken)}&redirect_url=${encodeURIComponent(siteUrl)}`;
 
-    console.log('Sending verification email to:', email);
-    console.log('Verification token received:', verificationToken);
-    console.log('Verification token length:', verificationToken.length);
-    console.log('Verification URL:', verificationUrl);
+    console.log('📧 Preparing to send verification email...');
+    console.log('📧 Recipient:', email);
+    console.log('📧 Token length:', verificationToken.length);
+    console.log('📧 Token preview:', verificationToken.substring(0, 8) + '...');
+    console.log('📧 Verification URL:', verificationUrl);
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.error('❌ Invalid email format:', email);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid email format provided',
+          details: ['Email must be a valid email address']
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
 
     // Use embedded base64 logo for reliable email rendering
     const logoBase64DataUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iMjQiIGZpbGw9IiM2MzY2ZjEiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiPgo8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Im0xNS4xIDEwLjg3Yy0uMTItLjM0LS4zNy0uNjMtLjY5LS44MmwtMS4zOC0uODJjLS4zMS0uMTktLjY5LS4xOS0xIDBsLTEuMzguODJjLS4zMi4xOS0uNTcuNDgtLjY5LjgyTDkgMTNoNmwtLjkgMi4xM1oiIGZpbGw9IiM2MzY2ZjEiLz4KPHN2ZyB4PSI2OCIgeT0iMTY4IiB3aWR0aD0iMTA0IiBoZWlnaHQ9IjIwIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMTQiPgo8dGV4dCB4PSI1MiIgeT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlBVUlJGRUNUIFNUQVlTPC90ZXh0Pgo8L3N2Zz4KPC9zdmc+Cjwvc3ZnPg==';
-    console.log('📷 Using embedded SVG logo for email compatibility');
 
     // Send email using verified custom domain
     const fromAddress = 'Purrfect Stays <noreply@purrfectstays.org>';
@@ -226,7 +268,22 @@ Deno.serve(async (req) => {
       html: getEmailTemplate(name, verificationUrl, siteUrl, email, userType, logoBase64DataUrl),
     };
 
-    const emailResult = await resend.emails.send(emailPayload);
+    console.log('📧 Email payload prepared:', {
+      from: fromAddress,
+      to: email,
+      subject: emailPayload.subject,
+      htmlLength: emailPayload.html.length
+    });
+
+    try {
+      console.log('📧 Sending email via Resend API...');
+      const emailResult = await resend.emails.send(emailPayload);
+      console.log('📧 Resend API response:', emailResult);
+      
+      if (emailResult.error) {
+        console.error('❌ Resend API returned error:', emailResult.error);
+        throw new Error(`Email sending failed: ${emailResult.error.message}`);
+      }
     
     if (emailResult.error) {
       throw new Error(`Email sending failed: ${emailResult.error.message}`);

@@ -1,16 +1,28 @@
 /// <reference path="../types.ts" />
 import { Resend } from 'npm:resend@3.2.0'
 
-// Secure CORS configuration - restrict to specific domains
+// Environment-driven CORS configuration
 function getCorsHeaders(origin: string | null): Record<string, string> {
-  const allowedOrigins = [
-    'https://purrfect-landingpage.netlify.app', // Primary Netlify domain
-    'https://purrfectstays.org',        // Custom domain
-    'https://www.purrfectstays.org',    // www domain
-    'https://purrfect-stays.netlify.app', // Alternative Netlify domain
-    'http://localhost:5173', // Development only
-    'http://localhost:3000'  // Development only
-  ];
+  // Get allowed origins from environment variables
+  const envOrigins = Deno.env.get('ALLOWED_ORIGINS');
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+  
+  let allowedOrigins: string[];
+  
+  if (envOrigins) {
+    // Parse comma-separated origins from environment
+    allowedOrigins = envOrigins.split(',').map(url => url.trim());
+  } else {
+    // Fallback to default origins
+    allowedOrigins = [
+      siteUrl,
+      'https://purrfect-landingpage.netlify.app',
+      'https://purrfectstays.org',
+      'https://www.purrfectstays.org',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
+  }
   
   // For development, be more permissive with localhost
   const isDevelopment = origin && origin.includes('localhost');
@@ -147,23 +159,17 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Use correct domain for email links and assets
-    let siteUrl = 'https://purrfect-landingpage.netlify.app'; // Default to Netlify domain
+    // Use environment-driven site URL configuration
+    let siteUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
     
     // Allow localhost for development
-    const origin = req.headers.get('origin');
-    if (origin && origin.includes('localhost')) {
-      siteUrl = origin;
-    }
-    
-    // Use environment variable if set (but ensure it has https://)
-    const envSiteUrl = Deno.env.get('SITE_URL');
-    if (envSiteUrl && !origin?.includes('localhost')) {
-      // Ensure the URL has a protocol
-      if (envSiteUrl.startsWith('http://') || envSiteUrl.startsWith('https://')) {
-        siteUrl = envSiteUrl;
-      } else {
-        siteUrl = `https://${envSiteUrl}`;
+    const requestOrigin = req.headers.get('origin');
+    if (requestOrigin && requestOrigin.includes('localhost')) {
+      siteUrl = requestOrigin;
+    } else {
+      // Ensure the URL has a protocol for production
+      if (!siteUrl.startsWith('http://') && !siteUrl.startsWith('https://')) {
+        siteUrl = `https://${siteUrl}`;
       }
     }
 
