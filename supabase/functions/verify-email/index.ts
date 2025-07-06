@@ -107,6 +107,14 @@ Deno.serve(async (req) => {
         persistSession: false,
         autoRefreshToken: false,
       },
+      db: {
+        schema: 'public',
+      },
+      global: {
+        headers: {
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+        },
+      },
     });
 
     console.log('🔐 Verifying token:', cleanToken.substring(0, 8) + '...');
@@ -195,51 +203,93 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Update user to verified status
+    // Update user to verified status using service role privileges
     console.log('📝 Updating user verification status...');
-    const { data: updatedUser, error: updateError } = await supabase
-      .from('waitlist_users')
-      .update({
-        is_verified: true,
-        verification_token: null, // Clear the token after use
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', existingUser.id)
-      .select()
-      .single();
+    console.log('🔑 Using service role key ending in:', supabaseServiceKey.slice(-8));
+    
+    try {
+      // Use service role client to bypass RLS
+      const { data: updatedUser, error: updateError } = await supabase
+        .from('waitlist_users')
+        .update({
+          is_verified: true,
+          verification_token: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existingUser.id)
+        .select()
+        .single();
 
-    if (updateError) {
-      console.error('❌ Failed to update user:', updateError);
+      if (updateError) {
+        console.error('❌ Failed to update user:', {
+          error: updateError,
+          userId: existingUser.id,
+          email: existingUser.email,
+          code: updateError.code,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint
+        });
+        
+        // Try alternative approach - mark as verified without clearing token first
+        console.log('🔄 Trying alternative update approach...');
+        const { data: altUpdatedUser, error: altUpdateError } = await supabase
+          .from('waitlist_users')
+          .update({ is_verified: true })
+          .eq('id', existingUser.id)
+          .eq('verification_token', cleanToken)
+          .select()
+          .single();
+          
+        if (altUpdateError) {
+          console.error('❌ Alternative update also failed:', altUpdateError);
+          return Response.redirect(
+            `${frontendUrl}/verify-result?success=false&error=${encodeURIComponent('Failed to verify email due to database restrictions. Please contact support.')}`,
+            302
+          );
+        }
+        
+        console.log('✅ Alternative update succeeded');
+        
+        // Now clear the token in a separate update
+        await supabase
+          .from('waitlist_users')
+          .update({ verification_token: null })
+          .eq('id', existingUser.id);
+          
+        updatedUser = altUpdatedUser;
+      }
+      
+      // If we found the token in verification_tokens table, mark it as used
+      if (tokenData) {
+        console.log('📝 Marking verification token as used...');
+        await supabase
+          .from('verification_tokens')
+          .update({ used: true })
+          .eq('token', cleanToken);
+      }
+      
+      // Redirect to frontend with success and user data
+      const params = new URLSearchParams({
+        success: 'true',
+        user_id: updatedUser.id,
+        user_type: updatedUser.user_type,
+        name: updatedUser.name,
+        email: updatedUser.email,
+      });
+
+      return Response.redirect(
+        `${frontendUrl}/verify-result?${params.toString()}`,
+        302
+      );
+      
+    } catch (updateError) {
+      console.error('❌ Update operation failed:', updateError);
       return Response.redirect(
         `${frontendUrl}/verify-result?success=false&error=${encodeURIComponent('Failed to verify email. Please try again.')}`,
         302
       );
     }
-
-    // If we found the token in verification_tokens table, mark it as used
-    if (tokenData) {
-      console.log('📝 Marking verification token as used...');
-      await supabase
-        .from('verification_tokens')
-        .update({ used: true })
-        .eq('token', cleanToken);
-    }
-
-    console.log('✅ Email verification successful for:', updatedUser.email);
-    
-    // Redirect to frontend with success and user data
-    const params = new URLSearchParams({
-      success: 'true',
-      user_id: updatedUser.id,
-      user_type: updatedUser.user_type,
-      name: updatedUser.name,
-      email: updatedUser.email,
-    });
-
-    return Response.redirect(
-      `${frontendUrl}/verify-result?${params.toString()}`,
-      302
-    );
 
   } catch (error) {
     console.error('❌ Verification error:', error);
