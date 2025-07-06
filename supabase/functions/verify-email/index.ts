@@ -29,11 +29,11 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
       : siteUrl;
   
   return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Max-Age': '86400',
-    'Vary': 'Origin',
+    'Access-Control-Allow-Credentials': 'false',
   };
 }
 

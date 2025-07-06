@@ -33,12 +33,11 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
       : 'https://purrfect-landingpage.netlify.app';
   
   return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, origin, accept, x-requested-with, cache-control, pragma, access-control-allow-origin, access-control-allow-headers',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Max-Age': '86400',
-    'Access-Control-Allow-Credentials': 'true',
-    'Vary': 'Origin',
+    'Access-Control-Allow-Credentials': 'false',
   };
 }
 
