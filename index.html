@@ -45,18 +45,14 @@
     <link rel="canonical" href="https://purrfectstays.org" />
     
     <!-- Preconnect to external domains for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
     <link rel="dns-prefetch" href="https://api.supabase.co">
     <link rel="dns-prefetch" href="https://api.resend.com">
     
-    <!-- Font loading with preload + display=swap for better performance -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&family=Manrope:wght@400;500;600;700;800&display=swap" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin="anonymous">
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
-    </noscript>
+    <!-- Font loading with direct load to avoid CORS issues -->
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
     
     <!-- Structured Data for SEO -->
     <script type="application/ld+json">
