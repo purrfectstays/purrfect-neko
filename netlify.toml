@@ -1,11 +1,12 @@
 # Netlify configuration for Purrfect Stays
 
 [build]
-  command = "npm ci && npm run build"
+  command = "npm install && npm run build"
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "18.19.0"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 # SPA routing configuration
 [[redirects]]
