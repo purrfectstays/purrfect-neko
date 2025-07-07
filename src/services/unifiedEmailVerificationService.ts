@@ -347,12 +347,12 @@ export class UnifiedEmailVerificationService {
       
       console.log('✅ Database connection verified');
 
-      // Search for user with token
+      // Search for user with token (SECURITY: Only match verification_token, never user ID)
       console.log('🔍 Searching for user with token...');
       const { data: searchData, error: searchError } = await supabase
         .from('waitlist_users')
         .select('*')
-        .or(`verification_token.eq.${cleanToken},id.eq.${cleanToken}`)
+        .eq('verification_token', cleanToken)
         .limit(1);
       
       if (searchError) {

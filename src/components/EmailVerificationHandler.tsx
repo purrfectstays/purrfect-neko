@@ -16,7 +16,6 @@ const EmailVerificationHandler: React.FC = () => {
       const token = searchParams.get('token');
       console.log('🔗 Full URL:', window.location.href);
       console.log('🎫 Token from URL:', token);
-      console.log('📋 All URL params:', Object.fromEntries(searchParams.entries()));
       
       if (!token) {
         console.error('❌ No token found in URL');
@@ -35,69 +34,26 @@ const EmailVerificationHandler: React.FC = () => {
       }
 
       try {
-        console.log('🔐 Verifying email token:', cleanToken);
-        console.log('🔍 Token length:', cleanToken.length);
-        console.log('🔍 Token format check:', /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(cleanToken));
+        console.log('🔐 Redirecting to Edge Function for verification...');
         
-        const result = await UnifiedEmailVerificationService.verifyEmail(cleanToken);
-        console.log('✅ Email verification result:', result);
+        // Redirect to Edge Function for server-side verification
+        const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-email`;
+        const verificationUrl = `${edgeFunctionUrl}?token=${encodeURIComponent(cleanToken)}&redirect_url=${encodeURIComponent(window.location.origin)}`;
         
-        if (!result.success) {
-          throw new Error(result.error || 'Verification failed');
-        }
+        console.log('🔗 Redirecting to:', verificationUrl);
         
-        const user = result.user!;
-        console.log('✅ Email verification successful:', user);
+        // Redirect immediately to Edge Function
+        window.location.href = verificationUrl;
         
-        setStatus('success');
-        
-        const userData = {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          userType: user.user_type,
-          isVerified: true,
-          quizCompleted: user.quiz_completed,
-          waitlistPosition: user.waitlist_position
-        };
-
-        console.log('💾 Saving verified user data:', userData);
-
-        // Set user in context
-        setUser(userData);
-
-        // Store user data in localStorage for persistence across routes
-        localStorage.setItem('purrfect_verified_user', JSON.stringify(userData));
-        
-        console.log('✅ User data saved to localStorage');
-        console.log('🔍 Verification status in saved data:', userData.isVerified);
-
-        // Redirect to quiz using the URL from the service or default
-        setTimeout(() => {
-          if (result.redirectUrl) {
-            window.location.href = result.redirectUrl;
-          } else {
-            navigate('/quiz', { replace: true });
-          }
-        }, 2000);
       } catch (error) {
-        console.error('❌ Email verification failed:', error);
-        
-        // Clear any existing user data on verification failure
-        localStorage.removeItem('purrfect_verified_user');
-        setUser(null);
-        
+        console.error('❌ Verification redirect failed:', error);
         setStatus('error');
-        if (error instanceof Error) {
-          setErrorMessage(error.message);
-        } else {
-          setErrorMessage('An unexpected error occurred during verification.');
-        }
+        setErrorMessage('Failed to process verification. Please try again.');
       }
     };
 
     verifyEmail();
-  }, [searchParams, navigate, setCurrentStep, setUser]);
+  }, [searchParams]);
 
   const handleRetry = () => {
     navigate('/', { replace: true });
