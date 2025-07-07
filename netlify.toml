@@ -1,7 +1,7 @@
 # Netlify configuration for Purrfect Stays
 
 [build]
-  command = "npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
 
 [build.environment]
