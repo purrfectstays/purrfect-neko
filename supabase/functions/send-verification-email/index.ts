@@ -229,9 +229,8 @@ Deno.serve(async (req) => {
     const userType = requestBody.userType;
 
     const resend = new Resend(resendApiKey);
-    // IMPORTANT: Use Edge Function for server-side verification (bypasses RLS)
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const verificationUrl = `${supabaseUrl}/functions/v1/verify-email?token=${encodeURIComponent(verificationToken)}&redirect_url=${encodeURIComponent(siteUrl)}`;
+    // Use frontend route for verification to avoid Edge Function auth issues
+    const verificationUrl = `${siteUrl}/verify?token=${encodeURIComponent(verificationToken)}`;
 
     console.log('📧 Preparing to send verification email...');
     console.log('📧 Recipient:', email);
