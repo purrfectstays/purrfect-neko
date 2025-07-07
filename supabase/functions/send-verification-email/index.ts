@@ -281,72 +281,56 @@ Deno.serve(async (req) => {
       
       if (emailResult.error) {
         console.error('❌ Resend API returned error:', emailResult.error);
-        throw new Error(`Email sending failed: ${emailResult.error.message}`);
-      }
-    
-    if (emailResult.error) {
-      throw new Error(`Email sending failed: ${emailResult.error.message}`);
-    }
-
-    const { data, error } = emailResult;
-
-    if (error) {
-      console.error('Resend API error:', error);
-      
-      // Handle rate limit errors specifically
-      if (error.message?.includes('Too many requests') || error.message?.includes('rate limit')) {
         return new Response(
           JSON.stringify({ 
-            error: 'Rate limit exceeded. Please try again later.',
-            type: 'rate_limit'
+            error: 'Failed to send verification email. Please try again.',
           }),
           {
-            headers: { 
-              ...corsHeaders, 
-              'Content-Type': 'application/json',
-              'Retry-After': '1'
-            },
-            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500,
           }
-        )
+        );
       }
-      
+
+      const { data } = emailResult;
+
+      console.log('Verification email sent successfully');
       return new Response(
         JSON.stringify({ 
-          error: 'Failed to send verification email. Please try again.',
+          success: true, 
+          messageId: data?.id,
+          note: fromAddress.includes('resend.dev') ? 'Sent using default domain. Custom domain verification needed.' : 'Sent using custom domain.'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    } catch (error) {
+      console.error('Verification email error:', error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'An unexpected error occurred while sending verification email.',
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 500,
         }
-      )
+      );
     }
-
-    console.log('Verification email sent successfully');
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        messageId: data?.id,
-        note: fromAddress.includes('resend.dev') ? 'Sent using default domain. Custom domain verification needed.' : 'Sent using custom domain.'
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
   } catch (error) {
-    console.error('Verification email error:', error);
+    console.error('Main function error:', error);
     return new Response(
       JSON.stringify({ 
-        error: 'An unexpected error occurred while sending verification email.',
+        error: 'Service temporarily unavailable. Please try again later.',
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       }
-    )
+    );
   }
-})
+});
 
 function getEmailTemplate(name: string, verificationUrl: string, siteUrl: string, email: string, userType: string, logoDataUrl: string | null): string {
   const userTypeLabel = userType === 'cat-parent' ? 'Cat Parent' : 'Cattery Owner';
