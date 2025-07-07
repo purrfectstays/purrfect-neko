@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
 import { useApp } from '../context/AppContext';
 import LoadingSpinner from './LoadingSpinner';
 
 const EmailVerificationHandler: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { setCurrentStep, setUser } = useApp();
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
+  const { setCurrentStep } = useApp();
+  const [status, setStatus] = useState<'verifying' | 'error'>('verifying');
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const verifyEmail = async () => {
       const token = searchParams.get('token');
-      console.log('🔗 Full URL:', window.location.href);
-      console.log('🎫 Token from URL:', token);
+      console.log('🔗 EmailVerificationHandler - Token from URL:', token ? `${token.substring(0, 8)}...` : 'none');
       
       if (!token) {
         console.error('❌ No token found in URL');
@@ -38,7 +36,7 @@ const EmailVerificationHandler: React.FC = () => {
         
         // Redirect to Edge Function for server-side verification
         const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-email`;
-        const verificationUrl = `${edgeFunctionUrl}?token=${encodeURIComponent(cleanToken)}&redirect_url=${encodeURIComponent(window.location.origin)}`;
+        const verificationUrl = `${edgeFunctionUrl}?token=${encodeURIComponent(cleanToken)}`;
         
         console.log('🔗 Redirecting to:', verificationUrl);
         
@@ -71,24 +69,6 @@ const EmailVerificationHandler: React.FC = () => {
               <p className="text-slate-300">
                 Please wait while we verify your email address...
               </p>
-            </>
-          )}
-
-          {status === 'success' && (
-            <>
-              <div className="w-16 h-16 mx-auto mb-6 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Email Verified! 🎉</h2>
-              <p className="text-slate-300 mb-6">
-                Great! Your email has been verified successfully. 
-                Redirecting you to your personalized quiz...
-              </p>
-              <div className="w-full bg-slate-700 rounded-full h-2">
-                <div className="bg-indigo-500 h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
-              </div>
             </>
           )}
 

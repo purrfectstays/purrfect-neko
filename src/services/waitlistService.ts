@@ -301,42 +301,12 @@ export class WaitlistService {
         throw new Error('Invalid email format in user record');
       }
 
-      // 8. UPDATE USER WITH RETRY LOGIC
-      console.log('🔄 Updating user verification status...');
-      let updateAttempts = 0;
-      const maxRetries = 3;
+      // REMOVED: Client-side verification update (causes RLS 406 errors)
+      // Verification must be handled server-side by the Edge Function only
+      console.error('❌ Client-side email verification is not allowed due to RLS restrictions.');
+      console.log('ℹ️ Please use the verification link sent to your email instead.');
       
-      while (updateAttempts < maxRetries) {
-        updateAttempts++;
-        console.log(`🔄 Update attempt ${updateAttempts}/${maxRetries}`);
-        
-        try {
-          // Commented out direct update of is_verified due to RLS restrictions. Verification should be handled by the edge function only.
-          // const { data: updateData, error: updateError } = await supabase
-          //   .from('waitlist_users')
-          //   .update({
-          //     is_verified: true,
-          //     verification_token: null,
-          //     updated_at: new Date().toISOString()
-          //   })
-          //   .eq('id', user.id)
-          //   .eq('verification_token', cleanToken) // Double-check token still matches
-          //   .select()
-          //   .single();
-
-          throw new Error('Direct verification update is not allowed from the frontend. Please use the verification link sent to your email.');
-          
-        } catch (retryError) {
-          console.error(`❌ Update attempt ${updateAttempts} exception:`, retryError);
-          if (updateAttempts === maxRetries) {
-            throw retryError;
-          }
-          console.log(`⏳ Waiting ${updateAttempts}s before retry...`);
-          await new Promise(resolve => setTimeout(resolve, updateAttempts * 1000));
-        }
-      }
-      
-      throw new Error('All update attempts failed');
+      throw new Error('Email verification must be completed using the link sent to your email. Client-side verification is not permitted for security reasons.');
       
     } catch (error) {
       console.error('❌ verifyEmail error:', error);
