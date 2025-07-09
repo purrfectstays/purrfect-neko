@@ -503,14 +503,26 @@ export class WaitlistService {
 
       return { totalUsers, verifiedUsers, completedQuizzes };
     } catch (error: any) {
-      // Enhanced AbortError detection to catch all forms of cancellation
-      if (error?.name === 'AbortError' || 
-          error?.message?.includes('aborted') || 
-          error?.message?.includes('signal is aborted') ||
-          error?.message?.includes('abort') ||
-          String(error).includes('AbortError') || 
-          String(error).includes('aborted')) {
-        // Silently handle cancelled requests - this is normal behavior
+      // BULLETPROOF ABORT ERROR DETECTION - Catch ALL possible formats
+      const errorString = String(error).toLowerCase();
+      const errorMessage = error?.message ? String(error.message).toLowerCase() : '';
+      const errorName = error?.name ? String(error.name).toLowerCase() : '';
+      
+      // Ultra-comprehensive abort detection
+      const isAbortError = (
+        errorName === 'aborterror' ||
+        errorName.includes('abort') ||
+        errorMessage.includes('abort') ||
+        errorString.includes('aborterror') ||
+        errorString.includes('aborted') ||
+        errorString.includes('signal is aborted') ||
+        errorString.includes('abort') ||
+        // Specific pattern from screenshot
+        errorString.includes('signal is aborted without reason')
+      );
+
+      if (isAbortError) {
+        // Silently handle ALL abort-related errors - this is normal behavior
         return {
           totalUsers: 0,
           verifiedUsers: 0,

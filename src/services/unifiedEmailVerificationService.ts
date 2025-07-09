@@ -725,35 +725,34 @@ export class UnifiedEmailVerificationService {
 
       return { totalUsers, verifiedUsers, completedQuizzes };
     } catch (error: unknown) {
-      // Enhanced AbortError detection to catch all forms of cancellation
-      if (error instanceof Error) {
-        if (error.name === 'AbortError' || 
-            error.message?.includes('aborted') || 
-            error.message?.includes('signal is aborted') ||
-            error.message?.includes('abort')) {
-          // Silently handle cancelled requests - this is normal behavior
-          return {
-            totalUsers: 0,
-            verifiedUsers: 0,
-            completedQuizzes: 0
-          };
-        }
+      // BULLETPROOF ABORT ERROR DETECTION - Catch ALL possible formats
+      const errorString = String(error).toLowerCase();
+      const errorMessage = error instanceof Error ? (error.message || '').toLowerCase() : '';
+      const errorName = error instanceof Error ? (error.name || '').toLowerCase() : '';
+      
+      // Ultra-comprehensive abort detection
+      const isAbortError = (
+        errorName === 'aborterror' ||
+        errorName.includes('abort') ||
+        errorMessage.includes('abort') ||
+        errorString.includes('aborterror') ||
+        errorString.includes('aborted') ||
+        errorString.includes('signal is aborted') ||
+        errorString.includes('abort') ||
+        // Specific pattern from screenshot
+        errorString.includes('signal is aborted without reason')
+      );
+
+      if (isAbortError) {
+        // Silently handle ALL abort-related errors - this is normal behavior
+        return {
+          totalUsers: 0,
+          verifiedUsers: 0,
+          completedQuizzes: 0
+        };
       }
 
-      // Check for other abort-related errors that might not be Error instances
-      if (typeof error === 'object' && error !== null) {
-        const errorStr = String(error);
-        if (errorStr.includes('AbortError') || errorStr.includes('aborted')) {
-          // Silently handle cancelled requests - this is normal behavior
-          return {
-            totalUsers: 0,
-            verifiedUsers: 0,
-            completedQuizzes: 0
-          };
-        }
-      }
-
-      // Only log actual errors, not cancelled requests
+      // Only log actual non-abort errors
       console.warn('Failed to fetch waitlist stats:', error);
       return {
         totalUsers: 0,
