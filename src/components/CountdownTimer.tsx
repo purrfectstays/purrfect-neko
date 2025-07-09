@@ -90,10 +90,18 @@ const CountdownTimer: React.FC = () => {
         // Only handle errors if component is still mounted
         if (!isMounted) return;
 
-        // Handle AbortError differently - it's expected behavior for timeouts
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.warn('Request was aborted (timeout or cleanup):', error.message);
-          setConnectionStatus('error');
+        // Handle AbortError silently - it's expected behavior for timeouts/cleanup
+        const errorString = String(error).toLowerCase();
+        const isAbortError = (
+          error instanceof Error && error.name === 'AbortError' ||
+          errorString.includes('aborterror') ||
+          errorString.includes('aborted') ||
+          errorString.includes('signal is aborted')
+        );
+        
+        if (isAbortError) {
+          // Silently handle abort errors - don't log or change status for these
+          return;
         } else if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
           // CORS error detected
           console.error('🚨 CORS Error detected in CountdownTimer!');
