@@ -6,6 +6,6 @@ export const env = {
   resendApiKey: import.meta.env.VITE_RESEND_API_KEY,
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-  appUrl: import.meta.env.VITE_APP_URL || 'https://purrfect-landingpage.netlify.app',
-  siteUrl: import.meta.env.VITE_APP_URL || 'https://purrfect-landingpage.netlify.app',
+  appUrl: import.meta.env.VITE_APP_URL || 'https://purrfectstays.org',
+  siteUrl: import.meta.env.VITE_APP_URL || 'https://purrfectstays.org',
 };
