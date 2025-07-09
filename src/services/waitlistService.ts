@@ -503,8 +503,13 @@ export class WaitlistService {
 
       return { totalUsers, verifiedUsers, completedQuizzes };
     } catch (error: any) {
-      // Check if this is an AbortError (intentional cancellation)
-      if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+      // Enhanced AbortError detection to catch all forms of cancellation
+      if (error?.name === 'AbortError' || 
+          error?.message?.includes('aborted') || 
+          error?.message?.includes('signal is aborted') ||
+          error?.message?.includes('abort') ||
+          String(error).includes('AbortError') || 
+          String(error).includes('aborted')) {
         // Silently handle cancelled requests - this is normal behavior
         return {
           totalUsers: 0,

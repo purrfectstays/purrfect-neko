@@ -725,13 +725,32 @@ export class UnifiedEmailVerificationService {
 
       return { totalUsers, verifiedUsers, completedQuizzes };
     } catch (error: unknown) {
-      if (error instanceof Error && (error.name === 'AbortError' || error.message?.includes('aborted'))) {
-        // Silently handle cancelled requests - this is normal behavior
-        return {
-          totalUsers: 0,
-          verifiedUsers: 0,
-          completedQuizzes: 0
-        };
+      // Enhanced AbortError detection to catch all forms of cancellation
+      if (error instanceof Error) {
+        if (error.name === 'AbortError' || 
+            error.message?.includes('aborted') || 
+            error.message?.includes('signal is aborted') ||
+            error.message?.includes('abort')) {
+          // Silently handle cancelled requests - this is normal behavior
+          return {
+            totalUsers: 0,
+            verifiedUsers: 0,
+            completedQuizzes: 0
+          };
+        }
+      }
+
+      // Check for other abort-related errors that might not be Error instances
+      if (typeof error === 'object' && error !== null) {
+        const errorStr = String(error);
+        if (errorStr.includes('AbortError') || errorStr.includes('aborted')) {
+          // Silently handle cancelled requests - this is normal behavior
+          return {
+            totalUsers: 0,
+            verifiedUsers: 0,
+            completedQuizzes: 0
+          };
+        }
       }
 
       // Only log actual errors, not cancelled requests
