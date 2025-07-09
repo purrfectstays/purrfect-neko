@@ -726,7 +726,7 @@ export class UnifiedEmailVerificationService {
       return { totalUsers, verifiedUsers, completedQuizzes };
     } catch (error: unknown) {
       if (error instanceof Error && (error.name === 'AbortError' || error.message?.includes('aborted'))) {
-        console.warn('Request was cancelled, returning fallback stats');
+        // Silently handle cancelled requests - this is normal behavior
         return {
           totalUsers: 0,
           verifiedUsers: 0,
@@ -734,6 +734,7 @@ export class UnifiedEmailVerificationService {
         };
       }
 
+      // Only log actual errors, not cancelled requests
       console.warn('Failed to fetch waitlist stats:', error);
       return {
         totalUsers: 0,

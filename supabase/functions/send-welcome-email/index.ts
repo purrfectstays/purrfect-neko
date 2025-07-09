@@ -30,7 +30,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
     ? origin 
     : origin && allowedOrigins.includes(origin) 
       ? origin 
-      : 'https://purrfect-landingpage.netlify.app';
+      : 'https://purrfectstays.org';
   
   return {
     'Access-Control-Allow-Origin': '*',

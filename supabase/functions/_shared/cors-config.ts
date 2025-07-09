@@ -45,7 +45,7 @@ export function getCorsHeaders(origin: string | null): Record<string, string> {
 
 // Get site URL with proper protocol handling
 export function getSiteUrl(requestOrigin?: string | null): string {
-  let siteUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+  let siteUrl = Deno.env.get('SITE_URL') || 'https://purrfectstays.org';
   
   // Allow localhost for development
   if (requestOrigin && requestOrigin.includes('localhost')) {
