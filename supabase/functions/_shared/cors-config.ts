@@ -7,7 +7,7 @@
 export function getCorsHeaders(origin: string | null): Record<string, string> {
   // Get allowed origins from environment variables
   const envOrigins = Deno.env.get('ALLOWED_ORIGINS');
-  const siteUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://purrfectstays.org';
   
   let allowedOrigins: string[];
   
@@ -18,7 +18,7 @@ export function getCorsHeaders(origin: string | null): Record<string, string> {
     // Fallback to default origins
     allowedOrigins = [
       siteUrl,
-      'https://purrfect-landingpage.netlify.app',
+      'https://purrfectstays.org',
       'https://purrfectstays.org',
       'https://www.purrfectstays.org',
       'http://localhost:5173',

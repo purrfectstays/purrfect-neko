@@ -157,9 +157,9 @@ export function getEnvironmentConfig() {
     isProduction: config.app.nodeEnv === 'production',
     isLocalhost: config.app.url.includes('localhost'),
     allowedOrigins: [
-      'https://purrfect-landingpage.netlify.app',
       'https://purrfectstays.org',
       'https://www.purrfectstays.org',
+      'https://purrfect-landingpage.netlify.app',
       'https://purrfect-stays.netlify.app',
       ...(config.app.nodeEnv === 'development' ? ['http://localhost:5173', 'http://localhost:3000'] : []),
     ],

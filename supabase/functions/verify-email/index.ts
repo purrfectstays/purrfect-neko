@@ -40,7 +40,7 @@ function createResponse(req: Request, success: boolean, data: any, corsHeaders: 
 // Environment-driven CORS configuration
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const envOrigins = Deno.env.get('ALLOWED_ORIGINS');
-  const siteUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://purrfectstays.org';
   
   let allowedOrigins: string[];
   
