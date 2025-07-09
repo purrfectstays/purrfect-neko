@@ -1,6 +1,42 @@
 /// <reference path="../types.ts" />
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// Helper function to return appropriate response based on request method
+function createResponse(req: Request, success: boolean, data: any, corsHeaders: Record<string, string>) {
+  const frontendUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+  
+  if (req.method === 'POST') {
+    // Return JSON for POST requests
+    return new Response(
+      JSON.stringify({
+        success,
+        ...data
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: success ? 200 : 400,
+      }
+    );
+  } else {
+    // Redirect for GET requests
+    if (success) {
+      const params = new URLSearchParams({
+        success: 'true',
+        ...data
+      });
+      return Response.redirect(
+        `${frontendUrl}/verify-result?${params.toString()}`,
+        302
+      );
+    } else {
+      return Response.redirect(
+        `${frontendUrl}/verify-result?success=false&error=${encodeURIComponent(data.error || 'Verification failed')}`,
+        302
+      );
+    }
+  }
+}
+
 // Environment-driven CORS configuration
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const envOrigins = Deno.env.get('ALLOWED_ORIGINS');
@@ -17,6 +53,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
       'https://purrfectstays.org',
       'https://www.purrfectstays.org',
       'http://localhost:5173',
+      'http://localhost:5174',
       'http://localhost:3000'
     ];
   }
@@ -49,8 +86,8 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Only allow GET requests for email verification
-  if (req.method !== 'GET') {
+  // Allow both GET and POST requests for email verification
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
       {
@@ -61,10 +98,28 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Get token from URL parameters
-    const url = new URL(req.url);
-    const token = url.searchParams.get('token');
+    let token: string | null = null;
     const frontendUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+    
+    // Get token from URL parameters for GET requests or body for POST requests
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      token = url.searchParams.get('token');
+    } else if (req.method === 'POST') {
+      try {
+        const body = await req.json();
+        token = body.token;
+      } catch (e) {
+        console.error('❌ Failed to parse JSON body:', e);
+        return new Response(
+          JSON.stringify({ error: 'Invalid JSON body' }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        );
+      }
+    }
 
     console.log('🔍 Verification attempt:', {
       token: token ? `${token.substring(0, 8)}...` : 'none',
@@ -74,20 +129,14 @@ Deno.serve(async (req) => {
 
     if (!token) {
       console.error('❌ No verification token provided');
-      return Response.redirect(
-        `${frontendUrl}/verify-result?success=false&error=${encodeURIComponent('No verification token provided')}`,
-        302
-      );
+      return createResponse(req, false, { error: 'No verification token provided' }, corsHeaders);
     }
 
     // Validate token format
     const cleanToken = token.trim();
     if (!cleanToken || cleanToken.length < 10) {
       console.error('❌ Invalid token format:', cleanToken);
-      return Response.redirect(
-        `${frontendUrl}/verify-result?success=false&error=${encodeURIComponent('Invalid verification token format')}`,
-        302
-      );
+      return createResponse(req, false, { error: 'Invalid verification token format' }, corsHeaders);
     }
 
     // Create Supabase client with service role
@@ -269,19 +318,14 @@ Deno.serve(async (req) => {
           .eq('token', cleanToken);
       }
       
-      // Redirect to frontend with success and user data
-      const params = new URLSearchParams({
-        success: 'true',
+      // Return success response
+      return createResponse(req, true, {
         user_id: updatedUser.id,
         user_type: updatedUser.user_type,
         name: updatedUser.name,
         email: updatedUser.email,
-      });
-
-      return Response.redirect(
-        `${frontendUrl}/verify-result?${params.toString()}`,
-        302
-      );
+        message: 'Email verified successfully',
+      }, corsHeaders);
       
     } catch (updateError) {
       console.error('❌ Update operation failed:', updateError);

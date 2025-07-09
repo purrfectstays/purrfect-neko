@@ -70,14 +70,31 @@ export class EmailVerificationService {
       }
 
       // Send verification email via edge function
-      const { error: emailError } = await supabase.functions.invoke('send-verification-email', {
-        body: {
-          email,
-          name,
-          verificationToken: token,
-          userType,
-        },
+      const requestBody = JSON.stringify({
+        email,
+        name,
+        verificationToken: token,
+        userType,
       });
+      
+      console.log('📧 Frontend sending:', requestBody);
+      
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-verification-email`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: requestBody,
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('📧 Edge Function error:', errorText);
+        throw new Error(`Email function failed: ${response.status}`);
+      }
+      
+      const emailError = null; // No error if we get here
 
       if (emailError) {
         // Clean up tokens if email fails

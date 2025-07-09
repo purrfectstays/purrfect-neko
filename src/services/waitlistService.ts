@@ -98,6 +98,10 @@ export class WaitlistService {
     email: string;
     userType: 'cat-parent' | 'cattery-owner';
   }): Promise<{ user: WaitlistUser; verificationToken: string }> {
+    // Clear any stale localStorage data to prevent user ID mix-ups
+    localStorage.removeItem('purrfect_verified_user');
+    localStorage.removeItem('purrfect_user_context');
+    
     if (!isSupabaseConfigured) {
       throw new Error('Service unavailable: Database configuration is invalid');
     }
@@ -144,6 +148,9 @@ export class WaitlistService {
 
       // Send verification email
       try {
+        console.log('🔧 Calling Edge Function: send-verification-email');
+        console.log('🔧 Supabase URL from env:', import.meta.env.VITE_SUPABASE_URL);
+        
         const { data: emailData, error: emailError } = await supabase.functions.invoke('send-verification-email', {
           body: {
             email: userData.email,
@@ -438,10 +445,7 @@ export class WaitlistService {
             name: data.name,
             waitlistPosition: data.waitlist_position,
             userType: data.user_type,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          }
         });
 
         if (emailError) {

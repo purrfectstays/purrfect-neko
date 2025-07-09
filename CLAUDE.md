@@ -134,14 +134,14 @@ This project is configured for seamless deployment on Netlify with GitHub integr
 
 ## MCP (Model Context Protocol) Integration
 
-This project now includes comprehensive MCP server configurations to enhance AI-assisted development workflows.
+This project includes a production-ready MCP setup with comprehensive deployment workflows for streamlined development.
 
 ### Available MCP Servers
 
 **Critical Priority MCPs:**
-- **Supabase MCP**: Database operations, Edge Functions, schema management
+- **Supabase MCP**: Database operations, Edge Functions deployment, schema management
 - **GitHub MCP**: Development workflow, issue tracking, repository management  
-- **Vercel MCP**: Deployment monitoring, configuration management
+- **Netlify MCP**: Frontend deployment monitoring, build management, configuration
 - **Resend MCP**: Email deliverability debugging, template management
 
 **Secondary Priority MCPs:**
@@ -151,19 +151,30 @@ This project now includes comprehensive MCP server configurations to enhance AI-
 
 ### Setup Instructions
 
-1. **Configuration**: See `.mcp/mcp-config.json` for server configurations
-2. **Setup Guide**: Follow detailed instructions in `.mcp/setup.md`
-3. **Security**: Replace placeholder tokens with actual API keys
-4. **AI Tool Integration**: Import configuration into Claude Desktop, Cursor, or other compatible tools
+1. **Quick Start**: Follow `.mcp/quick-start.md` for 15-minute setup
+2. **Full Configuration**: See `.mcp/mcp-config.json` for complete server configurations
+3. **Deployment Plan**: Review `.mcp/deployment-plan.md` for comprehensive deployment strategy
+4. **Setup Guide**: Detailed instructions in `.mcp/setup.md`
+5. **Security**: Replace placeholder tokens with actual API keys
+6. **AI Tool Integration**: Import configuration into Claude Desktop, Cursor, or other compatible tools
 
 ### Benefits
 
 With MCP integration, you can:
-- Query Supabase database through natural language
-- Manage GitHub issues and PRs conversationally
-- Monitor Vercel deployments and debug configurations
-- Analyze email deliverability and manage templates
+- Deploy Edge Functions via natural language commands
+- Query Supabase database conversationally
+- Manage GitHub issues and PRs through AI
+- Monitor Netlify deployments and build status
+- Debug email deliverability and manage templates
 - Track project progress and analyze user behavior
+
+### Deployment Workflow
+
+The MCP setup enables streamlined deployments:
+- **Function Deployment**: `"Deploy send-verification-email function to Supabase"`
+- **Status Monitoring**: `"Show deployment status and logs"`
+- **Testing**: `"Test email function with sample data"`
+- **Rollback**: `"Rollback function to previous version"`
 
 ## Claude Development Rules
 

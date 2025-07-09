@@ -53,24 +53,33 @@ MCPs (Model Context Protocols) enhance your development workflow by providing st
 }
 ```
 
-### 3. Vercel MCP
-**Purpose**: Deployment monitoring, configuration management
+### 3. Netlify MCP
+**Purpose**: Frontend deployment monitoring, build management, configuration
 
 **Setup Steps**:
-1. Go to Vercel → Settings → Tokens
-2. Create new token with appropriate scope
-3. Update configuration
+1. Go to Netlify → User settings → Applications → Personal access tokens
+2. Create new token with "Sites:read" and "Sites:write" scopes
+3. Get your Site ID from Site settings → General → Site details
+4. Update configuration with your values
 
 **Configuration**:
 ```json
-"vercel": {
+"netlify": {
   "command": "npx",
-  "args": ["-y", "@vercel/mcp-server@latest"],
+  "args": ["-y", "@netlify/mcp-server@latest"],
   "env": {
-    "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN"
+    "NETLIFY_ACCESS_TOKEN": "YOUR_NETLIFY_TOKEN",
+    "NETLIFY_SITE_ID": "YOUR_SITE_ID"
   }
 }
 ```
+
+**Capabilities**:
+- Deploy frontend changes
+- Monitor build status and logs
+- Manage site configuration
+- Handle domain and DNS settings
+- Environment variable management
 
 ### 4. Resend Email MCP
 **Purpose**: Email deliverability monitoring, template management

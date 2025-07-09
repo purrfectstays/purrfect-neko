@@ -208,6 +208,8 @@ const QualificationQuizSecure: React.FC = () => {
       }));
 
       console.log('📤 Submitting quiz responses:', quizResponses);
+      console.log('👤 Using user ID:', user.id, 'for email:', user.email);
+      
       // Submit quiz responses
       const result = await UnifiedEmailVerificationService.submitQuizResponses(user.id, quizResponses);
       console.log('✅ Quiz submission successful:', result);

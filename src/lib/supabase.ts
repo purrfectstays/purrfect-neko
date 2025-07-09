@@ -4,6 +4,13 @@ import { Database } from '../types/database';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Debug logging
+console.log('🔧 Supabase Config Debug:', {
+  url: supabaseUrl,
+  anonKeyLength: supabaseAnonKey?.length || 0,
+  anonKeyPrefix: supabaseAnonKey?.substring(0, 10) || 'none'
+});
+
 // Enhanced validation with better error messages
 const validateSupabaseConfig = () => {
   const errors: string[] = [];

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import LoadingSpinner from './LoadingSpinner';
+import { supabase } from '../lib/supabase';
 
 const EmailVerificationHandler: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -32,26 +33,54 @@ const EmailVerificationHandler: React.FC = () => {
       }
 
       try {
-        console.log('🔐 Redirecting to Edge Function for verification...');
+        console.log('🔐 Verifying email via Supabase client...');
         
-        // Redirect to Edge Function for server-side verification
-        const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-email`;
-        const verificationUrl = `${edgeFunctionUrl}?token=${encodeURIComponent(cleanToken)}`;
+        // Use Supabase invoke to call the Edge Function
+        // This handles all authentication and CORS issues automatically
+        const { data, error } = await supabase.functions.invoke('verify-email', {
+          body: { token: cleanToken },
+          method: 'POST', // Use POST to send token in body instead of URL
+        });
         
-        console.log('🔗 Redirecting to:', verificationUrl);
+        console.log('📡 Verification response:', { data, error });
         
-        // Redirect immediately to Edge Function
-        window.location.href = verificationUrl;
+        if (error) {
+          throw new Error(error.message || 'Verification failed');
+        }
+        
+        // Handle the response based on what the Edge Function returns
+        if (data?.redirectUrl) {
+          console.log('🔄 Redirecting to:', data.redirectUrl);
+          window.location.href = data.redirectUrl;
+          return;
+        }
+        
+        if (data?.success) {
+          console.log('✅ Verification successful');
+          // Navigate to the verification result page
+          const params = new URLSearchParams({
+            success: 'true',
+            user_id: data.user_id || '',
+            user_type: data.user_type || '',
+            name: data.name || '',
+            email: data.email || '',
+          });
+          navigate(`/verify-result?${params.toString()}`, { replace: true });
+          return;
+        }
+        
+        // If we get here, something unexpected happened
+        throw new Error('Unexpected response from verification service');
         
       } catch (error) {
-        console.error('❌ Verification redirect failed:', error);
+        console.error('❌ Verification failed:', error);
         setStatus('error');
-        setErrorMessage('Failed to process verification. Please try again.');
+        setErrorMessage(error instanceof Error ? error.message : 'Failed to process verification. Please try again.');
       }
     };
 
     verifyEmail();
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const handleRetry = () => {
     navigate('/', { replace: true });
