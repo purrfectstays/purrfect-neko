@@ -505,7 +505,7 @@ export class WaitlistService {
     } catch (error: any) {
       // Check if this is an AbortError (intentional cancellation)
       if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
-        console.warn('Request was cancelled (timeout or component unmount), returning fallback stats');
+        // Silently handle cancelled requests - this is normal behavior
         return {
           totalUsers: 0,
           verifiedUsers: 0,
