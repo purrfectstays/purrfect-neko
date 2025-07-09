@@ -19,7 +19,6 @@ export function getCorsHeaders(origin: string | null): Record<string, string> {
     allowedOrigins = [
       siteUrl,
       'https://purrfectstays.org',
-      'https://purrfectstays.org',
       'https://www.purrfectstays.org',
       'http://localhost:5173',
       'http://localhost:3000'

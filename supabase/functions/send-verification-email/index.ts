@@ -17,7 +17,6 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
     allowedOrigins = [
       siteUrl,
       'https://purrfectstays.org',
-      'https://purrfectstays.org',
       'https://www.purrfectstays.org',
       'http://localhost:5173',
       'http://localhost:5174',
@@ -181,7 +180,7 @@ Deno.serve(async (req) => {
     console.log('✅ Email service configured with key:', resendApiKey.substring(0, 8) + '...');
 
     // Use environment-driven site URL configuration
-    let siteUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+    let siteUrl = Deno.env.get('SITE_URL') || 'https://purrfectstays.org';
     
     // Allow localhost for development
     const requestOrigin = req.headers.get('origin');

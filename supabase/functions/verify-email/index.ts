@@ -49,7 +49,6 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   } else {
     allowedOrigins = [
       siteUrl,
-      'https://purrfect-landingpage.netlify.app',
       'https://purrfectstays.org',
       'https://www.purrfectstays.org',
       'http://localhost:5173',
