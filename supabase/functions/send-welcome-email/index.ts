@@ -491,18 +491,6 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
           font-weight: 600 !important;
         }
         
-        /* User type badge */
-        .user-type-badge {
-          display: inline-block !important;
-          background-color: ${userTypeColor} !important;
-          color: white !important;
-          padding: 10px 20px !important;
-          border-radius: 25px !important;
-          font-size: 14px !important;
-          font-weight: 600 !important;
-          margin: 10px 0 !important;
-          text-align: center !important;
-        }
         
         /* Section boxes */
         .section-box {
