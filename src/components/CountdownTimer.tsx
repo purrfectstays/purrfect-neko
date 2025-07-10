@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { isAbortError } from '../lib/errorHandler';
 
 const CountdownTimer: React.FC = () => {
   const { waitlistCount, setWaitlistCount } = useApp();
@@ -21,6 +22,8 @@ const CountdownTimer: React.FC = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [lastSuccessfulFetch, setLastSuccessfulFetch] = useState<Date | null>(null);
   const [corsErrorDetected, setCorsErrorDetected] = useState(false);
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
+  const [isRequestInFlight, setIsRequestInFlight] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -52,13 +55,22 @@ const CountdownTimer: React.FC = () => {
 
     let isMounted = true;
     let currentController: AbortController | null = null;
+    let intervalId: NodeJS.Timeout | null = null;
 
     // Fetch real waitlist stats with enhanced error handling
     const fetchStats = async () => {
-      // Don't start new request if component is unmounted
-      if (!isMounted) return;
+      // Don't start new request if component is unmounted or request already in flight
+      if (!isMounted || isRequestInFlight) return;
+
+      // Circuit breaker: Stop polling after 3 consecutive failures
+      if (consecutiveFailures >= 3) {
+        setConnectionStatus('error');
+        console.warn('Circuit breaker activated: too many consecutive failures');
+        return;
+      }
 
       try {
+        setIsRequestInFlight(true);
         setConnectionStatus('connecting');
         
         // Create a new AbortController for this request
@@ -83,6 +95,7 @@ const CountdownTimer: React.FC = () => {
           setConnectionStatus('connected');
           setIsOffline(false);
           setRetryCount(0);
+          setConsecutiveFailures(0); // Reset circuit breaker on success
           setCorsErrorDetected(false);
           setLastSuccessfulFetch(new Date());
         }
@@ -91,15 +104,7 @@ const CountdownTimer: React.FC = () => {
         if (!isMounted) return;
 
         // Handle AbortError silently - it's expected behavior for timeouts/cleanup
-        const errorString = String(error).toLowerCase();
-        const isAbortError = (
-          error instanceof Error && error.name === 'AbortError' ||
-          errorString.includes('aborterror') ||
-          errorString.includes('aborted') ||
-          errorString.includes('signal is aborted')
-        );
-        
-        if (isAbortError) {
+        if (isAbortError(error)) {
           // Silently handle abort errors - don't log or change status for these
           return;
         } else if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -114,49 +119,70 @@ const CountdownTimer: React.FC = () => {
         
         setIsOffline(true);
         setRetryCount(prev => prev + 1);
+        setConsecutiveFailures(prev => prev + 1); // Increment failure counter
         
         // Keep existing stats when offline, but show error state
         // Don't update stats to preserve last known good values
       } finally {
-        // Clean up the controller reference
+        // Clean up the controller reference and request flag
         currentController = null;
+        if (isMounted) {
+          setIsRequestInFlight(false);
+        }
       }
     };
 
     // Initial fetch
     fetchStats();
     
-    // Set up retry logic with exponential backoff
+    // Set up retry logic with PROPER exponential backoff
     const getRetryInterval = () => {
-      const baseInterval = 30000; // 30 seconds
-      const maxInterval = 300000; // 5 minutes
-      const backoffMultiplier = Math.min(Math.pow(2, retryCount), 10);
+      const baseInterval = 60000; // 60 seconds (reduced from 30s)
+      const maxInterval = 600000; // 10 minutes (increased from 5 minutes)
+      
+      if (connectionStatus === 'connected') {
+        return baseInterval; // Normal polling when connected
+      }
+      
+      // Exponential backoff for errors: 60s, 120s, 240s, 480s, 600s (max)
+      const backoffMultiplier = Math.pow(2, consecutiveFailures);
       return Math.min(baseInterval * backoffMultiplier, maxInterval);
     };
 
-    // Refresh stats with dynamic interval based on connection status
-    const interval = setInterval(() => {
-      if (!isMounted) return;
-      
-      if (connectionStatus === 'connected') {
-        fetchStats();
-      } else if ((connectionStatus === 'error' || connectionStatus === 'cors-error') && retryCount < 10) {
-        // Retry with exponential backoff, but limit total retries
-        fetchStats();
+    // Set up interval with proper cleanup
+    const scheduleNextFetch = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
       }
-    }, getRetryInterval());
+      
+      const interval = getRetryInterval();
+      intervalId = setInterval(() => {
+        if (!isMounted) return;
+        
+        // Only fetch if we're not in circuit breaker mode
+        if (consecutiveFailures < 3) {
+          fetchStats();
+        }
+      }, interval);
+    };
+
+    // Start the polling cycle
+    scheduleNextFetch();
 
     // Cleanup function
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
       
       // Abort any ongoing request when component unmounts
       if (currentController && !currentController.signal.aborted) {
         currentController.abort();
       }
     };
-  }, [setWaitlistCount, retryCount, connectionStatus]);
+  }, [setWaitlistCount]); // Removed retryCount and connectionStatus from dependencies
 
   const getStatusMessage = () => {
     if (!isSupabaseConfigured) {
@@ -175,7 +201,9 @@ const CountdownTimer: React.FC = () => {
       case 'cors-error':
         return '🚨 CORS configuration needed';
       case 'error':
-        return retryCount > 5 
+        return consecutiveFailures >= 3
+          ? '🔴 Connection failed (circuit breaker active)'
+          : retryCount > 5 
           ? '⚠️ Connection issues (check CORS settings)'
           : `⚠️ Retrying... (${retryCount}/10)`;
       default:

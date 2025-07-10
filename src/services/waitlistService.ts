@@ -27,8 +27,67 @@ export interface QuizResponse {
   answer: string | number;
 }
 
+// BULLETPROOF ABORT ERROR DETECTION
+const isAbortError = (error: unknown): boolean => {
+  if (!error) return false;
+  
+  // Convert to string for comprehensive checking
+  const errorString = String(error).toLowerCase();
+  const errorMessage = error instanceof Error ? (error.message || '').toLowerCase() : '';
+  const errorName = error instanceof Error ? (error.name || '').toLowerCase() : '';
+  
+  // Check for AbortController.signal.aborted
+  if (error instanceof Error && 'cause' in error && error.cause) {
+    const causeString = String(error.cause).toLowerCase();
+    if (causeString.includes('abort') || causeString.includes('signal')) {
+      return true;
+    }
+  }
+  
+  // Ultra-comprehensive abort detection patterns
+  const abortPatterns = [
+    'aborterror',
+    'aborted',
+    'signal is aborted',
+    'abort',
+    'signal is aborted without reason',
+    'operation was aborted',
+    'the operation was aborted',
+    'request aborted',
+    'abortcontroller',
+    'signal aborted'
+  ];
+  
+  return abortPatterns.some(pattern => 
+    errorName.includes(pattern) || 
+    errorMessage.includes(pattern) || 
+    errorString.includes(pattern)
+  );
+};
+
+// BULLETPROOF API CALL WRAPPER
+const safeApiCall = async <T>(apiCall: () => Promise<T>, fallbackValue: T, operation: string): Promise<T> => {
+  try {
+    return await apiCall();
+  } catch (error: unknown) {
+    // Silently handle ALL abort-related errors
+    if (isAbortError(error)) {
+      return fallbackValue;
+    }
+    
+    // Log and handle other errors normally
+    console.warn(`${operation} failed:`, error);
+    return fallbackValue;
+  }
+};
+
 // Enhanced error handling helper with CORS detection
 const handleServiceError = (error: any, operation: string): Error => {
+  // SILENTLY HANDLE ALL ABORT ERRORS
+  if (isAbortError(error)) {
+    return new Error('Request was cancelled');
+  }
+  
   console.error(`WaitlistService.${operation} error:`, error);
   
   if (!isSupabaseConfigured) {
@@ -80,6 +139,11 @@ const testNetworkConnectivity = async (): Promise<{ connected: boolean; corsErro
     clearTimeout(timeoutId);
     return { connected: response.ok, corsError: false };
   } catch (error: any) {
+    // SILENTLY HANDLE ABORT ERRORS
+    if (isAbortError(error)) {
+      return { connected: false, corsError: false };
+    }
+    
     console.warn('Network connectivity test failed:', error);
     
     // Detect CORS errors
@@ -330,75 +394,103 @@ export class WaitlistService {
   static async testDatabaseConnection(): Promise<{ success: boolean; message: string; details?: any }> {
     console.log('🔧 Testing database connection...');
     
-    try {
-      if (!isSupabaseConfigured) {
-        return { 
-          success: false, 
-          message: 'Supabase configuration is invalid',
-          details: { configured: false }
-        };
-      }
-
-      // Test basic connection
-      const { data: testData, error: testError } = await supabase
-        .from('waitlist_users')
-        .select('count')
-        .limit(1);
-      
-      if (testError) {
-        return { 
-          success: false, 
-          message: `Database connection failed: ${testError.message}`,
-          details: testError
-        };
-      }
-
-      // Test RLS policies
-      const { data: rlsTest, error: rlsError } = await supabase
-        .from('waitlist_users')
-        .select('id, email, is_verified')
-        .limit(1);
-        
-      if (rlsError) {
-        return { 
-          success: false, 
-          message: `RLS policy test failed: ${rlsError.message}`,
-          details: rlsError
-        };
-      }
-
-      // Test token search capability
-      const { data: tokenTest, error: tokenError } = await supabase
-        .from('waitlist_users')
-        .select('verification_token')
-        .not('verification_token', 'is', null)
-        .limit(1);
-        
-      if (tokenError) {
-        return { 
-          success: false, 
-          message: `Token search test failed: ${tokenError.message}`,
-          details: tokenError
-        };
-      }
-
-      return { 
-        success: true, 
-        message: 'Database connection successful',
-        details: { 
-          hasData: rlsTest && rlsTest.length > 0,
-          hasTokens: tokenTest && tokenTest.length > 0,
-          rowCount: rlsTest?.length || 0
+    return await safeApiCall(
+      async () => {
+        if (!isSupabaseConfigured) {
+          return { 
+            success: false, 
+            message: 'Supabase configuration is invalid',
+            details: { configured: false }
+          };
         }
-      };
-      
-    } catch (error) {
-      return { 
+
+        // Test basic connection
+        const { data: testData, error: testError } = await supabase
+          .from('waitlist_users')
+          .select('count')
+          .limit(1);
+        
+        if (testError) {
+          // Check for abort error
+          if (isAbortError(testError)) {
+            return { 
+              success: false, 
+              message: 'Request was cancelled',
+              details: { aborted: true }
+            };
+          }
+          
+          return { 
+            success: false, 
+            message: `Database connection failed: ${testError.message}`,
+            details: testError
+          };
+        }
+
+        // Test RLS policies
+        const { data: rlsTest, error: rlsError } = await supabase
+          .from('waitlist_users')
+          .select('id, email, is_verified')
+          .limit(1);
+          
+        if (rlsError) {
+          // Check for abort error
+          if (isAbortError(rlsError)) {
+            return { 
+              success: false, 
+              message: 'Request was cancelled',
+              details: { aborted: true }
+            };
+          }
+          
+          return { 
+            success: false, 
+            message: `RLS policy test failed: ${rlsError.message}`,
+            details: rlsError
+          };
+        }
+
+        // Test token search capability
+        const { data: tokenTest, error: tokenError } = await supabase
+          .from('waitlist_users')
+          .select('verification_token')
+          .not('verification_token', 'is', null)
+          .limit(1);
+          
+        if (tokenError) {
+          // Check for abort error
+          if (isAbortError(tokenError)) {
+            return { 
+              success: false, 
+              message: 'Request was cancelled',
+              details: { aborted: true }
+            };
+          }
+          
+          return { 
+            success: false, 
+            message: `Token search test failed: ${tokenError.message}`,
+            details: tokenError
+          };
+        }
+
+        return { 
+          success: true, 
+          message: 'Database connection successful',
+          details: { 
+            hasData: rlsTest && rlsTest.length > 0,
+            hasTokens: tokenTest && tokenTest.length > 0,
+            rowCount: rlsTest?.length || 0
+          }
+        };
+      },
+      { 
         success: false, 
-        message: `Connection test exception: ${(error as Error).message}`,
-        details: error
-      };
-    }
+        message: 'Connection test failed',
+        details: { fallback: true }
+      },
+      'testDatabaseConnection'
+    );
   }
 
   static async submitQuizResponses(
@@ -466,124 +558,74 @@ export class WaitlistService {
     verifiedUsers: number;
     completedQuizzes: number;
   }> {
+    const fallbackStats = {
+      totalUsers: 0,
+      verifiedUsers: 0,
+      completedQuizzes: 0
+    };
+
     // Return fallback stats if Supabase is not configured
     if (!isSupabaseConfigured) {
-      console.warn('Supabase not configured, returning fallback stats');
-      return {
-        totalUsers: 0,
-        verifiedUsers: 0,
-        completedQuizzes: 0
-      };
+      return fallbackStats;
     }
 
     // Check if the signal is already aborted before making the request
     if (signal?.aborted) {
-      console.warn('Request aborted before starting, returning fallback stats');
-      return {
-        totalUsers: 0,
-        verifiedUsers: 0,
-        completedQuizzes: 0
-      };
+      return fallbackStats;
     }
 
-    try {
-      // Use the Supabase client with proper abort signal handling
-      const { data, error } = await supabase
-        .from('waitlist_users')
-        .select('is_verified, quiz_completed')
-        .abortSignal(signal);
+    return await safeApiCall(
+      async () => {
+        // Use the Supabase client with proper abort signal handling
+        const { data, error } = await supabase
+          .from('waitlist_users')
+          .select('is_verified, quiz_completed')
+          .abortSignal(signal);
 
-      if (error) {
-        throw error;
-      }
+        if (error) {
+          // Check for abort error here too
+          if (isAbortError(error)) {
+            return fallbackStats;
+          }
+          throw error;
+        }
 
-      const totalUsers = data.length;
-      const verifiedUsers = data.filter(user => user.is_verified).length;
-      const completedQuizzes = data.filter(user => user.quiz_completed).length;
+        const totalUsers = data.length;
+        const verifiedUsers = data.filter(user => user.is_verified).length;
+        const completedQuizzes = data.filter(user => user.quiz_completed).length;
 
-      return { totalUsers, verifiedUsers, completedQuizzes };
-    } catch (error: any) {
-      // BULLETPROOF ABORT ERROR DETECTION - Catch ALL possible formats
-      const errorString = String(error).toLowerCase();
-      const errorMessage = error?.message ? String(error.message).toLowerCase() : '';
-      const errorName = error?.name ? String(error.name).toLowerCase() : '';
-      
-      // Ultra-comprehensive abort detection
-      const isAbortError = (
-        errorName === 'aborterror' ||
-        errorName.includes('abort') ||
-        errorMessage.includes('abort') ||
-        errorString.includes('aborterror') ||
-        errorString.includes('aborted') ||
-        errorString.includes('signal is aborted') ||
-        errorString.includes('abort') ||
-        // Specific pattern from screenshot
-        errorString.includes('signal is aborted without reason')
-      );
-
-      if (isAbortError) {
-        // Silently handle ALL abort-related errors - this is normal behavior
-        return {
-          totalUsers: 0,
-          verifiedUsers: 0,
-          completedQuizzes: 0
-        };
-      }
-
-      // Enhanced CORS error detection and logging
-      if (error?.name === 'TypeError' && error?.message?.includes('Failed to fetch')) {
-        console.error('🚨 CORS Error in getWaitlistStats!');
-        console.error('To fix this issue:');
-        console.error('1. Open your Supabase Dashboard settings/api page');
-        console.error('2. Scroll to the CORS section');
-        console.error('3. Add these origins:');
-        console.error('   - http://localhost:5173');
-        console.error('   - https://purrfectstays.org');
-        console.error('4. Save the changes');
-        console.error('5. Refresh this page');
-      }
-
-      // Enhanced error logging for debugging other errors
-      console.warn('Failed to fetch waitlist stats:', {
-        error: error,
-        errorMessage: error?.message,
-        errorName: error?.name,
-        isSupabaseConfigured,
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL ? 'configured' : 'missing',
-        supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'configured' : 'missing'
-      });
-
-      // Return fallback stats when network fails
-      return {
-        totalUsers: 0,
-        verifiedUsers: 0,
-        completedQuizzes: 0
-      };
-    }
+        return { totalUsers, verifiedUsers, completedQuizzes };
+      },
+      fallbackStats,
+      'getWaitlistStats'
+    );
   }
 
   static async getUserByEmail(email: string): Promise<WaitlistUser | null> {
     if (!isSupabaseConfigured) {
-      console.warn('Supabase not configured, cannot fetch user by email');
       return null;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('waitlist_users')
-        .select('*')
-        .eq('email', email)
-        .maybeSingle();
+    return await safeApiCall(
+      async () => {
+        const { data, error } = await supabase
+          .from('waitlist_users')
+          .select('*')
+          .eq('email', email)
+          .maybeSingle();
 
-      if (error) {
-        console.warn('Failed to fetch user by email:', error);
-        return null;
-      }
+        if (error) {
+          // Check for abort error
+          if (isAbortError(error)) {
+            return null;
+          }
+          throw error;
+        }
 
-      return data;
-    } catch (error) {
-      console.warn('Failed to fetch user by email due to network issues:', error);
-      return null;
-    }
+        return data;
+      },
+      null,
+      'getUserByEmail'
+    );
   }
 }

@@ -24,6 +24,7 @@ import { initGA, trackPageView } from './lib/analytics';
 import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
 import { env } from './lib/environment';
+import { setupGlobalErrorHandler } from './lib/errorHandler';
 
 const HomeHandler: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -165,6 +166,9 @@ const AppContent: React.FC = () => {
 function App() {
   useEffect(() => {
     try {
+      // Setup global error handler to silence AbortErrors
+      setupGlobalErrorHandler();
+      
       // Initialize Google Analytics
       if (env.gaMeasurementId) {
         initGA();
