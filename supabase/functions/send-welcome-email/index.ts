@@ -165,8 +165,8 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Use environment-driven site URL configuration
-    let siteUrl = Deno.env.get('SITE_URL') || 'https://purrfectstays.org';
+    // FORCE production URL for all email links
+    let siteUrl = 'https://purrfectstays.org';
     
     // Allow localhost for development
     const requestOrigin = req.headers.get('origin');

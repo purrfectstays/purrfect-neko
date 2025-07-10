@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 // Helper function to return appropriate response based on request method
 function createResponse(req: Request, success: boolean, data: any, corsHeaders: Record<string, string>) {
-  const frontendUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+  const frontendUrl = 'https://purrfectstays.org';
   
   if (req.method === 'POST') {
     // Return JSON for POST requests
@@ -40,7 +40,7 @@ function createResponse(req: Request, success: boolean, data: any, corsHeaders: 
 // Environment-driven CORS configuration
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const envOrigins = Deno.env.get('ALLOWED_ORIGINS');
-  const siteUrl = Deno.env.get('SITE_URL') || 'https://purrfectstays.org';
+  const siteUrl = 'https://purrfectstays.org';
   
   let allowedOrigins: string[];
   
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
 
   try {
     let token: string | null = null;
-    const frontendUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+    const frontendUrl = 'https://purrfectstays.org';
     
     // Get token from URL parameters for GET requests or body for POST requests
     if (req.method === 'GET') {
@@ -337,7 +337,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('❌ Verification error:', error);
     
-    const frontendUrl = Deno.env.get('SITE_URL') || 'https://purrfect-landingpage.netlify.app';
+    const frontendUrl = 'https://purrfectstays.org';
     return Response.redirect(
       `${frontendUrl}/verify-result?success=false&error=${encodeURIComponent('An unexpected error occurred')}`,
       302

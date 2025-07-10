@@ -179,8 +179,8 @@ Deno.serve(async (req) => {
 
     console.log('✅ Email service configured with key:', resendApiKey.substring(0, 8) + '...');
 
-    // Use environment-driven site URL configuration
-    let siteUrl = Deno.env.get('SITE_URL') || 'https://purrfectstays.org';
+    // FORCE production URL for all email links
+    let siteUrl = 'https://purrfectstays.org';
     
     // Allow localhost for development
     const requestOrigin = req.headers.get('origin');
