@@ -343,7 +343,7 @@ function getEmailTemplate(name: string, verificationUrl: string, siteUrl: string
   
   // Use base64 data URL if available, otherwise fallback to hosted logo
   // Always use deployed site for logo assets, even during development
-  const logoBaseSite = 'https://purrfect-landingpage.netlify.app';
+  const logoBaseSite = 'https://purrfectstays.org';
   const logoSrc = logoDataUrl || `${logoBaseSite}/logo-email.png`;
   
   const template = `

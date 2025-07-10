@@ -339,8 +339,8 @@ function getWelcomeEmailTemplate(name: string, waitlistPosition: number, userTyp
   const userTypeEmoji = userType === 'cat-parent' ? '🐱' : '🏠';
   
   // Use base64 data URL if available, otherwise fallback to hosted logo
-  // Always use deployed site for logo assets, even during development
-  const logoBaseSite = 'https://purrfect-landingpage.netlify.app';
+  // Always use production site for logo assets
+  const logoBaseSite = 'https://purrfectstays.org';
   const logoSrc = logoDataUrl || `${logoBaseSite}/logo-email.png`;
   
   return `
