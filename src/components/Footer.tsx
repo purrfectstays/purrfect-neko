@@ -33,14 +33,6 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li>
                 <button
-                  onClick={navigateToLandingPage}
-                  className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
-                >
-                  Landing Page
-                </button>
-              </li>
-              <li>
-                <button
                   onClick={() => setCurrentStep('registration')}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
                 >

@@ -204,78 +204,88 @@ export class CurrencyService {
   }
 
   /**
-   * Get localized budget ranges for cat parents
+   * Get realistic cattery pricing ranges by region (per stay)
+   * Based on average cattery prices per night × typical 3-7 day stays
+   */
+  private static getRegionalCatteryPricing(countryCode: string) {
+    // Realistic cattery pricing per night by region
+    const regionalPricing = {
+      'US': { low: 35, mid: 55, high: 85 }, // USD per night
+      'GB': { low: 25, mid: 40, high: 65 }, // GBP per night  
+      'AU': { low: 40, mid: 60, high: 90 }, // AUD per night
+      'NZ': { low: 45, mid: 60, high: 85 }, // NZD per night
+      'CA': { low: 40, mid: 55, high: 80 }, // CAD per night
+      'SG': { low: 50, mid: 75, high: 120 }, // SGD per night
+      'EU': { low: 30, mid: 50, high: 75 }, // EUR per night
+      'DEFAULT': { low: 35, mid: 55, high: 85 } // USD equivalent
+    };
+
+    return regionalPricing[countryCode] || regionalPricing['DEFAULT'];
+  }
+
+  /**
+   * Get localized budget ranges for cat parents based on realistic cattery pricing
    */
   static async getLocalizedBudgetRanges(countryCode: string): Promise<string[]> {
     const currency = this.getCurrencyForCountry(countryCode);
+    const pricing = this.getRegionalCatteryPricing(countryCode);
     
-    // USD budget ranges
-    const usdRanges = [
-      { label: 'Under $50', max: 50 },
-      { label: '$50-100', min: 50, max: 100 },
-      { label: '$100-200', min: 100, max: 200 },
-      { label: '$200-300', min: 200, max: 300 },
-      { label: 'Over $300', min: 300 }
+    // Calculate ranges based on typical stay lengths (3-7 days)
+    // Using native currency rates, no conversion needed for supported regions
+    const ranges = [
+      {
+        label: `Under ${currency.symbol}${Math.round(pricing.low * 3)}`,
+        description: 'Budget catteries (3 days)'
+      },
+      {
+        label: `${currency.symbol}${Math.round(pricing.low * 3)}-${Math.round(pricing.mid * 5)}`,
+        description: 'Standard catteries (3-5 days)'
+      },
+      {
+        label: `${currency.symbol}${Math.round(pricing.mid * 5)}-${Math.round(pricing.high * 5)}`,
+        description: 'Premium catteries (5 days)'
+      },
+      {
+        label: `${currency.symbol}${Math.round(pricing.high * 5)}-${Math.round(pricing.high * 7)}`,
+        description: 'Luxury catteries (5-7 days)'
+      },
+      {
+        label: `Over ${currency.symbol}${Math.round(pricing.high * 7)}`,
+        description: 'Extended premium stays (7+ days)'
+      }
     ];
 
-    const localizedRanges = await Promise.all(
-      usdRanges.map(async (range) => {
-        if (range.max && !range.min) {
-          // "Under X" format
-          const localAmount = await this.convertFromUSD(range.max, currency.code);
-          return `Under ${this.formatPrice(localAmount, currency)}`;
-        } else if (range.min && range.max) {
-          // "X-Y" format
-          const localMin = await this.convertFromUSD(range.min, currency.code);
-          const localMax = await this.convertFromUSD(range.max, currency.code);
-          return `${this.formatPrice(localMin, currency)}-${this.formatPrice(localMax, currency)}`;
-        } else if (range.min && !range.max) {
-          // "Over X" format
-          const localAmount = await this.convertFromUSD(range.min, currency.code);
-          return `Over ${this.formatPrice(localAmount, currency)}`;
-        }
-        return range.label; // Fallback
-      })
-    );
-
-    return localizedRanges;
+    return ranges.map(range => range.label);
   }
 
   /**
    * Get localized marketing spend ranges for cattery owners
+   * Adjusted to reflect regional business costs and cattery economics
    */
   static async getLocalizedMarketingRanges(countryCode: string): Promise<string[]> {
     const currency = this.getCurrencyForCountry(countryCode);
     
-    // USD marketing spend ranges
-    const usdRanges = [
-      { label: 'Nothing', amount: 0 },
-      { label: 'Under $50', max: 50 },
-      { label: '$50-150', min: 50, max: 150 },
-      { label: '$150-300', min: 150, max: 300 },
-      { label: 'Over $300', min: 300 }
+    // Regional marketing spend ranges based on local business costs
+    const regionalMarketing = {
+      'US': [0, 75, 200, 400], // Higher marketing costs in competitive US market
+      'GB': [0, 50, 150, 300], // GBP - moderate marketing costs
+      'AU': [0, 80, 180, 350], // AUD - higher costs for digital marketing
+      'NZ': [0, 60, 140, 280], // NZD - smaller market, lower absolute costs
+      'CA': [0, 70, 160, 320], // CAD - similar to US but slightly lower
+      'SG': [0, 100, 250, 500], // SGD - premium market, higher marketing costs
+      'EU': [0, 60, 150, 300], // EUR - average European costs
+      'DEFAULT': [0, 75, 200, 400] // USD equivalent
+    };
+
+    const amounts = regionalMarketing[countryCode] || regionalMarketing['DEFAULT'];
+    
+    return [
+      'Nothing',
+      `Under ${this.formatPrice(amounts[1], currency)}`,
+      `${this.formatPrice(amounts[1], currency)}-${this.formatPrice(amounts[2], currency)}`,
+      `${this.formatPrice(amounts[2], currency)}-${this.formatPrice(amounts[3], currency)}`,
+      `Over ${this.formatPrice(amounts[3], currency)}`
     ];
-
-    const localizedRanges = await Promise.all(
-      usdRanges.map(async (range) => {
-        if (range.amount === 0) {
-          return 'Nothing';
-        } else if (range.max && !range.min) {
-          const localAmount = await this.convertFromUSD(range.max, currency.code);
-          return `Under ${this.formatPrice(localAmount, currency)}`;
-        } else if (range.min && range.max) {
-          const localMin = await this.convertFromUSD(range.min, currency.code);
-          const localMax = await this.convertFromUSD(range.max, currency.code);
-          return `${this.formatPrice(localMin, currency)}-${this.formatPrice(localMax, currency)}`;
-        } else if (range.min && !range.max) {
-          const localAmount = await this.convertFromUSD(range.min, currency.code);
-          return `Over ${this.formatPrice(localAmount, currency)}`;
-        }
-        return range.label;
-      })
-    );
-
-    return localizedRanges;
   }
 
   /**
@@ -298,6 +308,37 @@ export class CurrencyService {
   static getCurrencyDisplayName(countryCode: string): string {
     const currency = this.getCurrencyForCountry(countryCode);
     return `${currency.name} (${currency.code})`;
+  }
+
+  /**
+   * Get regional cattery pricing insights for display
+   */
+  static getRegionalPricingInsights(countryCode: string): {
+    averagePerNight: string;
+    typicalStayRange: string;
+    marketLevel: string;
+  } {
+    const currency = this.getCurrencyForCountry(countryCode);
+    const pricing = this.getRegionalCatteryPricing(countryCode);
+    
+    const insights = {
+      'US': { marketLevel: 'Competitive', stayDays: '4-6' },
+      'GB': { marketLevel: 'Established', stayDays: '3-5' },
+      'AU': { marketLevel: 'Growing', stayDays: '4-7' },
+      'NZ': { marketLevel: 'Emerging', stayDays: '3-6' },
+      'CA': { marketLevel: 'Competitive', stayDays: '4-6' },
+      'SG': { marketLevel: 'Premium', stayDays: '3-5' },
+      'EU': { marketLevel: 'Established', stayDays: '3-5' },
+      'DEFAULT': { marketLevel: 'Competitive', stayDays: '4-6' }
+    };
+
+    const regionInsights = insights[countryCode] || insights['DEFAULT'];
+    
+    return {
+      averagePerNight: `${this.formatPrice(pricing.mid, currency)}/night`,
+      typicalStayRange: `${regionInsights.stayDays} days`,
+      marketLevel: regionInsights.marketLevel
+    };
   }
 }
 

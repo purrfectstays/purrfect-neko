@@ -1,9 +1,11 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import Logo from './Logo';
+import { FileText, Shield, Download } from 'lucide-react';
+
 
 const Header: React.FC = () => {
-  const { setCurrentStep } = useApp();
+  const { setCurrentStep, userEmail, isVerified } = useApp();
 
   const handleExploreClick = () => {
     setCurrentStep('explore-catteries');
@@ -13,6 +15,9 @@ const Header: React.FC = () => {
     setCurrentStep('launch-test');
   };
 
+  // Check if user has access to resources (either verified or just registered)
+  const hasResourceAccess = userEmail && userEmail.length > 0;
+
 
   return (
     <header className="bg-zinc-900/95 backdrop-blur-sm border-b border-indigo-800/30 sticky top-0 z-50">
@@ -20,39 +25,70 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           <Logo size="md" variant="full" />
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            {/* Resource Access for Registered Users */}
+            {hasResourceAccess && (
+              <div className="flex items-center space-x-2">
+                {/* Travel Checklist Access */}
+                <button
+                  onClick={() => window.location.href = '/cat-travel-checklist'}
+                  className="hidden md:inline-flex items-center space-x-1 bg-indigo-600/80 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                  title="Cat Travel Checklist"
+                >
+                  <FileText className="h-3 w-3" />
+                  <span>Checklist</span>
+                </button>
+                
+                {/* Evaluation Guide Access */}
+                <button
+                  onClick={() => window.location.href = '/cattery-evaluation-guide'}
+                  className="hidden md:inline-flex items-center space-x-1 bg-purple-600/80 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                  title="Cattery Evaluation Guide"
+                >
+                  <Shield className="h-3 w-3" />
+                  <span>Guide</span>
+                </button>
+                
+                {/* All Resources Access - Mobile/Tablet */}
+                <button
+                  onClick={() => window.location.href = '/early-access-resources'}
+                  className="md:hidden inline-flex items-center space-x-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                  title="Your Free Resources"
+                >
+                  <Download className="h-3 w-3" />
+                  <span>Resources</span>
+                </button>
+              </div>
+            )}
+            
             {/* Launch Test Button - Development/Testing */}
             {import.meta.env.DEV && (
               <button
                 onClick={handleLaunchTestClick}
-                className="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-4 py-2 rounded-lg font-manrope font-semibold text-sm hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-orange-500/25"
+                className="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-3 py-2 rounded-lg font-semibold text-xs hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-orange-500/25"
               >
-                <span>🚀 Launch Test</span>
+                <span>🚀 Test</span>
               </button>
             )}
             
-            {/* Explore Catteries Button */}
+            {/* Explore Platform Preview */}
             <button
               onClick={handleExploreClick}
-              className="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg font-manrope font-semibold text-sm hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-green-500/25"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-2 rounded-lg font-semibold text-xs hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-green-500/25"
             >
-              <span>🗺️ Explore Catteries</span>
+              <span className="hidden sm:inline">🗺️ Platform Preview</span>
+              <span className="sm:hidden">🗺️ Preview</span>
             </button>
             
-            <div className="hidden md:block">
-              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-manrope font-semibold animate-pulse-slow shadow-lg">
-                🚀 Early Access Waiting List Now Open
+            {/* User Status Indicator */}
+            {hasResourceAccess && (
+              <div className="hidden lg:flex items-center space-x-1 bg-zinc-800/50 rounded-lg px-2 py-1 border border-zinc-700">
+                <div className={`w-2 h-2 rounded-full ${isVerified ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                <span className="text-xs text-zinc-300 font-medium">
+                  {isVerified ? 'Verified' : 'Member'}
+                </span>
               </div>
-            </div>
-            
-            <div className="sm:hidden">
-              <button
-                onClick={handleExploreClick}
-                className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-manrope font-semibold shadow-lg"
-              >
-                🗺️ Explore
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -31,6 +31,9 @@ export class LocalizedQuizService {
     // Get localized budget ranges
     const budgetRanges = await CurrencyService.getLocalizedBudgetRanges(countryCode);
     
+    // Get regional pricing insights for context
+    const pricingInsights = CurrencyService.getRegionalPricingInsights(countryCode);
+    
     // Get localized pricing tiers
     const pepperPricing = await CurrencyService.getLocalizedPricing('catParent', 'pepper', countryCode);
     const chickenPricing = await CurrencyService.getLocalizedPricing('catParent', 'chicken', countryCode);
@@ -65,7 +68,7 @@ export class LocalizedQuizService {
       },
       {
         id: 'budget',
-        question: "What's your average budget per stay?",
+        question: `What's your typical budget per cattery stay? (Regional average: ${pricingInsights.averagePerNight} for ${pricingInsights.typicalStayRange} stays)`,
         type: 'multiple-choice',
         options: budgetRanges,
         required: true
@@ -128,6 +131,9 @@ export class LocalizedQuizService {
   private static async getLocalizedCatteryOwnerQuestions(countryCode: string): Promise<QuizQuestion[]> {
     // Get localized marketing spend ranges
     const marketingRanges = await CurrencyService.getLocalizedMarketingRanges(countryCode);
+    
+    // Get regional pricing insights for context
+    const pricingInsights = CurrencyService.getRegionalPricingInsights(countryCode);
     
     // Get localized pricing tiers
     const trufflePricing = await CurrencyService.getLocalizedPricing('catteryOwner', 'truffle', countryCode);
@@ -197,6 +203,13 @@ export class LocalizedQuizService {
         min: 1,
         max: 10,
         step: 1,
+        required: true
+      },
+      {
+        id: 'current-pricing',
+        question: `What do you currently charge per night? (Regional average: ${pricingInsights.averagePerNight}, Market: ${pricingInsights.marketLevel})`,
+        type: 'multiple-choice',
+        options: await CurrencyService.getLocalizedBudgetRanges(countryCode),
         required: true
       },
       {

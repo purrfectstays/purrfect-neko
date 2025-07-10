@@ -247,21 +247,21 @@ const CountdownTimer: React.FC = () => {
   };
 
   return (
-    <div className="bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-6 border border-indigo-800/30">
-      <div className="text-center mb-4">
-        <h3 className="font-manrope font-bold text-xl text-white mb-2">
+    <div className="bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-indigo-800/30 shadow-xl">
+      <div className="text-center mb-6">
+        <h3 className="font-manrope font-bold text-xl lg:text-2xl text-white mb-4">
           Join Our Growing Community
         </h3>
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-4">
-          <span className="text-2xl font-bold text-white">{stats.completedQuizzes}</span>
+        <div className="inline-flex items-center justify-center w-20 h-20 lg:w-24 lg:h-24 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-4 shadow-lg">
+          <span className="text-3xl lg:text-4xl font-bold text-white">{stats.completedQuizzes}</span>
         </div>
-        <p className="font-manrope text-sm text-zinc-400">
+        <p className="font-manrope text-sm lg:text-base text-zinc-400 mb-2">
           People have completed the waitlist
         </p>
-        <div className="mt-2 text-xs text-zinc-500">
+        <div className="text-xs lg:text-sm text-zinc-500 mb-2">
           {stats.totalUsers} registered • {stats.verifiedUsers} verified
         </div>
-        <div className="mt-1 text-xs">
+        <div className="text-xs lg:text-sm">
           <span className={getStatusColor()}>
             {getStatusMessage()}
           </span>
@@ -274,21 +274,21 @@ const CountdownTimer: React.FC = () => {
         {getCorsFixInstructions()}
       </div>
       
-      <div className="grid grid-cols-4 gap-4 text-center">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 text-center">
         {Object.entries(timeLeft).map(([unit, value]) => (
-          <div key={unit} className="bg-zinc-700/50 rounded-lg p-3">
-            <div className="text-2xl font-bold text-indigo-400 font-manrope">
+          <div key={unit} className="bg-zinc-700/50 rounded-xl p-3 lg:p-4 border border-zinc-600/30 hover:border-indigo-500/30 transition-all duration-300">
+            <div className="text-2xl lg:text-3xl font-bold text-indigo-400 font-manrope mb-1">
               {value.toString().padStart(2, '0')}
             </div>
-            <div className="text-xs text-zinc-400 font-manrope capitalize">
+            <div className="text-xs lg:text-sm text-zinc-400 font-manrope capitalize font-medium">
               {unit}
             </div>
           </div>
         ))}
       </div>
       
-      <div className="mt-4 text-center">
-        <p className="text-sm text-zinc-400 font-manrope">
+      <div className="mt-6 text-center">
+        <p className="text-sm lg:text-base text-zinc-400 font-manrope font-medium">
           ⏰ Building towards our launch goal
         </p>
         {!isSupabaseConfigured && (

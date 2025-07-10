@@ -135,14 +135,14 @@ const ExploreCatteries: React.FC = () => {
               <h2 className="text-xl font-bold text-amber-400">Feature Preview</h2>
             </div>
             <p className="text-amber-200 mb-4">
-              This is a preview of how our cattery exploration feature will work when we launch in 2026. 
-              The catteries shown are examples to demonstrate our platform's capabilities.
+              This is a preview of how our cattery discovery will work when we launch Q4 2025. 
+              The catteries shown are examples based on real facilities in various regions.
             </p>
             <div className="bg-zinc-800/50 rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-2">🎯 Help Us Perfect This Feature</h3>
+              <h3 className="text-white font-semibold mb-2">🎯 Shape This Feature</h3>
               <p className="text-zinc-300 text-sm">
-                Your feedback on this demo helps us build the best cattery discovery experience. 
-                What features would be most valuable to you as a cat parent?
+                As a founding community member, your feedback on this preview directly influences 
+                what we build. Which search and booking features matter most to you?
               </p>
             </div>
           </div>

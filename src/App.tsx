@@ -22,6 +22,10 @@ import LaunchReadinessTest from './components/LaunchReadinessTest';
 import DiagnosticTool from './components/DiagnosticTool';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import CurrencyDemo from './components/CurrencyDemo';
+import EarlyAccessResources from './components/EarlyAccessResources';
+import FreeCatTravelChecklist from './components/FreeCatTravelChecklist';
+import CatteryEvaluationGuide from './components/CatteryEvaluationGuide';
+import ResourceAccessButton from './components/ResourceAccessButton';
 import { initGA, trackPageView } from './lib/analytics';
 import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
@@ -82,6 +86,7 @@ const HomeHandler: React.FC = () => {
     <>
       {renderCurrentStep()}
       <ChatbotSupport />
+      <ResourceAccessButton />
     </>
   );
 };
@@ -127,11 +132,11 @@ const AppContent: React.FC = () => {
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ScrollToTop />
         <Routes>
-          {/* Main site route */}
-          <Route path="/" element={<MainSite />} />
+          {/* Main route now shows the optimized landing page */}
+          <Route path="/" element={<HomeHandler />} />
           
-          {/* Landing page routes with full app functionality */}
-          <Route path="/landingpage" element={<HomeHandler />} />
+          {/* Old welcome page moved to /welcome for reference */}
+          <Route path="/welcome" element={<MainSite />} />
           
           {/* Landing page sub-routes */}
           <Route path="/landingpage/verify" element={<EmailVerificationHandler />} />
@@ -160,6 +165,11 @@ const AppContent: React.FC = () => {
           {/* Analytics & Demo routes */}
           <Route path="/analytics" element={<AnalyticsDashboard />} />
           <Route path="/currency-demo" element={<CurrencyDemo />} />
+          
+          {/* Early Access Resources routes */}
+          <Route path="/early-access-resources" element={<EarlyAccessResources />} />
+          <Route path="/cat-travel-checklist" element={<FreeCatTravelChecklist />} />
+          <Route path="/cattery-evaluation-guide" element={<CatteryEvaluationGuide />} />
           
           {/* Catch-all redirect to main site */}
           <Route path="*" element={<Navigate to="/" replace />} />

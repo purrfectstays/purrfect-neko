@@ -6,7 +6,7 @@ const SocialProof: React.FC = () => {
   return (
     <section className="py-20 bg-gradient-to-br from-zinc-900 to-zinc-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-16 items-start lg:items-center">
           {/* Trust Indicators */}
           <div className="space-y-8">
             <div>
@@ -38,36 +38,44 @@ const SocialProof: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4 p-4 bg-zinc-800/50 rounded-lg border border-yellow-800/30">
-                <Crown className="h-8 w-8 text-yellow-400" />
-                <div>
-                  <h4 className="font-manrope font-semibold text-white">Early Access Exclusive</h4>
-                  <p className="font-manrope text-sm text-zinc-400">Limited spots with early access benefits</p>
+            <div className="space-y-4 lg:space-y-6">
+              <div className="flex items-center space-x-4 p-4 lg:p-6 bg-zinc-800/50 rounded-xl border border-yellow-800/30 hover:border-yellow-600/50 transition-all duration-300">
+                <div className="flex-shrink-0">
+                  <Crown className="h-8 w-8 text-yellow-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-manrope font-semibold text-white text-base lg:text-lg">Early Access Exclusive</h4>
+                  <p className="font-manrope text-sm lg:text-base text-zinc-400 mt-1">Limited spots with early access benefits</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4 p-4 bg-zinc-800/50 rounded-lg border border-green-800/30">
-                <TrendingUp className="h-8 w-8 text-green-400" />
-                <div>
-                  <h4 className="font-manrope font-semibold text-white">Rapid Community Growth</h4>
-                  <p className="font-manrope text-sm text-zinc-400">Cat parents and cattery owners joining daily from across the country</p>
+              <div className="flex items-center space-x-4 p-4 lg:p-6 bg-zinc-800/50 rounded-xl border border-green-800/30 hover:border-green-600/50 transition-all duration-300">
+                <div className="flex-shrink-0">
+                  <TrendingUp className="h-8 w-8 text-green-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-manrope font-semibold text-white text-base lg:text-lg">Rapid Community Growth</h4>
+                  <p className="font-manrope text-sm lg:text-base text-zinc-400 mt-1">Cat parents and cattery owners joining daily from across the country</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4 p-4 bg-zinc-800/50 rounded-lg border border-blue-800/30">
-                <Shield className="h-8 w-8 text-blue-400" />
-                <div>
-                  <h4 className="font-manrope font-semibold text-white">Industry Expertise</h4>
-                  <p className="font-manrope text-sm text-zinc-400">Built by cat lovers with deep cattery industry knowledge</p>
+              <div className="flex items-center space-x-4 p-4 lg:p-6 bg-zinc-800/50 rounded-xl border border-blue-800/30 hover:border-blue-600/50 transition-all duration-300">
+                <div className="flex-shrink-0">
+                  <Shield className="h-8 w-8 text-blue-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-manrope font-semibold text-white text-base lg:text-lg">Industry Expertise</h4>
+                  <p className="font-manrope text-sm lg:text-base text-zinc-400 mt-1">Built by cat lovers with deep cattery industry knowledge</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4 p-4 bg-zinc-800/50 rounded-lg border border-purple-800/30">
-                <Users className="h-8 w-8 text-purple-400" />
-                <div>
-                  <h4 className="font-manrope font-semibold text-white">Community-First Approach</h4>
-                  <p className="font-manrope text-sm text-zinc-400">Every feature is designed based on real user feedback and needs</p>
+              <div className="flex items-center space-x-4 p-4 lg:p-6 bg-zinc-800/50 rounded-xl border border-purple-800/30 hover:border-purple-600/50 transition-all duration-300">
+                <div className="flex-shrink-0">
+                  <Users className="h-8 w-8 text-purple-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-manrope font-semibold text-white text-base lg:text-lg">Community-First Approach</h4>
+                  <p className="font-manrope text-sm lg:text-base text-zinc-400 mt-1">Every feature is designed based on real user feedback and needs</p>
                 </div>
               </div>
             </div>
@@ -129,9 +137,11 @@ const SocialProof: React.FC = () => {
             </div>
           </div>
 
-          {/* Countdown Timer */}
-          <div className="lg:pl-8">
-            <CountdownTimer />
+          {/* Countdown Timer - Better Desktop Alignment */}
+          <div className="flex justify-center lg:justify-end">
+            <div className="w-full max-w-sm lg:max-w-md">
+              <CountdownTimer />
+            </div>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, Calendar, Share2, Copy, Check } from 'lucide-react';
+import { CheckCircle, Calendar, Share2, Copy, Check, FileText, Shield, Gift } from 'lucide-react';
 import RegionalUrgency from './RegionalUrgency';
 
 const SuccessPage: React.FC = () => {
@@ -51,26 +51,56 @@ const SuccessPage: React.FC = () => {
           </div>
           
           <h1 className="text-4xl font-bold text-white mb-4">
-            Congratulations! 🎉
+            Welcome to Our Founding Community! 🎉
           </h1>
           
           <p className="text-xl text-slate-300 mb-4">
-            Thank you for taking the time to complete our qualification quiz!
+            Thank you for helping us build the cattery platform the world needs!
           </p>
           
-          <p className="text-lg text-green-400 mb-8 font-semibold">
-            🎊 You've successfully joined the Purrfect Stays waitlist and secured your spot in our exclusive early access program!
+          <p className="text-lg text-green-400 mb-6 font-semibold">
+            🎊 You're now part of an exclusive group shaping the future of cattery bookings from day one!
           </p>
+          
+          {/* Immediate Value - Free Guides CTA */}
+          <div className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 rounded-xl p-6 mb-8">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <Gift className="h-6 w-6 text-purple-400" />
+              <h3 className="text-xl font-bold text-white">Your Exclusive Welcome Gift!</h3>
+            </div>
+            <p className="text-slate-300 mb-6 text-center">
+              As a thank you for joining, get instant access to our premium cat care guides - 
+              normally reserved for paid members.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => window.location.href = '/early-access-resources'}
+                className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-800 transition-all inline-flex items-center justify-center space-x-2"
+              >
+                <FileText className="h-4 w-4" />
+                <span>Access Your Free Guides Now</span>
+              </button>
+              <button
+                onClick={() => window.location.href = '/cat-travel-checklist'}
+                className="bg-zinc-700 hover:bg-zinc-600 text-white px-6 py-3 rounded-lg transition-colors inline-flex items-center justify-center space-x-2"
+              >
+                <Shield className="h-4 w-4" />
+                <span>View Travel Checklist</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Thank You Message */}
+        {/* Founding Community Message */}
         <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl p-6 mb-8 text-center">
           <h3 className="text-xl font-semibold text-green-400 mb-3">
-            🙏 Thank You for Joining Us!
+            🚀 You're a Founding Member!
           </h3>
           <p className="text-slate-300">
-            Your responses help us build a platform that truly serves the needs of cat parents and cattery owners. 
-            We're excited to have you as part of our founding community and can't wait to share this journey with you!
+            Your quiz responses directly influence what we build. Every answer helps us prioritize features, 
+            recruit the right catteries in your region, and create the platform cat parents and owners actually want. 
+            This is community-driven development at its finest!
           </p>
         </div>
 
@@ -88,25 +118,50 @@ const SuccessPage: React.FC = () => {
             <div className="flex items-start space-x-3">
               <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
               <div>
-                <h4 className="text-white font-medium">Platform Development Updates</h4>
-                <p className="text-slate-400 text-sm">We'll send you exclusive updates on our development progress and new features.</p>
+                <h4 className="text-white font-medium">Access Your Premium Cat Care Resources</h4>
+                <p className="text-slate-400 text-sm">Use your exclusive travel checklist and cattery evaluation guide right now - these are normally paid resources.</p>
               </div>
             </div>
             
             <div className="flex items-start space-x-3">
               <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
               <div>
-                <h4 className="text-white font-medium">Beta Access Invitation</h4>
-                <p className="text-slate-400 text-sm">As an early access member, you'll be among the first to test our platform.</p>
+                <h4 className="text-white font-medium">Shape Platform Development</h4>
+                <p className="text-slate-400 text-sm">We'll regularly ask for your feedback on features, interface design, and cattery requirements based on your region.</p>
               </div>
             </div>
             
             <div className="flex items-start space-x-3">
               <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold">3</div>
               <div>
-                <h4 className="text-white font-medium">Exclusive Benefits</h4>
-                <p className="text-slate-400 text-sm">Enjoy special pricing, priority support, and influence over our feature roadmap.</p>
+                <h4 className="text-white font-medium">First Access to the Real Platform</h4>
+                <p className="text-slate-400 text-sm">When we launch Q4 2025, you'll be the first to book with our verified cattery network and test real features.</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Early Access Benefits Reminder */}
+        <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl p-6 mb-8">
+          <h3 className="text-lg font-semibold text-green-400 mb-3 text-center">
+            🎯 Your Early Access Benefits Are Now Active!
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="flex items-center space-x-3">
+              <FileText className="h-5 w-5 text-green-400 flex-shrink-0" />
+              <span className="text-slate-300 text-sm">Premium cat care guides (instant access)</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Shield className="h-5 w-5 text-green-400 flex-shrink-0" />
+              <span className="text-slate-300 text-sm">Professional cattery evaluation tools</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Calendar className="h-5 w-5 text-green-400 flex-shrink-0" />
+              <span className="text-slate-300 text-sm">Priority platform beta access</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
+              <span className="text-slate-300 text-sm">Direct founder communication</span>
             </div>
           </div>
         </div>
