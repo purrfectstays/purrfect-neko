@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { getQuizQuestionsForUser, calculateQuizScore, QuizQuestion } from '../data/quizQuestions';
+import { LocalizedQuizService } from '../services/localizedQuizService';
+import { GeolocationService, LocationData } from '../services/geolocationService';
 import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
+import CurrencyIndicator from './CurrencyIndicator';
 import { analytics } from '../lib/analytics';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
@@ -14,6 +17,8 @@ const QualificationQuizSecure: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [location, setLocation] = useState<LocationData | null>(null);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
   useEffect(() => {
     // Check if user exists in context, if not check localStorage
@@ -41,10 +46,37 @@ const QualificationQuizSecure: React.FC = () => {
   }, [user, setUser]);
 
   useEffect(() => {
-    if (user?.userType) {
-      const userQuestions = getQuizQuestionsForUser(user.userType);
-      setQuestions(userQuestions);
-    }
+    const loadLocalizedQuestions = async () => {
+      if (user?.userType) {
+        setIsLoadingQuestions(true);
+        try {
+          // Get user location
+          const userLocation = await GeolocationService.getUserLocation();
+          setLocation(userLocation);
+          
+          // Preload currency rates for better performance
+          await LocalizedQuizService.preloadCurrencyRates();
+          
+          // Get localized questions
+          const localizedQuestions = await LocalizedQuizService.getLocalizedQuestions(
+            user.userType, 
+            userLocation
+          );
+          
+          setQuestions(localizedQuestions);
+          console.log('✅ Loaded localized quiz questions for:', userLocation.country);
+        } catch (error) {
+          console.warn('Failed to load localized questions, using default:', error);
+          // Fallback to original questions
+          const userQuestions = getQuizQuestionsForUser(user.userType);
+          setQuestions(userQuestions);
+        } finally {
+          setIsLoadingQuestions(false);
+        }
+      }
+    };
+
+    loadLocalizedQuestions();
   }, [user]);
 
   if (isLoadingUser) {
@@ -243,10 +275,19 @@ const QualificationQuizSecure: React.FC = () => {
     }
   };
 
-  if (questions.length === 0) {
+  if (questions.length === 0 || isLoadingQuestions) {
     return (
       <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="text-center text-white">
+          <div className="w-16 h-16 mx-auto mb-6">
+            <div className="w-full h-full border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <h2 className="text-2xl font-bold mb-4">Preparing Your Quiz</h2>
+          <p className="text-slate-300">Loading personalized pricing for your region...</p>
+          {location && (
+            <p className="text-indigo-400 mt-2">📍 {location.country}</p>
+          )}
+        </div>
       </div>
     );
   }
@@ -256,9 +297,19 @@ const QualificationQuizSecure: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Qualification Quiz
-          </h1>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex-1"></div>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Qualification Quiz
+              </h1>
+            </div>
+            <div className="flex-1 flex justify-end">
+              {location && (
+                <CurrencyIndicator location={location} />
+              )}
+            </div>
+          </div>
           <p className="text-slate-300 mb-6">
             Help us understand your needs to secure your spot in our exclusive early access program
           </p>

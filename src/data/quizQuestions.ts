@@ -181,19 +181,6 @@ export const catteryOwnerQuestions: QuizQuestion[] = [
     required: true
   },
   {
-    id: 'desired-features',
-    question: 'Which tier features would be most valuable for your business?',
-    type: 'multiple-choice',
-    options: [
-      'Truffle: Basic booking management & email notifications ($15/mo or $144/year)',
-      'Pepper: Priority listings, analytics & review management ($29/mo or $278/year)',
-      'Chicken: Full marketing suite, dedicated support & advanced reporting ($59/mo or $566/year)',
-      'Custom enterprise features beyond standard tiers',
-      'Simple, affordable solution is most important'
-    ],
-    required: true
-  },
-  {
     id: 'years-in-business',
     question: 'How many years have you been operating your cattery?',
     type: 'multiple-choice',

@@ -20,6 +20,8 @@ import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import LaunchReadinessTest from './components/LaunchReadinessTest';
 import DiagnosticTool from './components/DiagnosticTool';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
+import CurrencyDemo from './components/CurrencyDemo';
 import { initGA, trackPageView } from './lib/analytics';
 import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
@@ -154,6 +156,10 @@ const AppContent: React.FC = () => {
           {/* Testing routes */}
           <Route path="/launch-test" element={<LaunchReadinessTest />} />
           <Route path="/diagnostic" element={<DiagnosticTool />} />
+          
+          {/* Analytics & Demo routes */}
+          <Route path="/analytics" element={<AnalyticsDashboard />} />
+          <Route path="/currency-demo" element={<CurrencyDemo />} />
           
           {/* Catch-all redirect to main site */}
           <Route path="*" element={<Navigate to="/" replace />} />
