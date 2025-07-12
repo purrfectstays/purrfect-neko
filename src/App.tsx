@@ -26,6 +26,7 @@ import EarlyAccessResources from './components/EarlyAccessResources';
 import FreeCatTravelChecklist from './components/FreeCatTravelChecklist';
 import CatteryEvaluationGuide from './components/CatteryEvaluationGuide';
 import ResourceAccessButton from './components/ResourceAccessButton';
+import TemplatePreview from './components/TemplatePreview';
 import { initGA, trackPageView } from './lib/analytics';
 import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
@@ -48,7 +49,7 @@ const HomeHandler: React.FC = () => {
       case 'landing':
         return (
           <>
-            <LandingPage />
+            <TemplatePreview />
             <Footer />
           </>
         );
@@ -75,7 +76,7 @@ const HomeHandler: React.FC = () => {
       default:
         return (
           <>
-            <LandingPage />
+            <TemplatePreview />
             <Footer />
           </>
         );
@@ -165,6 +166,17 @@ const AppContent: React.FC = () => {
           {/* Analytics & Demo routes */}
           <Route path="/analytics" element={<AnalyticsDashboard />} />
           <Route path="/currency-demo" element={<CurrencyDemo />} />
+          
+          {/* Template Preview route */}
+          <Route path="/template-preview" element={<TemplatePreview />} />
+          
+          {/* Legacy Landing Page route */}
+          <Route path="/legacy-landing" element={
+            <div className="min-h-screen bg-zinc-900">
+              <LandingPage />
+              <Footer />
+            </div>
+          } />
           
           {/* Early Access Resources routes */}
           <Route path="/early-access-resources" element={<EarlyAccessResources />} />

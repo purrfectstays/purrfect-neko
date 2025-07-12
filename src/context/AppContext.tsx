@@ -13,6 +13,8 @@ interface AppContextType {
   setQuizData: (data: QuizData | null) => void;
   waitlistCount: number;
   setWaitlistCount: (count: number) => void;
+  verificationToken: string | null;
+  setVerificationToken: (token: string | null) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -35,6 +37,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [waitlistUser, setWaitlistUser] = useState<WaitlistUser | null>(null);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [waitlistCount, setWaitlistCount] = useState(47); // Will be updated from Supabase
+  const [verificationToken, setVerificationToken] = useState<string | null>(null);
 
   const value = {
     currentStep,
@@ -47,6 +50,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setQuizData,
     waitlistCount,
     setWaitlistCount,
+    verificationToken,
+    setVerificationToken,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

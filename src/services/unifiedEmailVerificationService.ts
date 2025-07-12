@@ -248,8 +248,8 @@ export class UnifiedEmailVerificationService {
     }
 
     try {
-      // Use UUID format for compatibility with both services
-      const verificationToken = crypto.randomUUID();
+      // Generate 6-digit verification code instead of UUID
+      const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
 
       // Get user location for regional tracking
       let locationData: LocationData | null = null;
@@ -301,14 +301,14 @@ export class UnifiedEmailVerificationService {
         // Don't throw - the main registration succeeded
       }
 
-      // Send verification email
-      await this.sendVerificationEmail(
-        data.id,
-        userData.email,
-        userData.name,
-        userData.userType,
-        verificationToken
-      );
+      // No longer sending verification emails - users get 6-digit code immediately
+      // await this.sendVerificationEmail(
+      //   data.id,
+      //   userData.email,
+      //   userData.name,
+      //   userData.userType,
+      //   verificationToken
+      // );
 
       return { user: data, verificationToken };
     } catch (error) {

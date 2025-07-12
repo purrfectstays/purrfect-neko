@@ -198,6 +198,7 @@ When working with this codebase, follow these essential rules:
     - Screenshots descriptions when helpful
     - Common mistakes to avoid
     - What to do if something goes wrong
+11. **Let me know when you have a better suggestion or idea so we can lockhorns**
 
 ## Working with This Codebase
 

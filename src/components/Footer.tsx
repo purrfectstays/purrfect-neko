@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
                   onClick={() => setCurrentStep('registration')}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
                 >
-                  Join Early Access
+                  Cattery Owner?
                 </button>
               </li>
               <li>

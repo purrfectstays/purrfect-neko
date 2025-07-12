@@ -9,7 +9,7 @@ import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
 const RegistrationForm: React.FC = () => {
-  const { setCurrentStep, setUser, setWaitlistUser } = useApp();
+  const { setCurrentStep, setUser, setWaitlistUser, setVerificationToken } = useApp();
   const { location, waitlistData } = useGeolocation();
   
   // Track registration form behavior for optimization
@@ -22,7 +22,8 @@ const RegistrationForm: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    userType: '' as 'cat-parent' | 'cattery-owner' | '',
+    catteryName: '',
+    userType: 'cattery-owner' as 'cat-parent' | 'cattery-owner',
     honeypot: '' // Hidden field for bot detection
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -41,9 +42,10 @@ const RegistrationForm: React.FC = () => {
       newErrors.email = 'Please enter a valid email address';
     }
     
-    if (!formData.userType) {
-      newErrors.userType = 'Please select your user type';
+    if (!formData.catteryName.trim()) {
+      newErrors.catteryName = 'Cattery name is required';
     }
+    
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -111,6 +113,7 @@ const RegistrationForm: React.FC = () => {
 
       // Update app state
       setWaitlistUser(waitlistUser);
+      setVerificationToken(verificationToken);
       setUser({
         id: waitlistUser.id,
         name: formData.name,
@@ -126,7 +129,7 @@ const RegistrationForm: React.FC = () => {
       
       // Show success message before redirecting
       setErrors({ 
-        success: 'Registration successful! Check your email for the verification link.' 
+        success: 'Registration successful! You will see your verification code on the next page.' 
       });
       
       // Delay navigation to show success message
@@ -236,107 +239,47 @@ const RegistrationForm: React.FC = () => {
               )}
             </div>
 
-            {/* User Type Selection */}
+            {/* Cattery Name Input */}
             <div>
-              <label className="block font-manrope font-medium text-white mb-3">
-                I am a...
+              <label htmlFor="catteryName" className="block font-manrope font-medium text-white mb-2">
+                Cattery Name
               </label>
-              <div className="space-y-3">
-                <label className="flex items-center p-4 bg-zinc-700/30 rounded-lg border border-zinc-600 hover:border-green-500 cursor-pointer transition-colors">
-                  <input
-                    type="radio"
-                    name="userType"
-                    value="cat-parent"
-                    checked={formData.userType === 'cat-parent'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, userType: e.target.value as 'cat-parent' }))}
-                    className="text-green-500 focus:ring-green-500"
-                  />
-                  <div className="ml-3 flex-1">
-                    <div className="flex items-center space-x-2">
-                      <Shield className="h-5 w-5 text-green-400" />
-                      <div className="font-manrope font-semibold text-white">Cat Parent</div>
-                    </div>
-                    <div className="font-manrope text-sm text-zinc-400 mt-1">
-                      Looking for premium cattery services for my cats
-                    </div>
-                    <div className="font-manrope text-xs text-green-400 mt-2 font-semibold">
-                      ✅ Platform designed to be FREE for cat parents
-                    </div>
-                  </div>
-                </label>
-                
-                <label className="flex items-center p-4 bg-zinc-700/30 rounded-lg border border-zinc-600 hover:border-purple-500 cursor-pointer transition-colors">
-                  <input
-                    type="radio"
-                    name="userType"
-                    value="cattery-owner"
-                    checked={formData.userType === 'cattery-owner'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, userType: e.target.value as 'cattery-owner' }))}
-                    className="text-purple-500 focus:ring-purple-500"
-                  />
-                  <div className="ml-3 flex-1">
-                    <div className="flex items-center space-x-2">
-                      <TrendingUp className="h-5 w-5 text-purple-400" />
-                      <div className="font-manrope font-semibold text-white">Cattery Owner</div>
-                    </div>
-                    <div className="font-manrope text-sm text-zinc-400 mt-1">
-                      I own/operate a cattery business
-                    </div>
-                    <div className="font-manrope text-xs text-purple-400 mt-2 font-semibold">
-                      💰 Early Access: Help us determine fair pricing
-                    </div>
-                  </div>
-                </label>
+              <div className="relative">
+                <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-zinc-400" />
+                <input
+                  type="text"
+                  id="catteryName"
+                  value={formData.catteryName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, catteryName: e.target.value }))}
+                  className="w-full pl-12 pr-4 py-3 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-manrope"
+                  placeholder="Enter your cattery name"
+                />
               </div>
-              {errors.userType && (
-                <p className="mt-1 text-sm text-red-400 font-manrope">{errors.userType}</p>
+              {errors.catteryName && (
+                <p className="mt-1 text-sm text-red-400 font-manrope">{errors.catteryName}</p>
               )}
             </div>
 
-            {/* Dynamic Early Access Explanation for Cattery Owners */}
-            {formData.userType === 'cattery-owner' && (
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <div className="flex items-start space-x-3">
-                  <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5" />
-                  <div>
-                    <h4 className="font-manrope font-semibold text-purple-400 mb-2">
-                      🎯 Early Access Special: Help Shape Our Platform
-                    </h4>
-                    <ul className="font-manrope text-sm text-zinc-300 space-y-1">
-                      <li>• <strong>Limited Offer:</strong> {waitlistData ? `${waitlistData.remainingSpots} spots remaining in ${waitlistData.country}` : 'Limited spots available by country'}</li>
-                      <li>• <strong>Shape the platform</strong> - Your input determines features and pricing</li>
-                      <li>• <strong>Exclusive to early access members</strong> - Never offered again</li>
-                    </ul>
-                    <p className="font-manrope text-xs text-purple-300 mt-2">
-                      💡 Help us determine fair pricing through our qualification quiz
-                    </p>
-                  </div>
+            {/* Cattery Owner Benefits - Partner Focus */}
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5" />
+                <div>
+                  <h4 className="font-manrope font-semibold text-purple-400 mb-2">
+                    🏢 Cattery Partner Benefits
+                  </h4>
+                  <ul className="font-manrope text-sm text-zinc-300 space-y-1">
+                    <li>• <strong>Founding Partner Status</strong> with reduced fees</li>
+                    <li>• <strong>Priority placement</strong> in search results</li>
+                    <li>• <strong>Business management tools</strong> and analytics</li>
+                    <li>• <strong>Direct access to quality cat parents</strong> in your area</li>
+                  </ul>
+                  <p className="font-manrope text-xs text-purple-300 mt-2">
+                    💡 Help us build the perfect platform for cattery businesses
+                  </p>
                 </div>
               </div>
-            )}
-
-            {/* Cat Parent Benefits */}
-            {formData.userType === 'cat-parent' && (
-              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                <div className="flex items-start space-x-3">
-                  <Shield className="h-5 w-5 text-green-400 mt-0.5" />
-                  <div>
-                    <h4 className="font-manrope font-semibold text-green-400 mb-2">
-                      🐱 Cat Parent Benefits
-                    </h4>
-                    <ul className="font-manrope text-sm text-zinc-300 space-y-1">
-                      <li>• <strong>Platform designed to be FREE</strong> for cat parents</li>
-                      <li>• <strong>Premium cattery search</strong> and booking features</li>
-                      <li>• <strong>Early access</strong> to all new features</li>
-                      <li>• <strong>Help shape the platform</strong> through our qualification quiz</li>
-                    </ul>
-                    <p className="font-manrope text-xs text-green-300 mt-2">
-                      💡 Your feedback helps us build the perfect platform for cat parents
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
 
             {/* Success Message */}
             {errors.success && (
@@ -375,9 +318,9 @@ const RegistrationForm: React.FC = () => {
 
           <div className="mt-6 text-center">
             <p className="font-manrope text-sm text-zinc-400">
-              By joining, you become an early access member with lifetime benefits.
+              Join as a founding cattery partner with exclusive benefits.
               <br />
-              <span className="text-indigo-300">Unsubscribe anytime • No spam guarantee</span>
+              <span className="text-purple-300">Unsubscribe anytime • No spam guarantee</span>
             </p>
           </div>
         </div>

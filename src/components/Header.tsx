@@ -71,6 +71,15 @@ const Header: React.FC = () => {
               </button>
             )}
             
+            {/* Cattery Entry Point - Subtle */}
+            <button
+              onClick={() => setCurrentStep('registration')}
+              className="hidden md:inline-flex items-center space-x-1 text-zinc-300 hover:text-white text-xs font-medium transition-all"
+              title="For Cattery Owners"
+            >
+              <span>📍 List Your Cattery</span>
+            </button>
+
             {/* Explore Platform Preview */}
             <button
               onClick={handleExploreClick}
