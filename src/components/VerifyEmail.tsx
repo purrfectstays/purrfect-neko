@@ -1,14 +1,3 @@
-import React from 'react';
-
-const VerifyEmail: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-      <div className="text-center text-white">
-        <h2 className="text-2xl font-bold mb-4">Email Verification</h2>
-        <p>Please check your email for verification instructions.</p>
-      </div>
-    </div>
-  );
-};
-
-export default VerifyEmail;
+// This component has been removed as email verification is now handled differently
+// Cat parents use the inline OTP flow, cattery owners are auto-verified
+// This file is kept for reference but should not be imported anywhere

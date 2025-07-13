@@ -23,10 +23,8 @@ const EmailVerification: React.FC = () => {
           // Navigate directly to quiz
           setCurrentStep('quiz');
         } else {
-          // For cat parents, verify the user in the database
+          // For cat parents, just proceed to quiz (verification handled during registration)
           if (user) {
-            await UnifiedEmailVerificationService.verifyUser(user.id, verificationToken);
-            
             // Update user state to verified
             setUser({
               ...user,

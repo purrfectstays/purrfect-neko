@@ -6,8 +6,7 @@ import LandingPage from './components/LandingPage';
 import RegistrationForm from './components/RegistrationForm';
 import EmailVerification from './components/EmailVerification';
 import QualificationQuizSecure from './components/QualificationQuizSecure';
-import EmailVerificationHandler from './components/EmailVerificationHandler';
-import VerificationResult from './components/VerificationResult';
+// Removed unused verification components
 import SuccessPage from './components/SuccessPage';
 import ExploreCatteries from './components/ExploreCatteries';
 import SupportPage from './components/SupportPage';
@@ -34,15 +33,8 @@ import { env } from './lib/environment';
 import { setupGlobalErrorHandler } from './lib/errorHandler';
 
 const HomeHandler: React.FC = () => {
-  const [searchParams] = useSearchParams();
   const { currentStep } = useApp();
-  const token = searchParams.get('token');
-  
-  // If there's a token parameter, redirect to verification
-  if (token) {
-    window.location.href = `/verify?token=${token}`;
-    return <div>Redirecting...</div>;
-  }
+  // Removed token verification logic - no longer needed
   
   function renderCurrentStep() {
     switch (currentStep) {
@@ -140,13 +132,11 @@ const AppContent: React.FC = () => {
           <Route path="/welcome" element={<MainSite />} />
           
           {/* Landing page sub-routes */}
-          <Route path="/landingpage/verify" element={<EmailVerificationHandler />} />
           <Route path="/landingpage/quiz" element={<QualificationQuizSecure />} />
           <Route path="/landingpage/success" element={<SuccessPage />} />
           
           {/* Legacy routes for backward compatibility */}
-          <Route path="/verify" element={<EmailVerificationHandler />} />
-          <Route path="/verify-result" element={<VerificationResult />} />
+          {/* Removed verification routes - no longer needed */}
           <Route path="/quiz" element={<QualificationQuizSecure />} />
           <Route path="/success" element={<SuccessPage />} />
           
