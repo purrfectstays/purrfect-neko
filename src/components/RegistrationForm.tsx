@@ -7,6 +7,14 @@ import RegionalUrgency from './RegionalUrgency';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
+import { 
+  isDisposableEmail, 
+  isSuspiciousName, 
+  generateBrowserFingerprint, 
+  InteractionTracker,
+  generateMathCaptcha,
+  validateCaptcha
+} from '../lib/antiSpam';
 
 const RegistrationForm: React.FC = () => {
   const { setCurrentStep, setUser, setWaitlistUser, setVerificationToken } = useApp();
@@ -24,28 +32,45 @@ const RegistrationForm: React.FC = () => {
     email: '',
     catteryName: '',
     userType: 'cattery-owner' as 'cat-parent' | 'cattery-owner',
-    honeypot: '' // Hidden field for bot detection
+    honeypot: '', // Hidden field for bot detection
+    captchaAnswer: '' // Math CAPTCHA answer
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mathCaptcha, setMathCaptcha] = useState(generateMathCaptcha());
+  const [interactionTracker] = useState(() => new InteractionTracker());
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
+    // Basic validation
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
+    } else if (isSuspiciousName(formData.name)) {
+      newErrors.name = 'Please enter a valid name';
     }
     
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
+    } else if (isDisposableEmail(formData.email)) {
+      newErrors.email = 'Please use a permanent email address';
     }
     
     if (!formData.catteryName.trim()) {
       newErrors.catteryName = 'Cattery name is required';
     }
     
+    // CAPTCHA validation
+    if (!validateCaptcha(formData.captchaAnswer, mathCaptcha.answer)) {
+      newErrors.captchaAnswer = 'Please solve the math problem correctly';
+    }
+    
+    // Bot detection checks
+    if (interactionTracker.isSuspiciouslyFast()) {
+      newErrors.submit = 'Please take your time filling out the form';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -69,10 +94,20 @@ const RegistrationForm: React.FC = () => {
     // Track registration start
     analytics.trackRegistrationStart();
     
-    // Honeypot check - if filled, silently reject (bot detected)
+    // Enhanced bot detection
     if (formData.honeypot) {
       console.log('Bot detected via honeypot field');
       return; // Silently fail without showing any error
+    }
+    
+    // Generate browser fingerprint for duplicate detection
+    const browserFingerprint = generateBrowserFingerprint();
+    const interactionData = interactionTracker.getInteractionData();
+    
+    // Additional bot checks
+    if (interactionTracker.isSuspiciouslyFast()) {
+      setErrors({ submit: 'Please take your time filling out the form' });
+      return;
     }
     
     if (!validateForm()) return;
@@ -119,7 +154,7 @@ const RegistrationForm: React.FC = () => {
         name: formData.name,
         email: formData.email,
         userType: formData.userType as 'cat-parent' | 'cattery-owner',
-        isVerified: waitlistUser.is_verified, // Use actual verification status from database
+        isVerified: true, // All users are now auto-verified
         quizCompleted: false,
         waitlistPosition: waitlistUser.waitlist_position
       });
@@ -129,13 +164,13 @@ const RegistrationForm: React.FC = () => {
       
       // Show success message before redirecting
       setErrors({ 
-        success: 'Registration successful! You will see your verification code on the next page.' 
+        success: 'Registration successful! Redirecting to qualification quiz...' 
       });
       
-      // Delay navigation to show success message
+      // Go directly to quiz - no verification step needed
       setTimeout(() => {
-        setCurrentStep('verification');
-      }, 2000);
+        setCurrentStep('quiz');
+      }, 1500);
     } catch (error) {
       console.error('Registration error:', error);
       
@@ -279,6 +314,27 @@ const RegistrationForm: React.FC = () => {
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Math CAPTCHA */}
+            <div>
+              <label htmlFor="captcha" className="block font-manrope font-medium text-white mb-2">
+                Security Check
+              </label>
+              <div className="bg-zinc-700/30 border border-zinc-600 rounded-lg p-4 mb-3">
+                <p className="text-white font-manrope mb-2">{mathCaptcha.question}</p>
+                <input
+                  type="text"
+                  id="captcha"
+                  value={formData.captchaAnswer}
+                  onChange={(e) => setFormData(prev => ({ ...prev, captchaAnswer: e.target.value }))}
+                  className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-manrope"
+                  placeholder="Enter the answer"
+                />
+              </div>
+              {errors.captchaAnswer && (
+                <p className="mt-1 text-sm text-red-400 font-manrope">{errors.captchaAnswer}</p>
+              )}
             </div>
 
             {/* Success Message */}

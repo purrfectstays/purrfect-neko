@@ -301,32 +301,18 @@ export class UnifiedEmailVerificationService {
         // Don't throw - the main registration succeeded
       }
 
-      // Auto-verify cattery owners, send verification email for cat parents
-      if (userData.userType === 'cattery-owner') {
-        // Auto-verify cattery owners immediately
-        const { error: verifyError } = await supabase
-          .from('waitlist_users')
-          .update({ is_verified: true })
-          .eq('id', data.id);
+      // Auto-verify all users immediately - no email verification needed
+      const { error: verifyError } = await supabase
+        .from('waitlist_users')
+        .update({ is_verified: true })
+        .eq('id', data.id);
 
-        if (verifyError) {
-          console.warn('Failed to auto-verify cattery owner:', verifyError);
-        }
-
-        // Return verified user data
-        return { user: { ...data, is_verified: true }, verificationToken };
-      } else {
-        // Send verification email for cat parents
-        await this.sendVerificationEmail(
-          data.id,
-          userData.email,
-          userData.name,
-          userData.userType,
-          verificationToken
-        );
+      if (verifyError) {
+        console.warn('Failed to auto-verify user:', verifyError);
       }
 
-      return { user: data, verificationToken };
+      // Return verified user data for all user types
+      return { user: { ...data, is_verified: true }, verificationToken };
     } catch (error) {
       if (error instanceof UnifiedEmailVerificationError) {
         throw error;

@@ -40,21 +40,14 @@ const AnimatedPerfect: React.FC = () => {
 // Inline Registration Form Component
 const InlineRegistrationForm: React.FC = () => {
   const { setCurrentStep, setUser, setWaitlistUser, setVerificationToken } = useApp();
-  const [formState, setFormState] = useState<'email' | 'name' | 'verification' | 'processing'>('email');
+  const [formState, setFormState] = useState<'email' | 'name' | 'processing'>('email');
   const [formData, setFormData] = useState({
     email: '',
-    name: '',
-    verificationCode: ''
+    name: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isValidEmail, setIsValidEmail] = useState(false);
-  const [generatedCode, setGeneratedCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Generate random verification code
-  const generateVerificationCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
 
   // Email validation
   const validateEmail = (email: string) => {
@@ -81,48 +74,35 @@ const InlineRegistrationForm: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (formState === 'verification') {
-      if (formData.verificationCode === generatedCode) {
-        setIsSubmitting(true);
-        try {
-          // Register user directly as cat parent
-          const { user: waitlistUser, verificationToken } = await UnifiedEmailVerificationService.registerUser({
-            name: formData.name,
-            email: formData.email,
-            userType: 'cat-parent',
-          });
+    if (formState === 'name' && formData.name.trim()) {
+      setIsSubmitting(true);
+      try {
+        // Register user directly as cat parent - no verification needed
+        const { user: waitlistUser, verificationToken } = await UnifiedEmailVerificationService.registerUser({
+          name: formData.name,
+          email: formData.email,
+          userType: 'cat-parent',
+        });
 
-          // Verify the user immediately since they entered the correct code
-          await UnifiedEmailVerificationService.verifyUser(waitlistUser.id, verificationToken);
+        // Update app state
+        setWaitlistUser(waitlistUser);
+        setVerificationToken(verificationToken);
+        setUser({
+          id: waitlistUser.id,
+          name: formData.name,
+          email: formData.email,
+          userType: 'cat-parent',
+          isVerified: true, // All users are now auto-verified
+          quizCompleted: false,
+          waitlistPosition: waitlistUser.waitlist_position
+        });
 
-          // Update app state
-          setWaitlistUser(waitlistUser);
-          setVerificationToken(verificationToken);
-          setUser({
-            id: waitlistUser.id,
-            name: formData.name,
-            email: formData.email,
-            userType: 'cat-parent',
-            isVerified: true,
-            quizCompleted: false,
-            waitlistPosition: waitlistUser.waitlist_position
-          });
-
-          // Go directly to quiz
-          setCurrentStep('quiz');
-        } catch (error) {
-          setErrors({ submit: 'Registration failed. Please try again.' });
-          setIsSubmitting(false);
-        }
-      } else {
-        setErrors({ verification: 'Incorrect code. Please try again.' });
+        // Go directly to quiz
+        setCurrentStep('quiz');
+      } catch (error) {
+        setErrors({ submit: 'Registration failed. Please try again.' });
+        setIsSubmitting(false);
       }
-    } else if (formState === 'name' && formData.name.trim()) {
-      // Generate verification code and show verification step
-      const code = generateVerificationCode();
-      setGeneratedCode(code);
-      setFormState('verification');
-      setErrors({});
     }
   };
 
@@ -167,27 +147,7 @@ const InlineRegistrationForm: React.FC = () => {
           </div>
         )}
 
-        {/* Verification Code Input */}
-        {formState === 'verification' && (
-          <div className="space-y-4 animate-in slide-in-from-top-4 duration-300">
-            <div className="bg-green-400/30 border-2 border-green-300 rounded-xl p-4">
-              <p className="text-green-200 text-sm font-semibold text-center">
-                Your verification code: <span className="text-xl font-bold text-white">{generatedCode}</span>
-              </p>
-            </div>
-            <div className="relative">
-              <input
-                type="text"
-                value={formData.verificationCode}
-                onChange={(e) => setFormData(prev => ({ ...prev, verificationCode: e.target.value }))}
-                placeholder="Enter the code above"
-                className="w-full px-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 text-center text-xl font-mono tracking-wider"
-                autoFocus
-              />
-            </div>
-            {errors.verification && <p className="text-red-400 text-sm text-center font-medium">{errors.verification}</p>}
-          </div>
-        )}
+        {/* Verification removed - users go directly to quiz after name entry */}
 
         {errors.submit && (
           <div className="bg-red-500/20 border-2 border-red-500/40 rounded-xl p-4">
@@ -196,7 +156,7 @@ const InlineRegistrationForm: React.FC = () => {
         )}
 
         {/* Submit Button */}
-        {(formState === 'name' && formData.name.trim()) || formState === 'verification' ? (
+        {formState === 'name' && formData.name.trim() ? (
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
@@ -207,14 +167,9 @@ const InlineRegistrationForm: React.FC = () => {
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                 <span>Creating Account...</span>
               </>
-            ) : formState === 'verification' ? (
-              <>
-                <span>START QUIZ</span>
-                <ArrowRight className="w-6 h-6" />
-              </>
             ) : (
               <>
-                <span>CONTINUE</span>
+                <span>START QUIZ</span>
                 <ArrowRight className="w-6 h-6" />
               </>
             )}
@@ -223,7 +178,7 @@ const InlineRegistrationForm: React.FC = () => {
 
         {/* Help Text */}
         <p className="text-sm text-zinc-300 text-center font-medium">
-          🔒 Instant access • No spam • Skip straight to quiz
+          🔒 Instant access • No verification needed • Direct to quiz
         </p>
       </div>
     </div>
