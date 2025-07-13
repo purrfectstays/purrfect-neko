@@ -119,7 +119,7 @@ const RegistrationForm: React.FC = () => {
         name: formData.name,
         email: formData.email,
         userType: formData.userType as 'cat-parent' | 'cattery-owner',
-        isVerified: false,
+        isVerified: waitlistUser.is_verified, // Use actual verification status from database
         quizCompleted: false,
         waitlistPosition: waitlistUser.waitlist_position
       });

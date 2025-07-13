@@ -129,25 +129,25 @@ const InlineRegistrationForm: React.FC = () => {
   return (
     <div 
       data-registration-form
-      className="bg-green-800/70 backdrop-blur-sm rounded-2xl p-8 border border-indigo-500 shadow-2xl shadow-green-500/10"
+      className="bg-green-600/80 backdrop-blur-sm rounded-2xl p-8 border-2 border-green-400 shadow-2xl shadow-green-400/20"
     >
       <div className="space-y-5">
-        <h3 className="text-2xl font-bold text-white text-center mb-2">
+        <h3 className="text-3xl font-extrabold text-white text-center mb-2 drop-shadow-lg">
           Register as a PurrParent
         </h3>
         
         {/* Email Input */}
         <div className="relative">
-          <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-400" />
+          <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-300" />
           <input
             type="email"
             value={formData.email}
             onChange={handleEmailChange}
             placeholder="Enter your email"
-            className="w-full pl-12 pr-12 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all text-lg"
+            className="w-full pl-12 pr-12 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-lg"
           />
           {isValidEmail && (
-            <Check className="absolute right-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-green-400" />
+            <Check className="absolute right-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-green-300" />
           )}
         </div>
         {errors.email && <p className="text-red-400 text-sm font-medium">{errors.email}</p>}
@@ -155,13 +155,13 @@ const InlineRegistrationForm: React.FC = () => {
         {/* Name Input - Shows when email is valid */}
         {formState === 'name' && (
           <div className="relative animate-in slide-in-from-top-4 duration-300">
-            <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-400" />
+            <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-300" />
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               placeholder="Enter your full name"
-              className="w-full pl-12 pr-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all text-lg"
+              className="w-full pl-12 pr-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-lg"
               autoFocus
             />
           </div>
@@ -170,9 +170,9 @@ const InlineRegistrationForm: React.FC = () => {
         {/* Verification Code Input */}
         {formState === 'verification' && (
           <div className="space-y-4 animate-in slide-in-from-top-4 duration-300">
-            <div className="bg-green-500/20 border-2 border-green-500/60 rounded-xl p-4">
-              <p className="text-green-300 text-sm font-semibold text-center">
-                Your verification code: <span className="text-xl font-bold text-green-100">{generatedCode}</span>
+            <div className="bg-green-400/30 border-2 border-green-300 rounded-xl p-4">
+              <p className="text-green-200 text-sm font-semibold text-center">
+                Your verification code: <span className="text-xl font-bold text-white">{generatedCode}</span>
               </p>
             </div>
             <div className="relative">
@@ -181,7 +181,7 @@ const InlineRegistrationForm: React.FC = () => {
                 value={formData.verificationCode}
                 onChange={(e) => setFormData(prev => ({ ...prev, verificationCode: e.target.value }))}
                 placeholder="Enter the code above"
-                className="w-full px-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 text-center text-xl font-mono tracking-wider"
+                className="w-full px-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 text-center text-xl font-mono tracking-wider"
                 autoFocus
               />
             </div>
@@ -200,7 +200,7 @@ const InlineRegistrationForm: React.FC = () => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-xl font-bold py-5 rounded-full hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+            className="w-full bg-gradient-to-r from-green-400 to-green-500 text-white text-xl font-bold py-5 rounded-full hover:from-green-500 hover:to-green-600 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-400/30 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
           >
             {isSubmitting ? (
               <>
@@ -862,7 +862,7 @@ const MobileStickyCTA: React.FC = () => {
         {/* Primary CTA - Register as PurrParent */}
         <button
           onClick={scrollToRegistration}
-          className="flex-1 bg-green-600 text-white font-bold py-3 rounded-full hover:bg-green-700 transition-all duration-300 shadow-lg text-sm"
+          className="flex-1 bg-green-500 text-white font-bold py-3 rounded-full hover:bg-green-600 transition-all duration-300 shadow-lg text-sm"
         >
           Register as PurrParent
         </button>

@@ -12,18 +12,30 @@ const EmailVerification: React.FC = () => {
     if (inputCode === verificationToken) {
       setIsVerifying(true);
       try {
-        // Verify the user in the database
-        if (user) {
-          await UnifiedEmailVerificationService.verifyUser(user.id, verificationToken);
-          
-          // Update user state to verified
+        // For cattery owners, they're already verified - just proceed to quiz
+        if (user?.userType === 'cattery-owner') {
+          // Update user state to verified (should already be true)
           setUser({
             ...user,
             isVerified: true
           });
 
-          // Navigate to quiz
+          // Navigate directly to quiz
           setCurrentStep('quiz');
+        } else {
+          // For cat parents, verify the user in the database
+          if (user) {
+            await UnifiedEmailVerificationService.verifyUser(user.id, verificationToken);
+            
+            // Update user state to verified
+            setUser({
+              ...user,
+              isVerified: true
+            });
+
+            // Navigate to quiz
+            setCurrentStep('quiz');
+          }
         }
       } catch (error) {
         setError('Verification failed. Please try again.');
@@ -48,6 +60,11 @@ const EmailVerification: React.FC = () => {
           <p className="text-2xl font-bold text-green-100 text-center mt-2 tracking-wider">
             {verificationToken}
           </p>
+          {user?.userType === 'cattery-owner' && (
+            <p className="text-green-300 text-xs text-center mt-2">
+              ✅ No email verification needed for cattery owners
+            </p>
+          )}
         </div>
         
         <div className="mb-4">
