@@ -81,6 +81,19 @@
     Cache-Control = "public, max-age=31536000, immutable"
     Content-Type = "application/javascript; charset=utf-8"
 
+# Ensure all built files with any extension are served with proper MIME types
+[[headers]]
+  for = "/*main*.tsx"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "application/javascript; charset=utf-8"
+
+[[headers]]
+  for = "/*main*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "application/javascript; charset=utf-8"
+
 [[headers]]
   for = "/*.css"
   [headers.values]
