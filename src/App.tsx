@@ -36,6 +36,15 @@ const EarlyAccessResources = lazy(() => import('./components/EarlyAccessResource
 const FreeCatTravelChecklist = lazy(() => import('./components/FreeCatTravelChecklist'));
 const CatteryEvaluationGuide = lazy(() => import('./components/CatteryEvaluationGuide'));
 
+// Guide pages
+const GuidesLanding = lazy(() => import('./components/guides/GuidesLanding'));
+const ChoosingCatteryGuide = lazy(() => import('./components/guides/ChoosingCatteryGuide'));
+const BudgetPlanningGuide = lazy(() => import('./components/guides/BudgetPlanningGuide'));
+const PreparationChecklistGuide = lazy(() => import('./components/guides/PreparationChecklistGuide'));
+const StartingCatteryBusinessGuide = lazy(() => import('./components/guides/StartingCatteryBusinessGuide'));
+const MarketingStrategiesGuide = lazy(() => import('./components/guides/MarketingStrategiesGuide'));
+const PremiumServiceExcellenceGuide = lazy(() => import('./components/guides/PremiumServiceExcellenceGuide'));
+
 // Loading component for lazy loaded components
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
@@ -239,6 +248,43 @@ const AppContent: React.FC = () => {
           <Route path="/early-access-resources" element={<EarlyAccessResources />} />
           <Route path="/cat-travel-checklist" element={<FreeCatTravelChecklist />} />
           <Route path="/cattery-evaluation-guide" element={<CatteryEvaluationGuide />} />
+          
+          {/* Guides routes */}
+          <Route path="/guides" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <GuidesLanding />
+            </Suspense>
+          } />
+          <Route path="/guides/choosing-cattery" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ChoosingCatteryGuide />
+            </Suspense>
+          } />
+          <Route path="/guides/budget-planning" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <BudgetPlanningGuide />
+            </Suspense>
+          } />
+          <Route path="/guides/preparation-checklist" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PreparationChecklistGuide />
+            </Suspense>
+          } />
+          <Route path="/guides/starting-cattery-business" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <StartingCatteryBusinessGuide />
+            </Suspense>
+          } />
+          <Route path="/guides/marketing-strategies" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <MarketingStrategiesGuide />
+            </Suspense>
+          } />
+          <Route path="/guides/premium-service-excellence" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PremiumServiceExcellenceGuide />
+            </Suspense>
+          } />
           
           {/* Catch-all redirect to main site */}
           <Route path="*" element={<Navigate to="/" replace />} />
