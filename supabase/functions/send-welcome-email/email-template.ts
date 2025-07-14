@@ -410,6 +410,191 @@ export function getWelcomeEmailTemplate(
                   </td>
                 </tr>
                 
+                <!-- Free Guides section -->
+                <tr>
+                  <td style="padding-bottom: 32px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 16px;">
+                      <tr>
+                        <td style="padding: 24px 20px;" class="mobile-small-padding">
+                          <h3 style="color: white; margin: 0 0 16px 0; font-size: 20px; font-weight: 800; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;" class="mobile-font-size">
+                            📚 Your Free Guides Are Ready!
+                          </h3>
+                          <p style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0 0 20px 0; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;" class="ultra-mobile-font-size">
+                            ${userType === 'cat-parent' ? 'Essential guides to help you find the perfect cattery for your feline friend:' : 'Professional resources to help you grow your cattery business:'}
+                          </p>
+                          
+                          <!-- Guides list for cat parents -->
+                          ${userType === 'cat-parent' ? `
+                          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td style="padding: 8px 0; vertical-align: top; width: 48px;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="width: 36px; height: 36px; background-color: rgba(255, 255, 255, 0.2); border-radius: 8px; text-align: center; vertical-align: middle;">
+                                      <span style="color: white; font-size: 16px; line-height: 36px;">🔍</span>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                              <td style="padding: 8px 0 8px 12px; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; mso-padding-alt: 12px 16px;">
+                                      <!--[if !mso]><!-->
+                                      <a href="${siteUrl}/guides/choosing-cattery" style="display: block; color: white; text-decoration: none; padding: 12px 16px; font-weight: 600; font-size: 14px; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.3;">
+                                        Complete Guide to Choosing the Right Cattery
+                                      </a>
+                                      <!--<![endif]-->
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="width: 36px; height: 36px; background-color: rgba(255, 255, 255, 0.2); border-radius: 8px; text-align: center; vertical-align: middle;">
+                                      <span style="color: white; font-size: 16px; line-height: 36px;">💰</span>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                              <td style="padding: 8px 0 8px 12px; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; mso-padding-alt: 12px 16px;">
+                                      <!--[if !mso]><!-->
+                                      <a href="${siteUrl}/guides/budget-planning" style="display: block; color: white; text-decoration: none; padding: 12px 16px; font-weight: 600; font-size: 14px; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.3;">
+                                        Budget Planning for Cat Boarding
+                                      </a>
+                                      <!--<![endif]-->
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="width: 36px; height: 36px; background-color: rgba(255, 255, 255, 0.2); border-radius: 8px; text-align: center; vertical-align: middle;">
+                                      <span style="color: white; font-size: 16px; line-height: 36px;">📋</span>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                              <td style="padding: 8px 0 8px 12px; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; mso-padding-alt: 12px 16px;">
+                                      <!--[if !mso]><!-->
+                                      <a href="${siteUrl}/guides/preparation-checklist" style="display: block; color: white; text-decoration: none; padding: 12px 16px; font-weight: 600; font-size: 14px; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.3;">
+                                        Pre-Boarding Preparation Checklist
+                                      </a>
+                                      <!--<![endif]-->
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+                          ` : `
+                          <!-- Guides list for cattery owners -->
+                          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td style="padding: 8px 0; vertical-align: top; width: 48px;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="width: 36px; height: 36px; background-color: rgba(255, 255, 255, 0.2); border-radius: 8px; text-align: center; vertical-align: middle;">
+                                      <span style="color: white; font-size: 16px; line-height: 36px;">🏢</span>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                              <td style="padding: 8px 0 8px 12px; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; mso-padding-alt: 12px 16px;">
+                                      <!--[if !mso]><!-->
+                                      <a href="${siteUrl}/guides/starting-cattery-business" style="display: block; color: white; text-decoration: none; padding: 12px 16px; font-weight: 600; font-size: 14px; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.3;">
+                                        Starting Your Cattery Business
+                                      </a>
+                                      <!--<![endif]-->
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="width: 36px; height: 36px; background-color: rgba(255, 255, 255, 0.2); border-radius: 8px; text-align: center; vertical-align: middle;">
+                                      <span style="color: white; font-size: 16px; line-height: 36px;">📈</span>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                              <td style="padding: 8px 0 8px 12px; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; mso-padding-alt: 12px 16px;">
+                                      <!--[if !mso]><!-->
+                                      <a href="${siteUrl}/guides/marketing-strategies" style="display: block; color: white; text-decoration: none; padding: 12px 16px; font-weight: 600; font-size: 14px; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.3;">
+                                        Effective Marketing Strategies
+                                      </a>
+                                      <!--<![endif]-->
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="width: 36px; height: 36px; background-color: rgba(255, 255, 255, 0.2); border-radius: 8px; text-align: center; vertical-align: middle;">
+                                      <span style="color: white; font-size: 16px; line-height: 36px;">⭐</span>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                              <td style="padding: 8px 0 8px 12px; vertical-align: top;">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                  <tr>
+                                    <td style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; mso-padding-alt: 12px 16px;">
+                                      <!--[if !mso]><!-->
+                                      <a href="${siteUrl}/guides/premium-service-excellence" style="display: block; color: white; text-decoration: none; padding: 12px 16px; font-weight: 600; font-size: 14px; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.3;">
+                                        Premium Service Excellence
+                                      </a>
+                                      <!--<![endif]-->
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+                          `}
+                          
+                          <!-- All guides button -->
+                          <table cellpadding="0" cellspacing="0" border="0" style="margin: 20px auto 0 auto;">
+                            <tr>
+                              <td style="background-color: rgba(255, 255, 255, 0.15); border-radius: 8px; mso-padding-alt: 12px 24px;">
+                                <!--[if !mso]><!-->
+                                <a href="${siteUrl}/guides" style="display: inline-block; color: white; text-decoration: none; padding: 12px 24px; font-weight: 700; font-size: 15px; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; line-height: 1;" class="mobile-button">
+                                  📖 View All Free Guides
+                                </a>
+                                <!--<![endif]-->
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
                 <!-- CTA button -->
                 <tr>
                   <td align="center" style="padding-bottom: 24px;">
