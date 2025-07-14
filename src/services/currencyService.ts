@@ -224,34 +224,34 @@ export class CurrencyService {
   }
 
   /**
-   * Get localized budget ranges for cat parents based on realistic cattery pricing
+   * Get localized budget ranges for cat parents based on realistic cattery pricing PER NIGHT
    */
   static async getLocalizedBudgetRanges(countryCode: string): Promise<string[]> {
     const currency = this.getCurrencyForCountry(countryCode);
     const pricing = this.getRegionalCatteryPricing(countryCode);
     
-    // Calculate ranges based on typical stay lengths (3-7 days)
+    // Calculate ranges based on per-night pricing (as the question asks about per night rates)
     // Using native currency rates, no conversion needed for supported regions
     const ranges = [
       {
-        label: `Under ${currency.symbol}${Math.round(pricing.low * 3)}`,
-        description: 'Budget catteries (3 days)'
+        label: `Under ${currency.symbol}${Math.round(pricing.low * 0.8)}`,
+        description: 'Budget catteries per night'
       },
       {
-        label: `${currency.symbol}${Math.round(pricing.low * 3)}-${Math.round(pricing.mid * 5)}`,
-        description: 'Standard catteries (3-5 days)'
+        label: `${currency.symbol}${Math.round(pricing.low * 0.8)}-${Math.round(pricing.mid)}`,
+        description: 'Budget to standard catteries per night'
       },
       {
-        label: `${currency.symbol}${Math.round(pricing.mid * 5)}-${Math.round(pricing.high * 5)}`,
-        description: 'Premium catteries (5 days)'
+        label: `${currency.symbol}${Math.round(pricing.mid)}-${Math.round(pricing.high)}`,
+        description: 'Standard to premium catteries per night'
       },
       {
-        label: `${currency.symbol}${Math.round(pricing.high * 5)}-${Math.round(pricing.high * 7)}`,
-        description: 'Luxury catteries (5-7 days)'
+        label: `${currency.symbol}${Math.round(pricing.high)}-${Math.round(pricing.high * 1.2)}`,
+        description: 'Premium catteries per night'
       },
       {
-        label: `Over ${currency.symbol}${Math.round(pricing.high * 7)}`,
-        description: 'Extended premium stays (7+ days)'
+        label: `Over ${currency.symbol}${Math.round(pricing.high * 1.2)}`,
+        description: 'Luxury catteries per night'
       }
     ];
 
