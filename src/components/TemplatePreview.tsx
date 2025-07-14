@@ -62,13 +62,20 @@ const InlineRegistrationForm: React.FC = () => {
     
     if (validateEmail(email)) {
       setIsValidEmail(true);
-      setFormState('name');
       setErrors({});
+      // Don't auto-advance to name field - let user finish typing
     } else {
       setIsValidEmail(false);
       if (formState === 'name') {
         setFormState('email');
       }
+    }
+  };
+
+  // Handle email field blur (when user finishes with email field)
+  const handleEmailBlur = () => {
+    if (isValidEmail && formData.email.trim()) {
+      setFormState('name');
     }
   };
 
@@ -123,6 +130,7 @@ const InlineRegistrationForm: React.FC = () => {
             type="email"
             value={formData.email}
             onChange={handleEmailChange}
+            onBlur={handleEmailBlur}
             placeholder="Enter your email"
             className="w-full pl-12 pr-12 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-lg"
           />
