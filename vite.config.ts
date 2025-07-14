@@ -26,7 +26,8 @@ export default defineConfig({
         manualChunks: (id) => {
           // Mobile-critical chunks (loaded first)
           if (id.includes('node_modules/react/') || 
-              id.includes('node_modules/react-dom/')) {
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react/jsx-runtime')) {
             return 'react-core';
           }
           
@@ -62,7 +63,7 @@ export default defineConfig({
           }
           
           if (id.includes('lucide-react')) {
-            return 'icons';
+            return 'mobile-components'; // Bundle with components to ensure React is loaded first
           }
           
           // Quiz and other heavy features
@@ -104,4 +105,14 @@ export default defineConfig({
   },
   // Image optimization hints
   assetsInclude: ['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.svg', '**/*.webp'],
+  
+  // Ensure proper React resolution
+  resolve: {
+    dedupe: ['react', 'react-dom']
+  },
+  
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'lucide-react']
+  }
 });
