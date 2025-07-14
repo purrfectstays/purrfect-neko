@@ -197,15 +197,6 @@ export class LocalizedQuizService {
         required: true
       },
       {
-        id: 'feature-interest',
-        question: 'How interested are you in premium business features? (1 = Not interested, 10 = Very interested)',
-        type: 'range',
-        min: 1,
-        max: 10,
-        step: 1,
-        required: true
-      },
-      {
         id: 'current-pricing',
         question: `What do you currently charge per night? (Regional average: ${pricingInsights.averagePerNight}, Market: ${pricingInsights.marketLevel})`,
         type: 'multiple-choice',
