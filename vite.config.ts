@@ -20,6 +20,8 @@ export default defineConfig({
   ],
 
   build: {
+    // Prevent ANY assets from being inlined as data URIs (CSP compliance)
+    assetsInlineLimit: 0,
     // Mobile-first performance optimizations
     rollupOptions: {
       output: {
@@ -68,12 +70,20 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     },
-    // Minify for production
+    // Minify for production - CSP-friendly configuration
     minify: 'terser',
     terserOptions: {
       compress: {
         drop_console: true,
-        drop_debugger: true
+        drop_debugger: true,
+        // Prevent aggressive inlining that creates data URIs
+        inline: false,
+        reduce_funcs: false
+      },
+      format: {
+        // Prevent script concatenation that causes CSP issues
+        beautify: false,
+        comments: false
       }
     },
     // Enable source maps for production debugging
