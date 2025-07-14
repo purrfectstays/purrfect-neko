@@ -24,10 +24,22 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
+          vendor: ['react', 'react-dom', 'react-router-dom'],
           supabase: ['@supabase/supabase-js'],
           icons: ['lucide-react']
-        }
+        },
+        // Use hashed file names for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
+    },
+    // Minify for production
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
       }
     },
     // Enable source maps for production debugging
@@ -35,6 +47,8 @@ export default defineConfig({
     // Optimize chunk size
     chunkSizeWarningLimit: 1000,
     reportCompressedSize: true,
+    // CSS code splitting
+    cssCodeSplit: true,
   },
   // Performance optimizations
   server: {

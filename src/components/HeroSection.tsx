@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Star, Users, Clock, Shield, TrendingUp } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import OptimizedImage from './OptimizedImage';
 
 const rotatingWords = [
   "Perfect",
@@ -128,10 +129,12 @@ const HeroSection: React.FC = () => {
           {/* Hero Image Section - Premium Cattery Showcase */}
           <div className="flex justify-center lg:justify-end">
             <div className="relative max-w-md w-full">
-              <img 
+              <OptimizedImage 
                 src="/7054d274-40cc-49d1-ba82-70530de86643.jpg" 
                 alt="Two beautiful cats relaxing together in a premium cattery environment with comfortable bedding and natural light"
                 className="w-full h-96 object-cover object-center rounded-2xl shadow-2xl border-4 border-indigo-500/20"
+                loading="lazy"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 448px"
               />
               <div className="absolute -bottom-6 -left-6 bg-zinc-800/95 backdrop-blur-sm rounded-xl p-4 border border-indigo-500/30 shadow-xl">
                 <p className="font-manrope text-base font-semibold text-white">

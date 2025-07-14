@@ -1,36 +1,46 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
-import MainSite from './components/MainSite';
-import LandingPage from './components/LandingPage';
-import RegistrationForm from './components/RegistrationForm';
-import EmailVerification from './components/EmailVerification';
-import QualificationQuizSecure from './components/QualificationQuizSecure';
-// Removed unused verification components
-import SuccessPage from './components/SuccessPage';
-import ExploreCatteries from './components/ExploreCatteries';
-import SupportPage from './components/SupportPage';
-import PrivacyPolicy from './components/legal/PrivacyPolicy';
-import TermsOfService from './components/legal/TermsOfService';
-import CookiePolicy from './components/legal/CookiePolicy';
-import QRCodePage from './components/QRCodePage';
-import ChatbotSupport from './components/ChatbotSupport';
-import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
-import LaunchReadinessTest from './components/LaunchReadinessTest';
-import DiagnosticTool from './components/DiagnosticTool';
-import AnalyticsDashboard from './components/AnalyticsDashboard';
-import CurrencyDemo from './components/CurrencyDemo';
-import EarlyAccessResources from './components/EarlyAccessResources';
-import FreeCatTravelChecklist from './components/FreeCatTravelChecklist';
-import CatteryEvaluationGuide from './components/CatteryEvaluationGuide';
-import ResourceAccessButton from './components/ResourceAccessButton';
-import TemplatePreview from './components/TemplatePreview';
 import { initGA, trackPageView } from './lib/analytics';
 import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
 import { env } from './lib/environment';
 import { setupGlobalErrorHandler } from './lib/errorHandler';
+
+// Eager load critical components
+import MainSite from './components/MainSite';
+import TemplatePreview from './components/TemplatePreview';
+import Footer from './components/Footer';
+import ChatbotSupport from './components/ChatbotSupport';
+import ResourceAccessButton from './components/ResourceAccessButton';
+
+// Lazy load heavy components
+const LandingPage = lazy(() => import('./components/LandingPage'));
+const RegistrationForm = lazy(() => import('./components/RegistrationForm'));
+const EmailVerification = lazy(() => import('./components/EmailVerification'));
+const QualificationQuizSecure = lazy(() => import('./components/QualificationQuizSecure'));
+const SuccessPage = lazy(() => import('./components/SuccessPage'));
+const ExploreCatteries = lazy(() => import('./components/ExploreCatteries'));
+const SupportPage = lazy(() => import('./components/SupportPage'));
+const PrivacyPolicy = lazy(() => import('./components/legal/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./components/legal/TermsOfService'));
+const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
+const QRCodePage = lazy(() => import('./components/QRCodePage'));
+const LaunchReadinessTest = lazy(() => import('./components/LaunchReadinessTest'));
+const DiagnosticTool = lazy(() => import('./components/DiagnosticTool'));
+const AnalyticsDashboard = lazy(() => import('./components/AnalyticsDashboard'));
+const CurrencyDemo = lazy(() => import('./components/CurrencyDemo'));
+const EarlyAccessResources = lazy(() => import('./components/EarlyAccessResources'));
+const FreeCatTravelChecklist = lazy(() => import('./components/FreeCatTravelChecklist'));
+const CatteryEvaluationGuide = lazy(() => import('./components/CatteryEvaluationGuide'));
+
+// Loading component for lazy loaded components
+const LoadingSpinner = () => (
+  <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+  </div>
+);
 
 const HomeHandler: React.FC = () => {
   const { currentStep } = useApp();
@@ -46,25 +56,65 @@ const HomeHandler: React.FC = () => {
           </>
         );
       case 'registration':
-        return <RegistrationForm />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <RegistrationForm />
+          </Suspense>
+        );
       case 'verification':
-        return <EmailVerification />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <EmailVerification />
+          </Suspense>
+        );
       case 'quiz':
-        return <QualificationQuizSecure />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <QualificationQuizSecure />
+          </Suspense>
+        );
       case 'success':
-        return <SuccessPage />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <SuccessPage />
+          </Suspense>
+        );
       case 'explore-catteries':
-        return <ExploreCatteries />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ExploreCatteries />
+          </Suspense>
+        );
       case 'privacy':
-        return <PrivacyPolicy />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <PrivacyPolicy />
+          </Suspense>
+        );
       case 'terms':
-        return <TermsOfService />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <TermsOfService />
+          </Suspense>
+        );
       case 'cookies':
-        return <CookiePolicy />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <CookiePolicy />
+          </Suspense>
+        );
       case 'qr':
-        return <QRCodePage />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <QRCodePage />
+          </Suspense>
+        );
       case 'launch-test':
-        return <LaunchReadinessTest />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <LaunchReadinessTest />
+          </Suspense>
+        );
       default:
         return (
           <>
@@ -132,13 +182,29 @@ const AppContent: React.FC = () => {
           <Route path="/welcome" element={<MainSite />} />
           
           {/* Landing page sub-routes */}
-          <Route path="/landingpage/quiz" element={<QualificationQuizSecure />} />
-          <Route path="/landingpage/success" element={<SuccessPage />} />
+          <Route path="/landingpage/quiz" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <QualificationQuizSecure />
+            </Suspense>
+          } />
+          <Route path="/landingpage/success" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
+          } />
           
           {/* Legacy routes for backward compatibility */}
           {/* Removed verification routes - no longer needed */}
-          <Route path="/quiz" element={<QualificationQuizSecure />} />
-          <Route path="/success" element={<SuccessPage />} />
+          <Route path="/quiz" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <QualificationQuizSecure />
+            </Suspense>
+          } />
+          <Route path="/success" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuccessPage />
+            </Suspense>
+          } />
           
           {/* Legal pages routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />

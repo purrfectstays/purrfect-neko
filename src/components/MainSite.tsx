@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Users, TestTube, TrendingUp } from 'lucide-react';
 import Logo from './Logo';
+import OptimizedImage from './OptimizedImage';
 
 const MainSite: React.FC = () => {
   const handleViewLandingPage = () => {
@@ -16,10 +17,11 @@ const MainSite: React.FC = () => {
           <div className="text-center space-y-8">
             {/* Logo - Much More Prominent */}
             <div className="flex justify-center mb-12">
-              <img 
-                src="/logomainpage.png" 
+              <OptimizedImage 
+                src="/logo.png" 
                 alt="Purrfect Stays Logo" 
                 className="h-32 sm:h-40 lg:h-48 w-auto drop-shadow-2xl"
+                loading="eager"
               />
             </div>
 
