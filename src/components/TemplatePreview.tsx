@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { ArrowRight, Star, Check, Shield, Clock, Users, Search, Calendar, BarChart3, Zap, MapPin, TrendingUp, Mail, User } from 'lucide-react';
 import { WaitlistService } from '../services/waitlistService';
 import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
@@ -7,6 +7,11 @@ import SocialProof from './SocialProof';
 import RegionalUrgency from './RegionalUrgency';
 import { useApp } from '../context/AppContext';
 import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
+import { useProgressiveEnhancement } from '../hooks/useProgressiveEnhancement';
+import MobileFirstImage from './MobileFirstImage';
+
+// Lazy load non-critical components for better performance
+const HeavyComponents = React.lazy(() => import('./HeavyComponents'));
 
 // Animated text cycling component
 const AnimatedPerfect: React.FC = () => {
@@ -195,6 +200,7 @@ const InlineRegistrationForm: React.FC = () => {
 
 const TemplatePreview: React.FC = () => {
   const { setCurrentStep } = useApp();
+  const { deviceInfo, shouldLoadEnhanced } = useProgressiveEnhancement();
   
   // Function to scroll to registration form
   const scrollToRegistration = () => {
@@ -213,21 +219,25 @@ const TemplatePreview: React.FC = () => {
       }, 500);
     }
   };
+  
   const [waitlistStats, setWaitlistStats] = useState<{
     totalUsers: number;
     verifiedUsers: number;
     completedQuizzes: number;
   } | null>(null);
 
-  // Track detailed user behavior for conversion optimization
+  // Track detailed user behavior for conversion optimization (lighter for mobile)
   useBehaviorTracking('template_preview', {
-    trackScrollDepth: true,
+    trackScrollDepth: !deviceInfo.isMobile, // Reduce tracking on mobile
     trackTimeOnPage: true,
-    trackClickHeatmap: true,
+    trackClickHeatmap: shouldLoadEnhanced,
     trackFormInteractions: false
   });
 
   useEffect(() => {
+    // Delay stats loading on mobile to prioritize critical content
+    const delay = deviceInfo.isMobile ? 1000 : 0;
+    
     const loadWaitlistStats = async () => {
       try {
         const stats = await WaitlistService.getWaitlistStats();
@@ -237,8 +247,8 @@ const TemplatePreview: React.FC = () => {
       }
     };
 
-    loadWaitlistStats();
-  }, []);
+    setTimeout(loadWaitlistStats, delay);
+  }, [deviceInfo.isMobile]);
 
   return (
     <div className="min-h-screen bg-zinc-900">

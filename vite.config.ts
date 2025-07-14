@@ -20,13 +20,62 @@ export default defineConfig({
   ],
 
   build: {
-    // Performance optimizations
+    // Mobile-first performance optimizations
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          supabase: ['@supabase/supabase-js'],
-          icons: ['lucide-react']
+        manualChunks: (id) => {
+          // Mobile-critical chunks (loaded first)
+          if (id.includes('node_modules/react/') || 
+              id.includes('node_modules/react-dom/')) {
+            return 'react-core';
+          }
+          
+          // Essential routing for mobile
+          if (id.includes('react-router-dom')) {
+            return 'mobile-routing';
+          }
+          
+          // Core utilities and hooks
+          if (id.includes('/hooks/') || 
+              id.includes('/lib/') ||
+              id.includes('/services/')) {
+            return 'mobile-utils';
+          }
+          
+          // Mobile-first components
+          if (id.includes('MobileFirst') || 
+              id.includes('TemplatePreview') ||
+              id.includes('RegistrationForm')) {
+            return 'mobile-components';
+          }
+          
+          // Desktop enhancement chunks (loaded later)
+          if (id.includes('DesktopEnhancements') ||
+              id.includes('Analytics') ||
+              id.includes('Dashboard')) {
+            return 'desktop-features';
+          }
+          
+          // Heavy external libraries
+          if (id.includes('@supabase/supabase-js')) {
+            return 'supabase';
+          }
+          
+          if (id.includes('lucide-react')) {
+            return 'icons';
+          }
+          
+          // Quiz and other heavy features
+          if (id.includes('Quiz') || 
+              id.includes('EarlyAccess') ||
+              id.includes('Evaluation')) {
+            return 'heavy-features';
+          }
+          
+          // Default vendor chunk for other node_modules
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         },
         // Use hashed file names for better caching
         chunkFileNames: 'assets/[name]-[hash].js',

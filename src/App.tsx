@@ -7,6 +7,7 @@ import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
 import { env } from './lib/environment';
 import { setupGlobalErrorHandler } from './lib/errorHandler';
+import './lib/performanceMonitor'; // Initialize performance monitoring
 
 // Eager load critical components
 import MainSite from './components/MainSite';
