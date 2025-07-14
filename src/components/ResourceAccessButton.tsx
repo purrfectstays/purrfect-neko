@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Download, FileText, Shield, X, ChevronUp } from 'lucide-react';
+import { Download, FileText, Shield, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 const ResourceAccessButton: React.FC = () => {
-  const { userEmail, isVerified } = useApp();
+  const { user, waitlistUser } = useApp();
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Only show for registered users
-  const hasResourceAccess = userEmail && userEmail.length > 0;
+  // Only show for registered users (either user or waitlistUser with email)
+  const hasResourceAccess = (user?.email) || (waitlistUser?.email);
+  const isVerified = user?.isVerified || waitlistUser?.is_verified || false;
 
   if (!hasResourceAccess) return null;
 
@@ -19,7 +22,7 @@ const ResourceAccessButton: React.FC = () => {
           {/* Travel Checklist */}
           <div
             onClick={() => {
-              window.location.href = '/cat-travel-checklist';
+              navigate('/cat-travel-checklist');
               setIsExpanded(false);
             }}
             className="flex items-center space-x-3 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg shadow-lg cursor-pointer transition-all transform hover:scale-105 min-w-[200px]"
@@ -34,7 +37,7 @@ const ResourceAccessButton: React.FC = () => {
           {/* Evaluation Guide */}
           <div
             onClick={() => {
-              window.location.href = '/cattery-evaluation-guide';
+              navigate('/cattery-evaluation-guide');
               setIsExpanded(false);
             }}
             className="flex items-center space-x-3 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg shadow-lg cursor-pointer transition-all transform hover:scale-105 min-w-[200px]"
@@ -49,7 +52,7 @@ const ResourceAccessButton: React.FC = () => {
           {/* All Resources Hub */}
           <div
             onClick={() => {
-              window.location.href = '/early-access-resources';
+              navigate('/early-access-resources');
               setIsExpanded(false);
             }}
             className="flex items-center space-x-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-3 rounded-lg shadow-lg cursor-pointer transition-all transform hover:scale-105 min-w-[200px]"
