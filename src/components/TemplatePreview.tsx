@@ -196,31 +196,38 @@ const InlineRegistrationForm: React.FC = () => {
 
       setIsSubmitting(true);
       try {
-        // For now, bypass all services and set dummy user data to test the flow
-        // This is a temporary solution until RLS policies are properly configured
-        const dummyUser = {
-          id: crypto.randomUUID(), // Generate proper UUID format for database compatibility
-          name: formData.name,
-          email: formData.email,
-          user_type: 'cat-parent',
-          is_verified: true,
-          quiz_completed: false,
-          waitlist_position: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
+        // Use the Edge Function with CAPTCHA registration for production-ready flow
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-verification-email', {
+          body: {
+            email: formData.email,
+            name: formData.name,
+            userType: 'cat-parent',
+            skipEmailSending: true, // Skip actual email sending
+            autoVerify: true // Auto-verify after CAPTCHA
+          },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-        // Update app state with dummy data
-        setWaitlistUser(dummyUser);
-        setVerificationToken('dummy-token');
+        if (emailError) {
+          console.error('Registration failed:', emailError);
+          throw new Error(emailError.message || 'Registration failed');
+        }
+
+        const { user, verificationToken } = emailData;
+        
+        // Update app state with real user data
+        setWaitlistUser(user);
+        setVerificationToken(verificationToken);
         setUser({
-          id: dummyUser.id,
+          id: user.id,
           name: formData.name,
           email: formData.email,
           userType: 'cat-parent',
           isVerified: true, // Mark as verified after CAPTCHA
           quizCompleted: false,
-          waitlistPosition: dummyUser.waitlist_position
+          waitlistPosition: user.waitlist_position
         });
 
         // Go directly to quiz

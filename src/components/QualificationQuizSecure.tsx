@@ -4,14 +4,14 @@ import { useApp } from '../context/AppContext';
 import { getQuizQuestionsForUser, calculateQuizScore, QuizQuestion } from '../data/quizQuestions';
 import { LocalizedQuizService } from '../services/localizedQuizService';
 import { GeolocationService, LocationData } from '../services/geolocationService';
-import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
+import { WaitlistService } from '../services/waitlistService';
 import CurrencyIndicator from './CurrencyIndicator';
 import { analytics } from '../lib/analytics';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
 const QualificationQuizSecure: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setCurrentStep, setUser } = useApp();
+  const { user, setCurrentStep, setUser, verificationToken, waitlistUser } = useApp();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -242,26 +242,8 @@ const QualificationQuizSecure: React.FC = () => {
       console.log('📤 Submitting quiz responses:', quizResponses);
       console.log('👤 Using user ID:', user.id, 'for email:', user.email);
       
-      // Check if we're using dummy user system (no real database interaction)
-      const isDummyUser = verificationToken === 'dummy-token';
-      
-      let result;
-      if (isDummyUser) {
-        console.log('🔧 Using dummy user system - bypassing database');
-        // Simulate successful quiz submission for dummy users
-        const randomPosition = Math.floor(Math.random() * 50) + 1; // Random position 1-50
-        result = {
-          user: {
-            ...waitlistUser,
-            quiz_completed: true,
-            waitlist_position: randomPosition
-          },
-          waitlistPosition: randomPosition
-        };
-      } else {
-        // Submit quiz responses for real users
-        result = await UnifiedEmailVerificationService.submitQuizResponses(user.id, quizResponses);
-      }
+      // Submit quiz responses using WaitlistService for production
+      const result = await WaitlistService.submitQuizResponses(user.id, quizResponses);
       
       console.log('✅ Quiz submission successful:', result);
       
