@@ -274,7 +274,21 @@ Deno.serve(async (req) => {
       try {
         // Create Supabase client with service role key
         const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fahqkxrakcizftopskki.supabase.co';
-        const supabaseServiceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhaHFreHJha2NpemZ0b3Bza2tpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTg3MTAzNywiZXhwIjoyMDY3NDQ3MDM3fQ._05P4IR8ZGyYqU0cA_3d2juochiH-DRPjJsnY2icqzk';
+        const supabaseServiceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        
+        if (!supabaseServiceRoleKey) {
+          console.error('❌ No service role key found in environment variables');
+          return new Response(
+            JSON.stringify({
+              error: 'Service configuration error',
+              message: 'Service role key not configured'
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 500,
+            }
+          );
+        }
         
         console.log('🔧 Environment check:', {
           hasUrl: !!supabaseUrl,
