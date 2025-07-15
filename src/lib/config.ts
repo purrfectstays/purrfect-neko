@@ -16,7 +16,7 @@ export interface AppConfig {
     nodeEnv: string;
   };
   email: {
-    resendApiKey?: string;
+    // Email service handled by secure Edge Functions
   };
   analytics: {
     gaMeasurementId?: string;
@@ -48,7 +48,7 @@ export function loadConfig(): AppConfig {
       nodeEnv: import.meta.env.NODE_ENV || DEFAULT_CONFIG.app!.nodeEnv!,
     },
     email: {
-      resendApiKey: import.meta.env.RESEND_API_KEY,
+      // Email service handled by secure Edge Functions
     },
     analytics: {
       gaMeasurementId: import.meta.env.VITE_GA_MEASUREMENT_ID,

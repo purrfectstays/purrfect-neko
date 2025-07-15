@@ -26,13 +26,24 @@ const RegionalUrgency: React.FC<RegionalUrgencyProps> = ({
   useEffect(() => {
     const loadLocationData = async () => {
       try {
-        // Get real user location for factual display only
-        const location = await GeolocationService.getUserLocation();
-        setLocationData(location);
+        // Add timeout to prevent hanging on slow API calls
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Location timeout')), 5000)
+        );
+        
+        const locationPromise = GeolocationService.getUserLocation();
+        const location = await Promise.race([locationPromise, timeoutPromise]);
+        setLocationData(location as any);
         setLoading(false);
       } catch (error) {
         console.log('Location detection failed:', error);
-        setLocationData(null);
+        // Set a generic fallback to avoid showing nothing
+        setLocationData({
+          country: 'the global community',
+          region: 'worldwide',
+          city: 'your area',
+          countryCode: 'XX'
+        });
         setLoading(false);
       }
     };

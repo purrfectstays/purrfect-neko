@@ -1,5 +1,5 @@
 import React, { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { initGA, trackPageView } from './lib/analytics';
@@ -15,6 +15,7 @@ import TemplatePreview from './components/TemplatePreview';
 import Footer from './components/Footer';
 import ChatbotSupport from './components/ChatbotSupport';
 import ResourceAccessButton from './components/ResourceAccessButton';
+import LoadingSpinner from './components/LoadingSpinner';
 
 // Lazy load heavy components
 const LandingPage = lazy(() => import('./components/LandingPage'));
@@ -46,9 +47,9 @@ const MarketingStrategiesGuide = lazy(() => import('./components/guides/Marketin
 const PremiumServiceExcellenceGuide = lazy(() => import('./components/guides/PremiumServiceExcellenceGuide'));
 
 // Loading component for lazy loaded components
-const LoadingSpinner = () => (
+const LoadingComponent = () => (
   <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+    <LoadingSpinner size="lg" />
   </div>
 );
 
@@ -67,61 +68,61 @@ const HomeHandler: React.FC = () => {
         );
       case 'registration':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <RegistrationForm />
           </Suspense>
         );
       case 'verification':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <EmailVerification />
           </Suspense>
         );
       case 'quiz':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <QualificationQuizSecure />
           </Suspense>
         );
       case 'success':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <SuccessPage />
           </Suspense>
         );
       case 'explore-catteries':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <ExploreCatteries />
           </Suspense>
         );
       case 'privacy':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <PrivacyPolicy />
           </Suspense>
         );
       case 'terms':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <TermsOfService />
           </Suspense>
         );
       case 'cookies':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <CookiePolicy />
           </Suspense>
         );
       case 'qr':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <QRCodePage />
           </Suspense>
         );
       case 'launch-test':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LoadingComponent />}>
             <LaunchReadinessTest />
           </Suspense>
         );
@@ -193,12 +194,12 @@ const AppContent: React.FC = () => {
           
           {/* Landing page sub-routes */}
           <Route path="/landingpage/quiz" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <QualificationQuizSecure />
             </Suspense>
           } />
           <Route path="/landingpage/success" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <SuccessPage />
             </Suspense>
           } />
@@ -206,12 +207,12 @@ const AppContent: React.FC = () => {
           {/* Legacy routes for backward compatibility */}
           {/* Removed verification routes - no longer needed */}
           <Route path="/quiz" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <QualificationQuizSecure />
             </Suspense>
           } />
           <Route path="/success" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <SuccessPage />
             </Suspense>
           } />
@@ -251,37 +252,37 @@ const AppContent: React.FC = () => {
           
           {/* Guides routes */}
           <Route path="/guides" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <GuidesLanding />
             </Suspense>
           } />
           <Route path="/guides/choosing-cattery" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <ChoosingCatteryGuide />
             </Suspense>
           } />
           <Route path="/guides/budget-planning" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <BudgetPlanningGuide />
             </Suspense>
           } />
           <Route path="/guides/preparation-checklist" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <PreparationChecklistGuide />
             </Suspense>
           } />
           <Route path="/guides/starting-cattery-business" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <StartingCatteryBusinessGuide />
             </Suspense>
           } />
           <Route path="/guides/marketing-strategies" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <MarketingStrategiesGuide />
             </Suspense>
           } />
           <Route path="/guides/premium-service-excellence" element={
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingComponent />}>
               <PremiumServiceExcellenceGuide />
             </Suspense>
           } />
@@ -310,7 +311,7 @@ function App() {
         version: '1.0.0',
         environment: env.nodeEnv,
         hasAnalytics: !!env.gaMeasurementId,
-        hasEmailService: !!env.resendApiKey,
+        hasEmailService: true, // Email service is configured via Edge Functions
       });
 
       // Log app initialization (safe for production)

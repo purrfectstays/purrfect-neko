@@ -12,7 +12,7 @@ import { useProgressiveEnhancement } from '../hooks/useProgressiveEnhancement';
 import MobileFirstImage from './MobileFirstImage';
 
 // Lazy load non-critical components for better performance
-const HeavyComponents = React.lazy(() => import('./HeavyComponents'));
+// HeavyComponents removed as it was unused
 
 // Animated text cycling component
 const AnimatedPerfect: React.FC = () => {

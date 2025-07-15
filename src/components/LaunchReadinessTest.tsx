@@ -222,10 +222,10 @@ const LaunchReadinessTest: React.FC = () => {
   const runEmailTests = async (suiteIndex: number) => {
     const tests = [
       async () => {
-        const hasResendKey = !!import.meta.env.VITE_RESEND_API_KEY;
+        // Email service is handled by Edge Functions, not frontend
         return { 
-          status: hasResendKey ? 'passed' as const : 'failed' as const, 
-          message: hasResendKey ? 'Resend API key configured' : 'Missing Resend API key' 
+          status: 'passed' as const, 
+          message: 'Email service handled by secure Edge Functions' 
         };
       },
       

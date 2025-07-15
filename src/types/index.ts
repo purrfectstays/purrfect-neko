@@ -48,15 +48,3 @@ export interface Cattery {
   distance_miles?: number;
 }
 
-export interface LocationSearchParams {
-  latitude: number;
-  longitude: number;
-  radius: number;
-  address?: string;
-}
-
-export interface GeolocationPosition {
-  latitude: number;
-  longitude: number;
-  accuracy?: number;
-}

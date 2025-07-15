@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:service-role": "node scripts/test-service-role-access.js"
+    "test:service-role": "node scripts/test-service-role-access.js",
+    "test:edge-functions": "node scripts/test-edge-functions.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

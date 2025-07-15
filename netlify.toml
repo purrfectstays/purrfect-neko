@@ -42,7 +42,7 @@
       style-src 'self' 'unsafe-inline' data: https://fonts.googleapis.com;
       font-src 'self' data: https://fonts.gstatic.com;
       img-src 'self' data: blob: https:;
-      connect-src 'self' https://*.supabase.co https://*.google.com https://*.google-analytics.com https://*.doubleclick.net https://api.resend.com https://ipapi.co https://*.bigdatacloud.net https://api-bdc.io;
+      connect-src 'self' https://*.supabase.co https://*.google.com https://*.google-analytics.com https://*.doubleclick.net https://api.resend.com https://ipapi.co https://*.bigdatacloud.net https://api-bdc.io https://api.exchangerate-api.com;
       frame-ancestors 'none';
       object-src 'none';
       base-uri 'self';
