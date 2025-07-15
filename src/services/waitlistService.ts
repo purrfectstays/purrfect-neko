@@ -170,14 +170,14 @@ export class WaitlistService {
       throw new Error('Service unavailable: Database configuration is invalid');
     }
 
-    // Test connectivity before attempting registration
-    const { connected, corsError } = await testNetworkConnectivity();
-    if (!connected) {
-      if (corsError) {
-        throw new Error('CORS configuration required. Please add your domain to Supabase CORS settings in the dashboard.');
-      }
-      throw new Error('Unable to connect to the service. Please check your internet connection and try again.');
-    }
+    // Skip network connectivity test for CAPTCHA registrations
+    // const { connected, corsError } = await testNetworkConnectivity();
+    // if (!connected) {
+    //   if (corsError) {
+    //     throw new Error('CORS configuration required. Please add your domain to Supabase CORS settings in the dashboard.');
+    //   }
+    //   throw new Error('Unable to connect to the service. Please check your internet connection and try again.');
+    // }
 
     try {
       // Generate verification token (secure random string)

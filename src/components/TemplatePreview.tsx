@@ -196,41 +196,36 @@ const InlineRegistrationForm: React.FC = () => {
 
       setIsSubmitting(true);
       try {
-        // Direct registration after CAPTCHA verification - bypass network checks
-        const { data, error } = await supabase
-          .from('waitlist_users')
-          .insert({
-            name: formData.name,
-            email: formData.email,
-            user_type: 'cat-parent',
-            is_verified: true, // Auto-verify after CAPTCHA
-            verification_token: null, // No email verification needed
-          })
-          .select()
-          .single();
-
-        if (error) {
-          throw error;
-        }
+        // For now, let's try to use the WaitlistService but catch and handle RLS errors
+        const result = await WaitlistService.registerUser({
+          name: formData.name,
+          email: formData.email,
+          userType: 'cat-parent',
+        });
 
         // Update app state
-        setWaitlistUser(data);
-        setVerificationToken(null);
+        setWaitlistUser(result.user);
+        setVerificationToken(result.verificationToken);
         setUser({
-          id: data.id,
+          id: result.user.id,
           name: formData.name,
           email: formData.email,
           userType: 'cat-parent',
           isVerified: true, // Mark as verified after CAPTCHA
           quizCompleted: false,
-          waitlistPosition: data.waitlist_position
+          waitlistPosition: result.user.waitlist_position
         });
 
         // Go directly to quiz
         setCurrentStep('quiz');
       } catch (error) {
         console.error('Registration error:', error);
-        setErrors({ submit: `Registration failed: ${error.message || 'Please try again.'}` });
+        // If it's an RLS error, show a more user-friendly message
+        if (error.message && error.message.includes('row-level security')) {
+          setErrors({ submit: 'Registration temporarily unavailable. Please try again in a moment.' });
+        } else {
+          setErrors({ submit: `Registration failed: ${error.message || 'Please try again.'}` });
+        }
         setIsSubmitting(false);
       }
     }
