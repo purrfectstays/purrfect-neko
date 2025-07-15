@@ -200,6 +200,7 @@ export class WaitlistService {
           email: userData.email,
           user_type: userData.userType,
           verification_token: verificationToken,
+          is_verified: true, // Auto-verify users after CAPTCHA verification
           // Skip location data for now to avoid schema errors
           // TODO: Add location data after database migration is applied
         })

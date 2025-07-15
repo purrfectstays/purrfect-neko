@@ -196,15 +196,32 @@ const InlineRegistrationForm: React.FC = () => {
 
       setIsSubmitting(true);
       try {
-        // For now, let's try to use the WaitlistService but catch and handle RLS errors
+        // Register user first
         const result = await WaitlistService.registerUser({
           name: formData.name,
           email: formData.email,
           userType: 'cat-parent',
         });
 
+        // After CAPTCHA verification, mark user as verified in the database
+        try {
+          const { error: verifyError } = await supabase
+            .from('waitlist_users')
+            .update({ is_verified: true })
+            .eq('id', result.user.id);
+
+          if (verifyError) {
+            console.error('Failed to mark user as verified:', verifyError);
+          } else {
+            console.log('✅ User marked as verified after CAPTCHA');
+          }
+        } catch (verifyError) {
+          console.error('Exception marking user as verified:', verifyError);
+          // Don't fail registration if verification marking fails
+        }
+
         // Update app state
-        setWaitlistUser(result.user);
+        setWaitlistUser({ ...result.user, is_verified: true });
         setVerificationToken(result.verificationToken);
         setUser({
           id: result.user.id,
