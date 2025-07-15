@@ -89,12 +89,12 @@ const InlineRegistrationForm: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
     name: '',
-    verificationCode: ''
+    captchaAnswer: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isValidEmail, setIsValidEmail] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [waitlistUser, setWaitlistUserLocal] = useState<any>(null);
+  const [captchaQuestion, setCaptchaQuestion] = useState({ question: '', answer: '' });
 
   // Email validation
   const validateEmail = (email: string) => {
@@ -119,6 +119,26 @@ const InlineRegistrationForm: React.FC = () => {
     }
   };
 
+  // Generate simple math CAPTCHA
+  const generateCaptcha = () => {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    const operators = ['+', '-'];
+    const operator = operators[Math.floor(Math.random() * operators.length)];
+    
+    let answer;
+    if (operator === '+') {
+      answer = num1 + num2;
+    } else {
+      answer = num1 - num2;
+    }
+    
+    setCaptchaQuestion({
+      question: `${num1} ${operator} ${num2} = ?`,
+      answer: answer.toString()
+    });
+  };
+
   // Handle email field blur (when user finishes with email field)
   const handleEmailBlur = () => {
     if (isValidEmail && formData.email.trim()) {
@@ -126,61 +146,51 @@ const InlineRegistrationForm: React.FC = () => {
     }
   };
 
-  // Handle name field completion
-  const handleNameComplete = async () => {
+  // Handle name field blur (when user finishes with name field)
+  const handleNameBlur = () => {
     if (formData.name.trim()) {
+      generateCaptcha();
+      setFormState('verification');
+    }
+  };
+
+  // Handle CAPTCHA verification and registration
+  const handleCaptchaSubmit = async () => {
+    if (formState === 'verification' && formData.captchaAnswer.trim()) {
+      // Verify CAPTCHA answer
+      if (formData.captchaAnswer.trim() !== captchaQuestion.answer) {
+        setErrors({ captcha: 'Incorrect answer. Please try again.' });
+        generateCaptcha(); // Generate new CAPTCHA
+        setFormData(prev => ({ ...prev, captchaAnswer: '' }));
+        return;
+      }
+
       setIsSubmitting(true);
       try {
-        // Send verification email
+        // Register user directly after CAPTCHA verification
         const { user: waitlistUser, verificationToken } = await UnifiedEmailVerificationService.registerUser({
           name: formData.name,
           email: formData.email,
           userType: 'cat-parent',
         });
 
-        // Update app state but don't mark as verified yet
+        // Update app state
         setWaitlistUser(waitlistUser);
-        setWaitlistUserLocal(waitlistUser);
         setVerificationToken(verificationToken);
-        
-        // Move to verification step
-        setFormState('verification');
-        setIsSubmitting(false);
-      } catch (error) {
-        setErrors({ submit: 'Failed to send verification code. Please try again.' });
-        setIsSubmitting(false);
-      }
-    }
-  };
+        setUser({
+          id: waitlistUser.id,
+          name: formData.name,
+          email: formData.email,
+          userType: 'cat-parent',
+          isVerified: true, // Mark as verified after CAPTCHA
+          quizCompleted: false,
+          waitlistPosition: waitlistUser.waitlist_position
+        });
 
-  // Handle verification code submission
-  const handleVerificationSubmit = async () => {
-    if (formState === 'verification' && formData.verificationCode.trim()) {
-      setIsSubmitting(true);
-      try {
-        // Verify the code
-        const isValid = await UnifiedEmailVerificationService.verifyCode(formData.email, formData.verificationCode);
-        
-        if (isValid) {
-          // Update user state as verified
-          setUser({
-            id: waitlistUser?.id || '',
-            name: formData.name,
-            email: formData.email,
-            userType: 'cat-parent',
-            isVerified: true,
-            quizCompleted: false,
-            waitlistPosition: waitlistUser?.waitlist_position || 0
-          });
-
-          // Go to quiz
-          setCurrentStep('quiz');
-        } else {
-          setErrors({ verification: 'Invalid verification code. Please try again.' });
-          setIsSubmitting(false);
-        }
+        // Go directly to quiz
+        setCurrentStep('quiz');
       } catch (error) {
-        setErrors({ verification: 'Verification failed. Please try again.' });
+        setErrors({ submit: 'Registration failed. Please try again.' });
         setIsSubmitting(false);
       }
     }
@@ -222,6 +232,7 @@ const InlineRegistrationForm: React.FC = () => {
               type="text"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onBlur={handleNameBlur}
               placeholder="Enter your full name"
               className="w-full pl-12 pr-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-lg"
               autoFocus
@@ -229,24 +240,26 @@ const InlineRegistrationForm: React.FC = () => {
           </div>
         )}
 
-        {/* Verification Code Input - Shows after name is entered */}
+        {/* CAPTCHA Input - Shows after name is entered */}
         {formState === 'verification' && (
           <div className="relative animate-in slide-in-from-top-4 duration-300">
+            <div className="mb-4 text-center">
+              <div className="bg-zinc-800/50 rounded-lg p-4 border border-zinc-600">
+                <p className="text-sm text-zinc-400 mb-2">Quick verification to prevent spam:</p>
+                <div className="text-2xl font-bold text-white mb-2">
+                  {captchaQuestion.question}
+                </div>
+              </div>
+            </div>
             <Shield className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-300" />
             <input
               type="text"
-              value={formData.verificationCode}
-              onChange={(e) => setFormData(prev => ({ ...prev, verificationCode: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
-              placeholder="Enter 6-digit verification code"
-              className="w-full pl-12 pr-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-lg text-center tracking-[0.5em]"
+              value={formData.captchaAnswer}
+              onChange={(e) => setFormData(prev => ({ ...prev, captchaAnswer: e.target.value }))}
+              placeholder="Enter your answer"
+              className="w-full pl-12 pr-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-lg text-center"
               autoFocus
-              maxLength={6}
             />
-            <div className="mt-2 text-center">
-              <p className="text-sm text-zinc-300">
-                Check your email for the verification code
-              </p>
-            </div>
           </div>
         )}
 
@@ -256,37 +269,16 @@ const InlineRegistrationForm: React.FC = () => {
           </div>
         )}
 
-        {errors.verification && (
+        {errors.captcha && (
           <div className="bg-red-500/20 border-2 border-red-500/40 rounded-xl p-4">
-            <p className="text-red-300 text-sm text-center font-medium">{errors.verification}</p>
+            <p className="text-red-300 text-sm text-center font-medium">{errors.captcha}</p>
           </div>
         )}
 
-        {/* Name Submit Button */}
-        {formState === 'name' && formData.name.trim() ? (
+        {/* CAPTCHA Submit Button */}
+        {formState === 'verification' && formData.captchaAnswer.trim() ? (
           <button
-            onClick={handleNameComplete}
-            disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-green-400 to-green-500 text-white text-xl font-bold py-5 rounded-full hover:from-green-500 hover:to-green-600 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-400/30 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-          >
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                <span>Sending Code...</span>
-              </>
-            ) : (
-              <>
-                <span>SEND VERIFICATION CODE</span>
-                <ArrowRight className="w-6 h-6" />
-              </>
-            )}
-          </button>
-        ) : null}
-
-        {/* Verification Submit Button */}
-        {formState === 'verification' && formData.verificationCode.length === 6 ? (
-          <button
-            onClick={handleVerificationSubmit}
+            onClick={handleCaptchaSubmit}
             disabled={isSubmitting}
             className="w-full bg-gradient-to-r from-green-400 to-green-500 text-white text-xl font-bold py-5 rounded-full hover:from-green-500 hover:to-green-600 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-400/30 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
           >
@@ -307,9 +299,9 @@ const InlineRegistrationForm: React.FC = () => {
         {/* Help Text */}
         <p className="text-sm text-zinc-300 text-center font-medium">
           {formState === 'verification' ? (
-            <>🔒 Email verification required • Check your inbox for 6-digit code</>
+            <>🔒 Quick anti-spam verification • Solve the math problem above</>
           ) : (
-            <>🔒 Secure registration • Email verification required</>
+            <>🔒 Fast registration • No email verification required</>
           )}
         </p>
       </div>
