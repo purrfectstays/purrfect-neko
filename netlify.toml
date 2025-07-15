@@ -80,26 +80,7 @@
     Cache-Control = "public, max-age=31536000, immutable"
     Content-Type = "application/javascript; charset=utf-8"
 
-# TypeScript compiled files
-[[headers]]
-  for = "/*.tsx"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-    Content-Type = "application/javascript; charset=utf-8"
-
-[[headers]]
-  for = "/src/*.tsx"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-    Content-Type = "application/javascript; charset=utf-8"
-
-# Ensure all built files with any extension are served with proper MIME types
-[[headers]]
-  for = "/*main*.tsx"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-    Content-Type = "application/javascript; charset=utf-8"
-
+# Ensure all built files are served with proper MIME types
 [[headers]]
   for = "/*main*.js"
   [headers.values]
