@@ -196,32 +196,32 @@ const InlineRegistrationForm: React.FC = () => {
 
       setIsSubmitting(true);
       try {
-        // Register user first
-        const result = await WaitlistService.registerUser({
-          name: formData.name,
-          email: formData.email,
-          userType: 'cat-parent',
+        // Use edge function to register user with service role permissions
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const response = await fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            userType: 'cat-parent',
+            skipEmailSending: true, // Skip email since we used CAPTCHA
+            autoVerify: true, // Auto-verify after CAPTCHA
+          }),
         });
 
-        // After CAPTCHA verification, mark user as verified in the database
-        try {
-          const { error: verifyError } = await supabase
-            .from('waitlist_users')
-            .update({ is_verified: true })
-            .eq('id', result.user.id);
-
-          if (verifyError) {
-            console.error('Failed to mark user as verified:', verifyError);
-          } else {
-            console.log('✅ User marked as verified after CAPTCHA');
-          }
-        } catch (verifyError) {
-          console.error('Exception marking user as verified:', verifyError);
-          // Don't fail registration if verification marking fails
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Registration failed: ${response.status} - ${errorText}`);
         }
 
+        const result = await response.json();
+
         // Update app state
-        setWaitlistUser({ ...result.user, is_verified: true });
+        setWaitlistUser(result.user);
         setVerificationToken(result.verificationToken);
         setUser({
           id: result.user.id,

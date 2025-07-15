@@ -94,6 +94,31 @@ function validateInput(data: any): { isValid: boolean; errors: string[] } {
   return { isValid: errors.length === 0, errors };
 }
 
+// Input validation for CAPTCHA registration (no token required)
+function validateInputForCaptcha(data: any): { isValid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  
+  if (!data.email || typeof data.email !== 'string') {
+    errors.push('Email is required and must be a string');
+  } else if (!isValidEmail(data.email)) {
+    errors.push('Invalid email format');
+  }
+  
+  if (!data.name || typeof data.name !== 'string') {
+    errors.push('Name is required and must be a string');
+  } else if (data.name.length > 100) {
+    errors.push('Name must be less than 100 characters');
+  }
+
+  if (!data.userType || typeof data.userType !== 'string') {
+    errors.push('User type is required and must be a string');
+  } else if (!['cat-parent', 'cattery-owner'].includes(data.userType)) {
+    errors.push('User type must be either "cat-parent" or "cattery-owner"');
+  }
+  
+  return { isValid: errors.length === 0, errors };
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
   const corsHeaders = getCorsHeaders(origin);
@@ -213,8 +238,18 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Validate input
-    const validation = validateInput(requestBody);
+    // Check if this is a CAPTCHA registration request
+    const skipEmailSending = requestBody.skipEmailSending || false;
+    const autoVerify = requestBody.autoVerify || false;
+
+    // Validate input (skip token validation for CAPTCHA registration)
+    let validation;
+    if (skipEmailSending) {
+      validation = validateInputForCaptcha(requestBody);
+    } else {
+      validation = validateInput(requestBody);
+    }
+    
     if (!validation.isValid) {
       return new Response(
         JSON.stringify({ 
@@ -231,8 +266,67 @@ Deno.serve(async (req) => {
     // Sanitize inputs
     const email = requestBody.email.trim().toLowerCase();
     const name = sanitizeHtml(requestBody.name.trim());
-    const verificationToken = requestBody.verificationToken.trim();
+    const verificationToken = skipEmailSending ? null : requestBody.verificationToken.trim();
     const userType = requestBody.userType;
+
+    // Handle CAPTCHA registration (skip email sending)
+    if (skipEmailSending) {
+      try {
+        // Create Supabase client with service role key
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+        // Generate a verification token even for CAPTCHA registration
+        const captchaToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Insert user directly with service role permissions
+        const { data: userData, error: insertError } = await supabase
+          .from('waitlist_users')
+          .insert({
+            name: name,
+            email: email,
+            user_type: userType,
+            verification_token: captchaToken,
+            is_verified: autoVerify, // Set to true for CAPTCHA users
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('❌ Database insert error:', insertError);
+          throw new Error(`Database error: ${insertError.message}`);
+        }
+
+        console.log('✅ CAPTCHA user registered successfully:', userData.id);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            user: userData,
+            verificationToken: captchaToken,
+            message: 'User registered successfully via CAPTCHA'
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          }
+        );
+      } catch (error) {
+        console.error('❌ CAPTCHA registration error:', error);
+        return new Response(
+          JSON.stringify({
+            error: 'Registration failed',
+            details: error.message
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500,
+          }
+        );
+      }
+    }
 
     const resend = new Resend(resendApiKey);
     // Use frontend route for verification to avoid Edge Function auth issues
