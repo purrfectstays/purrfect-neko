@@ -242,8 +242,27 @@ const QualificationQuizSecure: React.FC = () => {
       console.log('📤 Submitting quiz responses:', quizResponses);
       console.log('👤 Using user ID:', user.id, 'for email:', user.email);
       
-      // Submit quiz responses
-      const result = await UnifiedEmailVerificationService.submitQuizResponses(user.id, quizResponses);
+      // Check if we're using dummy user system (no real database interaction)
+      const isDummyUser = verificationToken === 'dummy-token';
+      
+      let result;
+      if (isDummyUser) {
+        console.log('🔧 Using dummy user system - bypassing database');
+        // Simulate successful quiz submission for dummy users
+        const randomPosition = Math.floor(Math.random() * 50) + 1; // Random position 1-50
+        result = {
+          user: {
+            ...waitlistUser,
+            quiz_completed: true,
+            waitlist_position: randomPosition
+          },
+          waitlistPosition: randomPosition
+        };
+      } else {
+        // Submit quiz responses for real users
+        result = await UnifiedEmailVerificationService.submitQuizResponses(user.id, quizResponses);
+      }
+      
       console.log('✅ Quiz submission successful:', result);
       
       // Update user state
