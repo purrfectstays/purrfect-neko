@@ -11,9 +11,6 @@ const Header: React.FC = () => {
     setCurrentStep('explore-catteries');
   };
 
-  const handleLaunchTestClick = () => {
-    setCurrentStep('launch-test');
-  };
 
   // Check if user has access to resources (either verified or just registered)
   const hasResourceAccess = userEmail && userEmail.length > 0;
@@ -61,15 +58,6 @@ const Header: React.FC = () => {
               </div>
             )}
             
-            {/* Launch Test Button - Development/Testing */}
-            {import.meta.env.DEV && (
-              <button
-                onClick={handleLaunchTestClick}
-                className="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-3 py-2 rounded-lg font-semibold text-xs hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-orange-500/25"
-              >
-                <span>🚀 Test</span>
-              </button>
-            )}
             
             {/* Cattery Entry Point - Subtle */}
             <button
