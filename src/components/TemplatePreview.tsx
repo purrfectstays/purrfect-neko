@@ -199,7 +199,7 @@ const InlineRegistrationForm: React.FC = () => {
         // For now, bypass all services and set dummy user data to test the flow
         // This is a temporary solution until RLS policies are properly configured
         const dummyUser = {
-          id: `temp-${Date.now()}`,
+          id: crypto.randomUUID(), // Generate proper UUID format for database compatibility
           name: formData.name,
           email: formData.email,
           user_type: 'cat-parent',
