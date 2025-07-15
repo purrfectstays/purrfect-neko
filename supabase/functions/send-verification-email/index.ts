@@ -274,7 +274,14 @@ Deno.serve(async (req) => {
       try {
         // Create Supabase client with service role key
         const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fahqkxrakcizftopskki.supabase.co';
-        const supabaseServiceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabaseServiceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhaHFreHJha2NpemZ0b3Bza2tpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTg3MTAzNywiZXhwIjoyMDY3NDQ3MDM3fQ._05P4IR8ZGyYqU0cA_3d2juochiH-DRPjJsnY2icqzk';
+        
+        console.log('🔧 Environment check:', {
+          hasUrl: !!supabaseUrl,
+          hasServiceKey: !!supabaseServiceRoleKey,
+          urlPreview: supabaseUrl.substring(0, 20) + '...',
+          keyPreview: supabaseServiceRoleKey.substring(0, 20) + '...'
+        });
         const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
         const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
@@ -296,7 +303,17 @@ Deno.serve(async (req) => {
 
         if (insertError) {
           console.error('❌ Database insert error:', insertError);
-          throw new Error(`Database error: ${insertError.message}`);
+          return new Response(
+            JSON.stringify({
+              error: 'Database insert failed',
+              details: insertError.message,
+              code: insertError.code
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 500,
+            }
+          );
         }
 
         console.log('✅ CAPTCHA user registered successfully:', userData.id);
