@@ -50,7 +50,6 @@ const CatteryOwnerCTA: React.FC = () => {
   const handleCatteryRegistration = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('BECOME A PARTNER button clicked!');
     // Navigate to cattery registration page
     setCurrentStep('registration');
   };
@@ -350,9 +349,7 @@ const TemplatePreview: React.FC = () => {
   
   // Function to scroll to registration form
   const scrollToRegistration = () => {
-    console.log('scrollToRegistration called'); // Debug log
     const registrationElement = document.querySelector('[data-registration-form]');
-    console.log('Found registration element:', registrationElement); // Debug log
     if (registrationElement) {
       registrationElement.scrollIntoView({ 
         behavior: 'smooth', 
@@ -366,7 +363,6 @@ const TemplatePreview: React.FC = () => {
         }
       }, 500);
     } else {
-      console.error('Registration form not found! Looking for [data-registration-form]');
       // Fallback: scroll to top of page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -397,19 +393,6 @@ const TemplatePreview: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-zinc-900">
-      {/* DEBUG: Test button to verify React is working */}
-      <div className="fixed top-20 right-4 z-50">
-        <button
-          onClick={() => {
-            console.log('TEST BUTTON CLICKED - React is working!');
-            alert('Test button works! React is functioning.');
-          }}
-          className="bg-red-500 text-white px-4 py-2 rounded font-bold"
-        >
-          TEST
-        </button>
-      </div>
-      
       {/* Use proper Header component */}
       <Header />
 
@@ -523,7 +506,6 @@ const TemplatePreview: React.FC = () => {
             <button 
               onClick={(e) => {
                 e.preventDefault();
-                console.log('GET EARLY ACCESS button clicked!');
                 const registrationElement = document.getElementById('register');
                 if (registrationElement) {
                   registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -531,8 +513,6 @@ const TemplatePreview: React.FC = () => {
                     const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
                     if (emailInput) emailInput.focus();
                   }, 500);
-                } else {
-                  console.error('Registration form not found!');
                 }
               }}
               className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all cursor-pointer"
@@ -594,7 +574,6 @@ const TemplatePreview: React.FC = () => {
               type="button"
               onClick={(e) => {
                 e.preventDefault();
-                console.log('JOIN THE MOVEMENT - WORKING!');
                 document.getElementById('register')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }}
               className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all cursor-pointer"
@@ -643,7 +622,6 @@ const TemplatePreview: React.FC = () => {
             <button 
               onClick={(e) => {
                 e.preventDefault();
-                console.log('BE FIRST TO ACCESS button clicked!');
                 const registrationElement = document.querySelector('[data-registration-form]');
                 if (registrationElement) {
                   registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -651,8 +629,6 @@ const TemplatePreview: React.FC = () => {
                     const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
                     if (emailInput) emailInput.focus();
                   }, 500);
-                } else {
-                  console.error('Registration form not found!');
                 }
               }}
               className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all cursor-pointer"
@@ -681,7 +657,6 @@ const TemplatePreview: React.FC = () => {
               <button 
                 onClick={(e) => {
                   e.preventDefault();
-                  console.log('JOIN THE WAITLIST button clicked!');
                   const registrationElement = document.querySelector('[data-registration-form]');
                   if (registrationElement) {
                     registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -689,8 +664,6 @@ const TemplatePreview: React.FC = () => {
                       const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
                       if (emailInput) emailInput.focus();
                     }, 500);
-                  } else {
-                    console.error('Registration form not found!');
                   }
                 }}
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all cursor-pointer"
@@ -749,7 +722,6 @@ const TemplatePreview: React.FC = () => {
             <button 
               onClick={(e) => {
                 e.preventDefault();
-                console.log('GET FIRST ACCESS button clicked!');
                 const registrationElement = document.querySelector('[data-registration-form]');
                 if (registrationElement) {
                   registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -757,8 +729,6 @@ const TemplatePreview: React.FC = () => {
                     const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
                     if (emailInput) emailInput.focus();
                   }, 500);
-                } else {
-                  console.error('Registration form not found!');
                 }
               }}
               className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all cursor-pointer"
@@ -797,7 +767,6 @@ const TemplatePreview: React.FC = () => {
             <button 
               onClick={(e) => {
                 e.preventDefault();
-                console.log('BE PART OF SOMETHING BIG button clicked!');
                 const registrationElement = document.querySelector('[data-registration-form]');
                 if (registrationElement) {
                   registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -805,8 +774,6 @@ const TemplatePreview: React.FC = () => {
                     const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
                     if (emailInput) emailInput.focus();
                   }, 500);
-                } else {
-                  console.error('Registration form not found!');
                 }
               }}
               className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all cursor-pointer"
@@ -897,7 +864,6 @@ const TemplatePreview: React.FC = () => {
             <button 
               onClick={(e) => {
                 e.preventDefault();
-                console.log('JOIN NOW - NO COMMITMENT button clicked!');
                 const registrationElement = document.querySelector('[data-registration-form]');
                 if (registrationElement) {
                   registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -905,8 +871,6 @@ const TemplatePreview: React.FC = () => {
                     const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
                     if (emailInput) emailInput.focus();
                   }, 500);
-                } else {
-                  console.error('Registration form not found!');
                 }
               }}
               className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all cursor-pointer"
@@ -969,7 +933,6 @@ const TemplatePreview: React.FC = () => {
               <button 
                 onClick={(e) => {
                   e.preventDefault();
-                  console.log('FIND TRUSTED CAT CARE FIRST button clicked!');
                   const registrationElement = document.querySelector('[data-registration-form]');
                   if (registrationElement) {
                     registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -977,8 +940,6 @@ const TemplatePreview: React.FC = () => {
                       const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
                       if (emailInput) emailInput.focus();
                     }, 500);
-                  } else {
-                    console.error('Registration form not found!');
                   }
                 }}
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all cursor-pointer inline-flex items-center justify-center space-x-2 text-lg"
@@ -1022,9 +983,7 @@ const MobileStickyCTA: React.FC = () => {
 
   // Function to scroll to registration form
   const scrollToRegistration = () => {
-    console.log('MobileStickyCTA scrollToRegistration called'); // Debug log
     const registrationElement = document.querySelector('[data-registration-form]');
-    console.log('Found registration element:', registrationElement); // Debug log
     if (registrationElement) {
       registrationElement.scrollIntoView({ 
         behavior: 'smooth', 
@@ -1038,7 +997,6 @@ const MobileStickyCTA: React.FC = () => {
         }
       }, 500);
     } else {
-      console.error('Registration form not found! Looking for [data-registration-form]');
       // Fallback: scroll to top of page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
