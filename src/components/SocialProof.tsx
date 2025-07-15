@@ -19,25 +19,6 @@ const SocialProof: React.FC = () => {
               </p>
             </div>
 
-            {/* Featured Cattery Image - Multiple Cats in Premium Environment */}
-            <div className="relative">
-              <img 
-                src="/8829a399-8103-41fe-83ab-6675e4377b57.jpg" 
-                alt="Multiple cats relaxing together in a premium cattery environment showing social interaction and comfort"
-                className="w-full h-72 object-cover rounded-xl shadow-lg border border-indigo-800/30"
-              />
-              <div className="absolute top-4 left-4 bg-zinc-800/95 backdrop-blur-sm rounded-lg p-3 border border-indigo-500/30 shadow-lg">
-                <p className="font-manrope text-sm font-semibold text-white">
-                  🏠 Premium cattery facilities
-                </p>
-              </div>
-              <div className="absolute bottom-4 right-4 bg-zinc-800/95 backdrop-blur-sm rounded-lg p-3 border border-indigo-500/30 shadow-lg">
-                <p className="font-manrope text-sm font-semibold text-white">
-                  🐱 Social & comfortable spaces
-                </p>
-              </div>
-            </div>
-
             <div className="space-y-4 lg:space-y-6">
               <div className="flex items-center space-x-4 p-4 lg:p-6 bg-zinc-800/50 rounded-xl border border-yellow-800/30 hover:border-yellow-600/50 transition-all duration-300">
                 <div className="flex-shrink-0">

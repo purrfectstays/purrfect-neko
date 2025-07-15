@@ -73,7 +73,16 @@ const Header: React.FC = () => {
             
             {/* Cattery Entry Point - Subtle */}
             <button
-              onClick={() => setCurrentStep('registration')}
+              onClick={() => {
+                const catteryForm = document.querySelector('[data-cattery-registration-form]');
+                if (catteryForm) {
+                  catteryForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  setTimeout(() => {
+                    const emailInput = catteryForm.querySelector('input[type="email"]') as HTMLInputElement;
+                    if (emailInput) emailInput.focus();
+                  }, 500);
+                }
+              }}
               className="hidden md:inline-flex items-center space-x-1 text-zinc-300 hover:text-white text-xs font-medium transition-all"
               title="For Cattery Owners"
             >

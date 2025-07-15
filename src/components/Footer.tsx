@@ -33,7 +33,16 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li>
                 <button
-                  onClick={() => setCurrentStep('registration')}
+                  onClick={() => {
+                    const catteryForm = document.querySelector('[data-cattery-registration-form]');
+                    if (catteryForm) {
+                      catteryForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      setTimeout(() => {
+                        const emailInput = catteryForm.querySelector('input[type="email"]') as HTMLInputElement;
+                        if (emailInput) emailInput.focus();
+                      }, 500);
+                    }
+                  }}
                   className="font-manrope text-zinc-400 hover:text-white transition-colors text-left"
                 >
                   Cattery Owner?

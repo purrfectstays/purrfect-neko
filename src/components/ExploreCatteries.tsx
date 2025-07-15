@@ -31,7 +31,7 @@ const ExploreCatteries: React.FC = () => {
       rating: 4.9,
       reviewCount: 127,
       priceRange: '$45-65/night',
-      image: '/98a77826-5e2d-46e7-9ee0-ae09a32490f3.jpg',
+      image: '/previewimage1.jpg',
       specialties: ['Senior Cats', 'Medical Care', 'Socialization'],
       amenities: ['24/7 Monitoring', 'Individual Suites', 'Outdoor Viewing'],
       availability: 'available',
@@ -45,7 +45,7 @@ const ExploreCatteries: React.FC = () => {
       rating: 4.8,
       reviewCount: 89,
       priceRange: '$35-50/night',
-      image: '/de189fd4-f7ec-4885-8050-316031f209f5.jpg',
+      image: '/previewimage2.jpg',
       specialties: ['Multiple Cats', 'Play Time', 'Grooming'],
       amenities: ['Large Play Areas', 'Grooming Services', 'Daily Updates'],
       availability: 'limited',
@@ -59,7 +59,7 @@ const ExploreCatteries: React.FC = () => {
       rating: 4.7,
       reviewCount: 203,
       priceRange: '$55-80/night',
-      image: '/7054d274-40cc-49d1-ba82-70530de86643.jpg',
+      image: '/previewimage3.jpg',
       specialties: ['Luxury Suites', 'Special Diets', 'Spa Services'],
       amenities: ['Luxury Suites', 'Spa Treatments', 'Custom Diets', 'Live Webcams'],
       availability: 'booked',
@@ -73,7 +73,7 @@ const ExploreCatteries: React.FC = () => {
       rating: 4.6,
       reviewCount: 156,
       priceRange: '$40-55/night',
-      image: '/98a77826-5e2d-46e7-9ee0-ae09a32490f3.jpg',
+      image: '/previewimage4.jpg',
       specialties: ['Anxious Cats', 'Quiet Environment', 'Homestyle Care'],
       amenities: ['Quiet Spaces', 'Anxiety Support', 'Home-like Setting'],
       availability: 'available',
@@ -116,6 +116,20 @@ const ExploreCatteries: React.FC = () => {
   };
 
   const handleJoinEarlyAccess = () => {
+    setCurrentStep('landing');
+    setTimeout(() => {
+      const registrationElement = document.getElementById('register');
+      if (registrationElement) {
+        registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
+          if (emailInput) emailInput.focus();
+        }, 500);
+      }
+    }, 100);
+  };
+
+  const handleCatteryOwnerRegistration = () => {
     setCurrentStep('registration');
   };
 
@@ -304,13 +318,23 @@ const ExploreCatteries: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <button
-                onClick={handleJoinEarlyAccess}
-                className="group bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-lg px-8 py-4 rounded-full hover:from-indigo-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-indigo-500/25 inline-flex items-center space-x-3"
-              >
-                <span>Join Early Access Program</span>
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button
+                  onClick={handleJoinEarlyAccess}
+                  className="group bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-lg px-8 py-4 rounded-full hover:from-indigo-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-indigo-500/25 inline-flex items-center space-x-3"
+                >
+                  <span>Join Early Access Program</span>
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+                
+                <button
+                  onClick={handleCatteryOwnerRegistration}
+                  className="group bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold text-lg px-8 py-4 rounded-full hover:from-purple-600 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-purple-500/25 inline-flex items-center space-x-3"
+                >
+                  <span>Cattery Owner?</span>
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
               
               <p className="text-sm text-zinc-400">
                 🎯 Help shape this feature • 💎 Founding member benefits • 🔒 Free to join
