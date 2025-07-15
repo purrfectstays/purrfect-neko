@@ -95,6 +95,16 @@ const InlineRegistrationForm: React.FC = () => {
   const [isValidEmail, setIsValidEmail] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [captchaQuestion, setCaptchaQuestion] = useState({ question: '', answer: '' });
+  const [emailTimeout, setEmailTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [nameTimeout, setNameTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (emailTimeout) clearTimeout(emailTimeout);
+      if (nameTimeout) clearTimeout(nameTimeout);
+    };
+  }, [emailTimeout, nameTimeout]);
 
   // Email validation
   const validateEmail = (email: string) => {
@@ -107,10 +117,21 @@ const InlineRegistrationForm: React.FC = () => {
     const email = e.target.value;
     setFormData(prev => ({ ...prev, email }));
     
+    // Clear existing timeout
+    if (emailTimeout) {
+      clearTimeout(emailTimeout);
+    }
+    
     if (validateEmail(email)) {
       setIsValidEmail(true);
       setErrors({});
-      // Don't auto-advance to name field - let user finish typing
+      // Auto-advance to name field after 2.5 seconds
+      const timeout = setTimeout(() => {
+        if (validateEmail(email) && email.trim()) {
+          setFormState('name');
+        }
+      }, 2500);
+      setEmailTimeout(timeout);
     } else {
       setIsValidEmail(false);
       if (formState === 'name') {
@@ -139,18 +160,25 @@ const InlineRegistrationForm: React.FC = () => {
     });
   };
 
-  // Handle email field blur (when user finishes with email field)
-  const handleEmailBlur = () => {
-    if (isValidEmail && formData.email.trim()) {
-      setFormState('name');
+  // Handle name input change
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    setFormData(prev => ({ ...prev, name }));
+    
+    // Clear existing timeout
+    if (nameTimeout) {
+      clearTimeout(nameTimeout);
     }
-  };
-
-  // Handle name field blur (when user finishes with name field)
-  const handleNameBlur = () => {
-    if (formData.name.trim()) {
-      generateCaptcha();
-      setFormState('verification');
+    
+    if (name.trim() && formState === 'name') {
+      // Auto-advance to verification after 2.5 seconds
+      const timeout = setTimeout(() => {
+        if (name.trim()) {
+          generateCaptcha();
+          setFormState('verification');
+        }
+      }, 2500);
+      setNameTimeout(timeout);
     }
   };
 
@@ -214,7 +242,6 @@ const InlineRegistrationForm: React.FC = () => {
             type="email"
             value={formData.email}
             onChange={handleEmailChange}
-            onBlur={handleEmailBlur}
             placeholder="Enter your email"
             className="w-full pl-12 pr-12 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-lg"
           />
@@ -231,8 +258,7 @@ const InlineRegistrationForm: React.FC = () => {
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              onBlur={handleNameBlur}
+              onChange={handleNameChange}
               placeholder="Enter your full name"
               className="w-full pl-12 pr-4 py-4 bg-zinc-700/80 border-2 border-zinc-500 rounded-xl text-white placeholder-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-lg"
               autoFocus
