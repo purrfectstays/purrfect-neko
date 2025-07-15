@@ -577,11 +577,10 @@ export class WaitlistService {
 
     return await safeApiCall(
       async () => {
-        // Use the Supabase client with proper abort signal handling
+        // Remove abort signal to prevent AbortError issues
         const { data, error } = await supabase
           .from('waitlist_users')
-          .select('is_verified, quiz_completed')
-          .abortSignal(signal);
+          .select('is_verified, quiz_completed');
 
         if (error) {
           // Check for abort error here too
