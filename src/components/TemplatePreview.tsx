@@ -10,7 +10,6 @@ import { useApp } from '../context/AppContext';
 import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { useProgressiveEnhancement } from '../hooks/useProgressiveEnhancement';
 import MobileFirstImage from './MobileFirstImage';
-import ClickDebugger from './ClickDebugger';
 
 // Lazy load non-critical components for better performance
 const HeavyComponents = React.lazy(() => import('./HeavyComponents'));
@@ -141,23 +140,12 @@ const InlineRegistrationForm: React.FC = () => {
     }
   };
 
-  // Generate simple math CAPTCHA
+  // Generate 6-digit verification code
   const generateCaptcha = () => {
-    const num1 = Math.floor(Math.random() * 10) + 1;
-    const num2 = Math.floor(Math.random() * 10) + 1;
-    const operators = ['+', '-'];
-    const operator = operators[Math.floor(Math.random() * operators.length)];
-    
-    let answer;
-    if (operator === '+') {
-      answer = num1 + num2;
-    } else {
-      answer = num1 - num2;
-    }
-    
+    const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
     setCaptchaQuestion({
-      question: `${num1} ${operator} ${num2} = ?`,
-      answer: answer.toString()
+      question: `Enter this 6-digit code: ${code}`,
+      answer: code
     });
   };
 
@@ -188,8 +176,8 @@ const InlineRegistrationForm: React.FC = () => {
     if (formState === 'verification' && formData.captchaAnswer.trim()) {
       // Verify CAPTCHA answer
       if (formData.captchaAnswer.trim() !== captchaQuestion.answer) {
-        setErrors({ captcha: 'Incorrect answer. Please try again.' });
-        generateCaptcha(); // Generate new CAPTCHA
+        setErrors({ captcha: 'Incorrect code. Please try again.' });
+        generateCaptcha(); // Generate new 6-digit code
         setFormData(prev => ({ ...prev, captchaAnswer: '' }));
         return;
       }
@@ -346,7 +334,7 @@ const InlineRegistrationForm: React.FC = () => {
         {/* Help Text */}
         <p className="text-sm text-zinc-300 text-center font-medium">
           {formState === 'verification' ? (
-            <>🔒 Quick anti-spam verification • Solve the math problem above</>
+            <>🔒 Quick anti-spam verification • Enter the 6-digit code above</>
           ) : (
             <>🔒 Fast registration • No email verification required</>
           )}
@@ -409,9 +397,6 @@ const TemplatePreview: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-zinc-900">
-      {/* Click Debugger */}
-      <ClickDebugger />
-      
       {/* DEBUG: Test button to verify React is working */}
       <div className="fixed top-20 right-4 z-50">
         <button
