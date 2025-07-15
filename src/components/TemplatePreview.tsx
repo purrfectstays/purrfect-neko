@@ -196,41 +196,31 @@ const InlineRegistrationForm: React.FC = () => {
 
       setIsSubmitting(true);
       try {
-        // Use edge function to register user with service role permissions
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const response = await fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            userType: 'cat-parent',
-            skipEmailSending: true, // Skip email since we used CAPTCHA
-            autoVerify: true, // Auto-verify after CAPTCHA
-          }),
-        });
+        // For now, bypass all services and set dummy user data to test the flow
+        // This is a temporary solution until RLS policies are properly configured
+        const dummyUser = {
+          id: `temp-${Date.now()}`,
+          name: formData.name,
+          email: formData.email,
+          user_type: 'cat-parent',
+          is_verified: true,
+          quiz_completed: false,
+          waitlist_position: 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Registration failed: ${response.status} - ${errorText}`);
-        }
-
-        const result = await response.json();
-
-        // Update app state
-        setWaitlistUser(result.user);
-        setVerificationToken(result.verificationToken);
+        // Update app state with dummy data
+        setWaitlistUser(dummyUser);
+        setVerificationToken('dummy-token');
         setUser({
-          id: result.user.id,
+          id: dummyUser.id,
           name: formData.name,
           email: formData.email,
           userType: 'cat-parent',
           isVerified: true, // Mark as verified after CAPTCHA
           quizCompleted: false,
-          waitlistPosition: result.user.waitlist_position
+          waitlistPosition: dummyUser.waitlist_position
         });
 
         // Go directly to quiz
