@@ -2,6 +2,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { ArrowRight, Star, Check, Shield, Clock, Users, Search, Calendar, BarChart3, Zap, MapPin, TrendingUp, Mail, User } from 'lucide-react';
 import { WaitlistService } from '../services/waitlistService';
 import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
+import { supabase } from '../lib/supabase';
 import Header from './Header';
 import SocialProof from './SocialProof';
 import RegionalUrgency from './RegionalUrgency';
@@ -195,30 +196,41 @@ const InlineRegistrationForm: React.FC = () => {
 
       setIsSubmitting(true);
       try {
-        // Register user directly after CAPTCHA verification
-        const { user: waitlistUser, verificationToken } = await UnifiedEmailVerificationService.registerUser({
-          name: formData.name,
-          email: formData.email,
-          userType: 'cat-parent',
-        });
+        // Direct registration after CAPTCHA verification - bypass network checks
+        const { data, error } = await supabase
+          .from('waitlist_users')
+          .insert({
+            name: formData.name,
+            email: formData.email,
+            user_type: 'cat-parent',
+            is_verified: true, // Auto-verify after CAPTCHA
+            verification_token: null, // No email verification needed
+          })
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
 
         // Update app state
-        setWaitlistUser(waitlistUser);
-        setVerificationToken(verificationToken);
+        setWaitlistUser(data);
+        setVerificationToken(null);
         setUser({
-          id: waitlistUser.id,
+          id: data.id,
           name: formData.name,
           email: formData.email,
           userType: 'cat-parent',
           isVerified: true, // Mark as verified after CAPTCHA
           quizCompleted: false,
-          waitlistPosition: waitlistUser.waitlist_position
+          waitlistPosition: data.waitlist_position
         });
 
         // Go directly to quiz
         setCurrentStep('quiz');
       } catch (error) {
-        setErrors({ submit: 'Registration failed. Please try again.' });
+        console.error('Registration error:', error);
+        setErrors({ submit: `Registration failed: ${error.message || 'Please try again.'}` });
         setIsSubmitting(false);
       }
     }
