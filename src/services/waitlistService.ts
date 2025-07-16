@@ -329,7 +329,7 @@ export class WaitlistService {
       if (!searchData || searchData.length === 0) {
         console.error('❌ No user found with verification token');
         
-        // Debug: Show sample tokens in database
+        // Debug: Show sample tokens in database (development only)
         try {
           const { data: allTokens } = await supabase
             .from('waitlist_users')
@@ -339,9 +339,13 @@ export class WaitlistService {
             .limit(3);
           
           // Debug information available in development only
-            created: t.created_at,
-            length: t.verification_token?.length 
-          })));
+          if (import.meta.env.DEV && allTokens) {
+            console.log('Recent tokens:', allTokens.map(t => ({
+              email: t.email,
+              created: t.created_at,
+              length: t.verification_token?.length || 0
+            })));
+          }
         } catch (debugError) {
           console.error('❌ Debug query failed:', debugError);
         }
