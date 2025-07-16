@@ -1,306 +1,401 @@
+---
+title: "Multi-Language Internationalization"
+version: "1.0"
+status: "planning"
+priority: "medium"
+assignee: "development-team"
+created: "2025-01-17"
+---
+
 # Spec: Multi-Language Internationalization (i18n)
 
 ## Overview
-Implement comprehensive internationalization to expand Purrfect Stays globally, supporting multiple languages while maintaining our high accessibility and performance standards.
+Implement comprehensive internationalization to support multiple languages, leveraging our MCP infrastructure for automated translation management and deployment workflows.
 
 ## Requirements
 
 ### Supported Languages (Phase 1)
 - **English** (en-US) - Primary/Default
 - **Spanish** (es-ES) - European Spanish
-- **French** (fr-FR) - French
+- **French** (fr-FR) - European French
 - **German** (de-DE) - German
 - **Japanese** (ja-JP) - Japanese
 - **Mandarin Chinese** (zh-CN) - Simplified Chinese
 
 ### Functional Requirements
-- **Dynamic Language Switching**: Users can change language without page reload
-- **Persistent Preference**: Language choice saved in localStorage/cookies
-- **RTL Support**: Prepare for Arabic/Hebrew in future phases
-- **Currency Localization**: Display prices in local currencies
-- **Date/Time Formatting**: Locale-appropriate date/time display
-- **Number Formatting**: Locale-specific number formatting
+- **Dynamic Language Switching**: Real-time language changes without page reload
+- **Localized Content**: All user-facing text, forms, and messages
+- **Cultural Adaptation**: Date formats, number formats, currency display
+- **SEO Optimization**: Language-specific URLs and meta tags
+- **Email Localization**: Verification and welcome emails in user's language
 
 ### Technical Requirements
-- **Bundle Size**: Keep translation bundles under 20KB per language
-- **Performance**: Language switching in <500ms
-- **SEO**: Proper hreflang tags and URL structure
-- **Accessibility**: Maintain WCAG 2.1 AA compliance across all languages
+- **Bundle Optimization**: Lazy load language files to minimize initial bundle
+- **Fallback Strategy**: Graceful degradation to English for missing translations
+- **Translation Management**: Automated workflow for translation updates
+- **Quality Assurance**: Validation for translation completeness and accuracy
 
 ## Design
 
-### Translation Architecture
+### Architecture
 ```typescript
-interface TranslationSystem {
-  languages: SupportedLanguage[];
-  currentLanguage: string;
-  translations: Record<string, TranslationBundle>;
-  formatters: LocaleFormatters;
-}
-
-interface TranslationBundle {
-  common: CommonTranslations;
-  forms: FormTranslations;
-  quiz: QuizTranslations;
-  emails: EmailTranslations;
-  errors: ErrorTranslations;
+interface I18nSystem {
+  // Core i18n Infrastructure
+  core: {
+    i18next: I18NextInstance;           // Translation engine
+    detector: LanguageDetector;         // Auto-detect user language
+    backend: TranslationBackend;        // Dynamic translation loading
+  };
+  
+  // Translation Management
+  management: {
+    githubMCP: GitHubMCPService;       // Translation file management
+    linearMCP: LinearMCPService;       // Translation task tracking
+    automatedWorkflow: TranslationBot; // Auto-create PRs for translations
+  };
+  
+  // Localization Services
+  localization: {
+    dateFormatter: DateFormatter;       // Locale-specific date formatting
+    numberFormatter: NumberFormatter;   // Currency and number formatting
+    emailTemplates: EmailLocalizer;     // Localized email templates
+  };
 }
 ```
 
-### URL Structure
-- `/` - Default (English)
-- `/es/` - Spanish
-- `/fr/` - French  
-- `/de/` - German
-- `/ja/` - Japanese
-- `/zh/` - Chinese
+### File Structure
+```
+src/
+├── i18n/
+│   ├── index.ts                    # i18n configuration
+│   ├── detector.ts                 # Language detection logic
+│   ├── resources/
+│   │   ├── en/
+│   │   │   ├── common.json         # Common translations
+│   │   │   ├── forms.json          # Form labels and validation
+│   │   │   ├── emails.json         # Email templates
+│   │   │   └── quiz.json           # Quiz questions and answers
+│   │   ├── es/
+│   │   │   ├── common.json
+│   │   │   ├── forms.json
+│   │   │   ├── emails.json
+│   │   │   └── quiz.json
+│   │   └── [other languages...]
+│   └── hooks/
+│       ├── useTranslation.ts       # Enhanced translation hook
+│       ├── useLocalization.ts      # Localization utilities
+│       └── useLanguageSwitch.ts    # Language switching logic
+```
 
 ### Component Integration
 ```typescript
-// Hook-based translation
-const { t, locale, changeLanguage } = useTranslation();
-
-// Component usage
-<h1>{t('landing.hero.title')}</h1>
-<p>{t('landing.hero.subtitle', { count: userCount })}</p>
-```
-
-## Implementation
-
-### Phase 1: Foundation (Week 1)
-- [ ] Install and configure react-i18next
-- [ ] Set up translation file structure
-- [ ] Create language detection and switching logic
-- [ ] Implement basic translation hooks
-
-### Phase 2: Content Translation (Week 2)
-- [ ] Translate all static content (landing page, forms, etc.)
-- [ ] Implement dynamic content translation system
-- [ ] Add currency and number formatting
-- [ ] Create language switcher component
-
-### Phase 3: Advanced Features (Week 3)
-- [ ] Email template translations via Resend MCP
-- [ ] Quiz localization with cultural adaptations
-- [ ] Error message translations
-- [ ] SEO optimization with hreflang tags
-
-### Phase 4: Quality & Performance (Week 4)
-- [ ] Professional translation review
-- [ ] Performance optimization and lazy loading
-- [ ] Accessibility testing across languages
-- [ ] Cultural adaptation and testing
-
-## Technical Implementation
-
-### Translation Files Structure
-```
-src/locales/
-├── en/
-│   ├── common.json
-│   ├── forms.json
-│   ├── quiz.json
-│   └── emails.json
-├── es/
-│   ├── common.json
-│   ├── forms.json
-│   ├── quiz.json
-│   └── emails.json
-└── [other languages...]
-```
-
-### Key Translation Categories
-
-#### Common UI Elements
-```json
-{
-  "navigation": {
-    "home": "Home",
-    "about": "About",
-    "contact": "Contact"
-  },
-  "buttons": {
-    "submit": "Submit",
-    "cancel": "Cancel",
-    "continue": "Continue"
-  },
-  "loading": "Loading...",
-  "error": "An error occurred"
-}
-```
-
-#### Form Translations
-```json
-{
-  "registration": {
-    "title": "Join the Waitlist",
-    "name_label": "Full Name",
-    "email_label": "Email Address",
-    "user_type_label": "I am a...",
-    "submit_button": "Secure My Spot"
-  },
-  "validation": {
-    "required": "This field is required",
-    "email_invalid": "Please enter a valid email address"
-  }
-}
-```
-
-#### Quiz Localization
-```json
-{
-  "cat_parent_questions": {
-    "frequency": {
-      "question": "How often do you travel with your cat?",
-      "options": [
-        "1-2 times per year",
-        "3-4 times per year", 
-        "5-8 times per year",
-        "More than 8 times per year"
-      ]
-    }
-  }
-}
-```
-
-### MCP Integration for Translations
-
-#### Automated Translation Workflow
-- **GitHub MCP**: Create translation PRs automatically
-- **Linear MCP**: Track translation progress and quality
-- **Resend MCP**: Update email templates in all languages
-
-#### Translation Management
-```typescript
-// Hook for MCP-powered translation updates
-const useTranslationMCP = () => {
-  const updateTranslations = async (language: string, updates: TranslationUpdates) => {
-    // Use GitHub MCP to create PR with translation updates
-    await githubMCP.createPR({
-      title: `Update ${language} translations`,
-      files: [`src/locales/${language}/*.json`],
-      content: updates
-    });
+// Enhanced translation hook
+const useTranslation = (namespace?: string) => {
+  const { t, i18n } = useI18next(namespace);
+  const { formatDate, formatCurrency, formatNumber } = useLocalization();
+  
+  return {
+    t,                                // Translation function
+    language: i18n.language,          // Current language
+    changeLanguage: i18n.changeLanguage,
+    formatDate,                       // Localized date formatting
+    formatCurrency,                   // Localized currency formatting
+    formatNumber,                     // Localized number formatting
+    isRTL: i18n.dir() === 'rtl'      // Right-to-left language support
   };
+};
+
+// Usage in components
+const RegistrationForm: React.FC = () => {
+  const { t, formatCurrency } = useTranslation('forms');
+  
+  return (
+    <form>
+      <label>{t('email.label')}</label>
+      <input 
+        placeholder={t('email.placeholder')}
+        aria-label={t('email.ariaLabel')}
+      />
+      <p>{t('pricing.premium', { price: formatCurrency(29.99) })}</p>
+    </form>
+  );
 };
 ```
 
-## Cultural Adaptations
+### Translation File Structure
+```json
+// src/i18n/resources/en/forms.json
+{
+  "email": {
+    "label": "Email Address",
+    "placeholder": "Enter your email address",
+    "ariaLabel": "Email address input field",
+    "validation": {
+      "required": "Email address is required",
+      "invalid": "Please enter a valid email address"
+    }
+  },
+  "userType": {
+    "label": "I am a...",
+    "options": {
+      "catParent": "Cat Parent",
+      "catteryOwner": "Cattery Owner"
+    }
+  },
+  "pricing": {
+    "premium": "Premium plan starting at {{price}} per month"
+  }
+}
+```
 
-### Regional Considerations
-- **Colors**: Ensure color meanings are appropriate across cultures
-- **Images**: Use diverse, culturally appropriate imagery
-- **Content**: Adapt messaging for cultural context
-- **Pricing**: Display in local currencies with proper formatting
+## Implementation Plan
 
-### Accessibility Across Languages
-- **Screen Readers**: Test with screen readers in each language
-- **Font Support**: Ensure fonts support all character sets
-- **Text Direction**: Prepare for RTL languages in future
-- **Keyboard Navigation**: Test with different keyboard layouts
+### Phase 1: Infrastructure Setup (Week 1)
+- **i18next Configuration**: Setup core translation engine
+- **Language Detection**: Implement automatic language detection
+- **Base Translations**: Create English translation files
+- **Component Integration**: Update core components to use translations
+
+### Phase 2: Translation Management (Week 2)
+- **GitHub MCP Integration**: Automated translation file management
+- **Translation Workflow**: Create PR-based translation updates
+- **Quality Assurance**: Translation validation and completeness checks
+- **Fallback System**: Implement graceful fallbacks for missing translations
+
+### Phase 3: Localization Features (Week 3)
+- **Date/Number Formatting**: Implement locale-specific formatting
+- **Currency Display**: Dynamic currency based on user location
+- **Email Localization**: Translate email templates via Resend MCP
+- **SEO Optimization**: Language-specific URLs and meta tags
+
+### Phase 4: Advanced Features (Week 4)
+- **RTL Support**: Right-to-left language support (Arabic, Hebrew)
+- **Pluralization**: Complex plural rules for different languages
+- **Context-Aware Translations**: Gender-specific and context-sensitive translations
+- **Performance Optimization**: Lazy loading and bundle optimization
+
+## Technical Implementation
+
+### i18n Configuration
+```typescript
+// src/i18n/index.ts
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import Backend from 'i18next-http-backend';
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+i18n
+  .use(Backend)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'en',
+    debug: import.meta.env.DEV,
+    
+    interpolation: {
+      escapeValue: false, // React already escapes
+    },
+    
+    backend: {
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
+    },
+    
+    detection: {
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      caches: ['localStorage'],
+    },
+    
+    react: {
+      useSuspense: false, // Avoid loading issues
+    }
+  });
+
+export default i18n;
+```
+
+### MCP Integration for Translation Management
+```typescript
+// Automated translation workflow via GitHub MCP
+const createTranslationPR = async (language: string, translations: TranslationFile) => {
+  // Create new branch for translations
+  await githubMCP.createBranch({
+    name: `translations/${language}-update-${Date.now()}`,
+    from: 'main'
+  });
+  
+  // Update translation files
+  await githubMCP.updateFile({
+    path: `src/i18n/resources/${language}/common.json`,
+    content: JSON.stringify(translations.common, null, 2),
+    message: `feat(i18n): Update ${language} translations`
+  });
+  
+  // Create pull request
+  await githubMCP.createPullRequest({
+    title: `🌍 Update ${language} translations`,
+    body: `
+## Translation Updates
+
+- Updated ${language} translations
+- Added ${translations.newKeys.length} new keys
+- Modified ${translations.updatedKeys.length} existing keys
+
+## Quality Checks
+- [ ] Translation completeness verified
+- [ ] Cultural appropriateness reviewed
+- [ ] Technical accuracy confirmed
+    `,
+    labels: ['i18n', 'translations', language]
+  });
+  
+  // Track in Linear
+  await linearMCP.createIssue({
+    title: `Review ${language} translations`,
+    description: `Translation PR created for ${language} language updates`,
+    labels: ['translation-review']
+  });
+};
+```
+
+### Email Localization
+```typescript
+// Localized email templates via Resend MCP
+const sendLocalizedEmail = async (user: User, emailType: 'verification' | 'welcome') => {
+  const userLanguage = user.preferredLanguage || 'en';
+  
+  // Get localized email template
+  const template = await getEmailTemplate(emailType, userLanguage);
+  
+  // Send via Resend MCP with localized content
+  await resendMCP.sendEmail({
+    to: user.email,
+    subject: template.subject,
+    html: template.html,
+    headers: {
+      'Accept-Language': userLanguage
+    }
+  });
+};
+```
+
+## Quality Assurance
+
+### Translation Validation
+```typescript
+// Automated translation completeness check
+const validateTranslations = async () => {
+  const baseLanguage = 'en';
+  const baseTranslations = await loadTranslations(baseLanguage);
+  const supportedLanguages = ['es', 'fr', 'de', 'ja', 'zh'];
+  
+  const validationResults = await Promise.all(
+    supportedLanguages.map(async (lang) => {
+      const translations = await loadTranslations(lang);
+      const missingKeys = findMissingKeys(baseTranslations, translations);
+      const extraKeys = findExtraKeys(baseTranslations, translations);
+      
+      return {
+        language: lang,
+        completeness: ((Object.keys(translations).length / Object.keys(baseTranslations).length) * 100).toFixed(1),
+        missingKeys,
+        extraKeys
+      };
+    })
+  );
+  
+  // Create Linear issues for incomplete translations
+  for (const result of validationResults) {
+    if (result.missingKeys.length > 0) {
+      await linearMCP.createIssue({
+        title: `Missing ${result.language} translations`,
+        description: `${result.missingKeys.length} missing translation keys`,
+        priority: 'medium'
+      });
+    }
+  }
+  
+  return validationResults;
+};
+```
+
+### Accessibility Considerations
+```typescript
+// Language-aware accessibility features
+const useAccessibleTranslation = () => {
+  const { t, language, isRTL } = useTranslation();
+  
+  useEffect(() => {
+    // Update document language and direction
+    document.documentElement.lang = language;
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    
+    // Update screen reader announcements
+    const announcement = t('accessibility.languageChanged', { language: t(`languages.${language}`) });
+    announceToScreenReader(announcement);
+  }, [language, isRTL, t]);
+  
+  return { t, language, isRTL };
+};
+```
 
 ## Performance Optimization
 
 ### Bundle Splitting
 ```typescript
-// Lazy load translation bundles
-const loadTranslations = async (language: string) => {
-  const translations = await import(`../locales/${language}/index.js`);
+// Lazy load translation files
+const loadTranslations = async (language: string, namespace: string) => {
+  const translations = await import(`../i18n/resources/${language}/${namespace}.json`);
   return translations.default;
 };
+
+// Code splitting for language-specific components
+const LanguageSpecificComponent = lazy(() => 
+  import(`./components/LanguageSpecific/${language}/Component`)
+);
 ```
 
 ### Caching Strategy
-- **Browser Cache**: Cache translation bundles for 30 days
-- **Service Worker**: Offline translation support
-- **CDN**: Serve translations from CDN for global performance
-
-## Quality Assurance
-
-### Translation Quality
-- **Professional Review**: Native speaker review for each language
-- **Context Validation**: Ensure translations fit UI constraints
-- **Cultural Appropriateness**: Review for cultural sensitivity
-- **Technical Accuracy**: Validate technical terms and concepts
-
-### Testing Strategy
-- **Automated Tests**: Translation key coverage and format validation
-- **Visual Testing**: Screenshot comparison across languages
-- **Functional Testing**: Full user flows in each language
-- **Performance Testing**: Bundle size and load time validation
-
-## SEO Optimization
-
-### Technical SEO
-```html
-<!-- Hreflang tags for each page -->
-<link rel="alternate" hreflang="en" href="https://purrfectstays.org/" />
-<link rel="alternate" hreflang="es" href="https://purrfectstays.org/es/" />
-<link rel="alternate" hreflang="fr" href="https://purrfectstays.org/fr/" />
+```typescript
+// Translation caching with service worker
+const cacheTranslations = async (language: string) => {
+  const cache = await caches.open(`translations-${language}`);
+  const translationFiles = [
+    `/locales/${language}/common.json`,
+    `/locales/${language}/forms.json`,
+    `/locales/${language}/emails.json`
+  ];
+  
+  await cache.addAll(translationFiles);
+};
 ```
-
-### Content Strategy
-- **Localized Keywords**: Research keywords in each language
-- **Meta Tags**: Translate all meta descriptions and titles
-- **Structured Data**: Implement multilingual structured data
-- **Sitemap**: Generate language-specific sitemaps
 
 ## Success Metrics
 
 ### Technical Metrics
-- Translation bundle size: <20KB per language
-- Language switch time: <500ms
-- SEO indexing: 100% of translated pages indexed
-- Accessibility score: >95% across all languages
+- **Bundle Size Impact**: <10% increase in initial bundle size
+- **Translation Coverage**: 100% for supported languages
+- **Load Time**: <500ms additional for language switching
+- **Error Rate**: <0.1% for translation loading failures
 
-### Business Metrics
-- International user acquisition rate
-- Conversion rate by language/region
-- User engagement in non-English languages
-- Support ticket reduction in native languages
+### User Experience Metrics
+- **Language Adoption**: % of users using non-English languages
+- **Completion Rates**: Quiz completion by language
+- **User Satisfaction**: Feedback on translation quality
+- **Accessibility**: Screen reader compatibility across languages
 
 ## Risk Assessment
 
 ### High Risk
-- **Translation Quality**: Poor translations damage brand credibility
-- **Performance Impact**: Large translation bundles slow loading
-- **Cultural Missteps**: Inappropriate content for target cultures
+- **Translation Quality**: Inaccurate or culturally inappropriate translations
+- **Performance Impact**: Large translation files affecting load times
+- **Maintenance Overhead**: Keeping translations synchronized
 
-### Medium Risk
-- **Maintenance Overhead**: Keeping translations updated
-- **Technical Complexity**: Managing multiple language builds
-- **SEO Impact**: Potential duplicate content issues
-
-### Low Risk
-- **Implementation**: Building on established i18n patterns
-- **Infrastructure**: Existing MCP setup supports workflow
-- **User Experience**: Language switching is well-understood UX
-
-## Dependencies
-
-### Libraries
-- react-i18next for React integration
-- i18next for core functionality
-- i18next-browser-languagedetector for language detection
-- date-fns with locale support for date formatting
-
-### Services
-- Professional translation services
-- Cultural consultation for target markets
-- SEO tools for international optimization
-
-### MCP Integration
-- GitHub MCP for translation workflow
-- Linear MCP for project management
-- Netlify MCP for deployment coordination
-
-## Next Steps
-
-1. **Week 1**: Set up i18n foundation and English baseline
-2. **Week 2**: Implement Spanish and French translations
-3. **Week 3**: Add remaining languages and advanced features
-4. **Week 4**: Quality assurance and performance optimization
+### Mitigation Strategies
+- **Professional Translation**: Use professional translation services for critical content
+- **Community Review**: Implement community-driven translation review process
+- **Automated Testing**: Comprehensive testing for translation completeness
+- **Gradual Rollout**: Phase rollout by language to identify issues early
 
 ---
 
-*This internationalization spec leverages our secure, performant foundation to expand Purrfect Stays globally while maintaining our high standards for accessibility and user experience.*
+*This spec leverages our MCP infrastructure for automated translation management while maintaining the high quality standards established for Purrfect Stays.*

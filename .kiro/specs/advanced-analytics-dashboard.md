@@ -1,181 +1,253 @@
+---
+title: "Advanced Analytics Dashboard"
+version: "1.0"
+status: "planning"
+priority: "high"
+assignee: "development-team"
+created: "2025-01-17"
+---
+
 # Spec: Advanced Analytics Dashboard
 
 ## Overview
-Build a comprehensive analytics dashboard that leverages our existing quiz analytics functions and MCP integrations for real-time insights into user behavior, conversion patterns, and business metrics.
+Build a comprehensive analytics dashboard leveraging our existing quiz analytics functions and MCP infrastructure for real-time insights into user behavior, conversion funnels, and business metrics.
 
 ## Requirements
 
 ### Functional Requirements
 - **Real-time Metrics**: Live user registration, quiz completion, and conversion rates
-- **Geographic Analysis**: User distribution by country/region with revenue opportunities
-- **User Segmentation**: High-value, growth potential, standard, and price-sensitive segments
-- **Conversion Funnel**: Registration → Verification → Quiz → Success flow analysis
-- **Performance Monitoring**: Page load times, error rates, accessibility compliance
+- **Geographic Analytics**: User distribution with interactive maps
+- **Segmentation Analysis**: User personas based on quiz responses
+- **Revenue Projections**: Pricing tier preferences and willingness to pay
+- **Performance Monitoring**: Site performance and user experience metrics
 
 ### Non-Functional Requirements
-- **Performance**: Dashboard loads in <2s, updates in real-time
+- **Performance**: Dashboard loads in <2 seconds
 - **Accessibility**: WCAG 2.1 AA compliant with screen reader support
-- **Security**: No sensitive data exposure, proper authentication
-- **Mobile**: Responsive design for mobile analytics review
+- **Mobile**: Responsive design for all device sizes
+- **Security**: Role-based access control for sensitive metrics
+- **Real-time**: Updates every 30 seconds without page refresh
 
 ## Design
 
-### Data Architecture
+### Architecture
 ```typescript
 interface AnalyticsDashboard {
-  realTimeMetrics: {
-    activeUsers: number;
-    registrationsToday: number;
-    quizCompletionRate: number;
-    conversionRate: number;
+  // Data Layer
+  dataServices: {
+    supabaseMCP: SupabaseMCPService;    // Database queries
+    googleAnalyticsMCP: GAMCPService;   // Web analytics
+    sentryMCP: SentryMCPService;        // Error tracking
   };
   
-  geographicData: GeographicAnalytics[];
-  userSegments: UserSegmentAnalytics[];
-  conversionFunnel: ConversionFunnelData[];
-  performanceMetrics: PerformanceData;
+  // Visualization Layer
+  components: {
+    MetricsOverview: React.FC;          // Key metrics cards
+    GeographicMap: React.FC;            // Interactive world map
+    ConversionFunnel: React.FC;         // User journey visualization
+    RevenueProjections: React.FC;       // Financial forecasting
+    PerformanceCharts: React.FC;        // Site performance metrics
+  };
+  
+  // Real-time Layer
+  realTimeUpdates: {
+    websocketConnection: WebSocket;     // Live data updates
+    cacheStrategy: CacheStrategy;       // Optimized data fetching
+    errorHandling: ErrorBoundary;       // Graceful failure handling
+  };
 }
 ```
 
-### UI Components
-- **MetricsGrid**: Real-time KPI cards with trend indicators
-- **GeographicMap**: Interactive world map with user distribution
-- **SegmentChart**: Pie/bar charts for user segmentation
-- **FunnelVisualization**: Conversion funnel with drop-off analysis
-- **PerformancePanel**: System health and performance metrics
+### User Interface
+```typescript
+// Dashboard Layout
+const AnalyticsDashboard: React.FC = () => {
+  return (
+    <DashboardLayout>
+      <MetricsHeader />
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <ConversionFunnelChart />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <RealtimeMetrics />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <GeographicDistribution />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <UserSegmentation />
+        </Grid>
+        <Grid item xs={12}>
+          <RevenueProjections />
+        </Grid>
+      </Grid>
+    </DashboardLayout>
+  );
+};
+```
 
-### MCP Integration Points
-- **Supabase MCP**: Query analytics functions we created this morning
-- **Google Analytics MCP**: Web analytics data (once service account configured)
-- **Linear MCP**: Create issues for optimization opportunities
-- **GitHub MCP**: Track feature development progress
+### Data Integration
+```typescript
+// Leverage existing analytics functions
+const useAnalyticsData = () => {
+  const [data, setData] = useState<AnalyticsData>();
+  
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      // Use Supabase MCP for database queries
+      const [
+        pricingData,
+        geographicData,
+        segmentData,
+        conversionData
+      ] = await Promise.all([
+        supabaseMCP.query("SELECT * FROM get_pricing_analytics()"),
+        supabaseMCP.query("SELECT * FROM get_geographic_analytics()"),
+        supabaseMCP.query("SELECT * FROM get_user_segment_analytics()"),
+        supabaseMCP.query("SELECT * FROM get_conversion_funnel()")
+      ]);
+      
+      setData({
+        pricing: pricingData,
+        geographic: geographicData,
+        segments: segmentData,
+        conversion: conversionData
+      });
+    };
+    
+    fetchAnalytics();
+    const interval = setInterval(fetchAnalytics, 30000); // 30s updates
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  return data;
+};
+```
 
-## Implementation
+## Implementation Plan
 
-### Phase 1: Core Analytics (Week 1)
-- [ ] Set up analytics service using existing Supabase functions
-- [ ] Create basic dashboard layout with MetricsGrid
-- [ ] Implement real-time data fetching with proper error boundaries
-- [ ] Add loading states and accessibility features
+### Phase 1: Foundation (Week 1)
+- **Setup**: Dashboard routing and basic layout
+- **MCP Integration**: Connect Supabase MCP for data queries
+- **Basic Metrics**: Implement key metrics cards
+- **Authentication**: Role-based access control
 
-### Phase 2: Advanced Visualizations (Week 2)
-- [ ] Integrate Recharts for geographic and segment visualizations
-- [ ] Build interactive conversion funnel component
-- [ ] Add export functionality for reports
-- [ ] Implement responsive mobile design
+### Phase 2: Visualizations (Week 2)
+- **Charts**: Implement Recharts-based visualizations
+- **Geographic Map**: Interactive world map with user distribution
+- **Conversion Funnel**: User journey visualization
+- **Real-time Updates**: WebSocket connection for live data
 
-### Phase 3: MCP Integration (Week 3)
-- [ ] Connect Google Analytics MCP for web metrics
-- [ ] Integrate Linear MCP for automated issue creation
-- [ ] Add GitHub MCP for development tracking
-- [ ] Implement automated reporting workflows
+### Phase 3: Advanced Features (Week 3)
+- **Segmentation**: Advanced user persona analysis
+- **Revenue Projections**: Financial forecasting models
+- **Performance Monitoring**: Site performance integration
+- **Export Functionality**: PDF/CSV export capabilities
 
-### Phase 4: Advanced Features (Week 4)
-- [ ] Add predictive analytics for user behavior
-- [ ] Implement A/B testing insights
-- [ ] Create automated alerts for anomalies
-- [ ] Build custom report builder
+### Phase 4: Optimization (Week 4)
+- **Performance**: Optimize for <2s load times
+- **Accessibility**: Complete WCAG 2.1 AA compliance
+- **Mobile**: Responsive design optimization
+- **Testing**: Comprehensive testing and bug fixes
 
 ## Technical Specifications
 
 ### Database Queries
-Leverage existing analytics functions:
-- `get_pricing_analytics()` - Pricing preferences by region
-- `get_geographic_analytics()` - Geographic distribution and revenue
-- `get_user_segment_analytics()` - User segmentation with scoring
-- `get_conversion_funnel()` - Funnel analysis with drop-off rates
+```sql
+-- Leverage existing analytics functions
+SELECT * FROM get_pricing_analytics();
+SELECT * FROM get_geographic_analytics();
+SELECT * FROM get_user_segment_analytics();
+SELECT * FROM get_budget_distribution();
+SELECT * FROM get_pain_point_analysis();
+SELECT * FROM get_conversion_funnel();
+```
+
+### MCP Commands
+```typescript
+// Natural language queries via MCP
+const queries = [
+  "Get user registration trends for the last 30 days",
+  "Show geographic distribution of premium tier users",
+  "Analyze conversion rates by user segment",
+  "Generate revenue projections based on current data",
+  "Display performance metrics for the dashboard"
+];
+```
 
 ### Performance Requirements
-- **Bundle Size**: Keep analytics components under 50KB gzipped
-- **Memory Usage**: Efficient data structures, proper cleanup
-- **Update Frequency**: Real-time updates every 30 seconds
-- **Caching**: Implement smart caching for expensive queries
-
-### Security Considerations
-- **Data Access**: Use service role key for analytics queries
-- **User Privacy**: Aggregate data only, no PII exposure
-- **Authentication**: Admin-only access to sensitive metrics
-- **Audit Logging**: Track who accesses what analytics data
+```typescript
+interface PerformanceTargets {
+  initialLoad: '<2 seconds';
+  dataRefresh: '<500ms';
+  chartRendering: '<1 second';
+  mobileResponsive: 'All breakpoints';
+  accessibility: 'WCAG 2.1 AA';
+  bundleSize: '<50KB additional';
+}
+```
 
 ## Testing Strategy
 
 ### Unit Tests
-- [ ] Analytics service functions
-- [ ] Chart component rendering
-- [ ] Data transformation utilities
-- [ ] Error handling scenarios
+- **Data Services**: Test MCP integration and data transformation
+- **Components**: Test individual chart and metric components
+- **Utilities**: Test calculation and formatting functions
 
 ### Integration Tests
-- [ ] MCP server connectivity
-- [ ] Database query performance
-- [ ] Real-time update mechanisms
-- [ ] Export functionality
+- **MCP Connectivity**: Test all MCP server connections
+- **Real-time Updates**: Test WebSocket functionality
+- **Error Handling**: Test graceful failure scenarios
 
 ### Accessibility Tests
-- [ ] Screen reader compatibility
-- [ ] Keyboard navigation
-- [ ] Color contrast compliance
-- [ ] ARIA label validation
+- **Screen Readers**: Test with NVDA, JAWS, VoiceOver
+- **Keyboard Navigation**: Test all interactive elements
+- **Color Contrast**: Verify WCAG AA compliance
+- **Focus Management**: Test focus indicators and order
 
 ## Success Metrics
 
 ### Technical Metrics
-- Dashboard load time: <2s
-- Real-time update latency: <1s
-- Accessibility score: >95%
-- Mobile performance: >90%
+- **Load Time**: <2 seconds initial load
+- **Update Frequency**: 30-second real-time updates
+- **Error Rate**: <1% for data queries
+- **Accessibility Score**: 95%+ Lighthouse score
 
 ### Business Metrics
-- Analytics adoption rate by team
-- Time to insight improvement
-- Decision-making speed increase
-- User behavior understanding depth
+- **User Engagement**: Time spent on dashboard
+- **Data Accuracy**: Validation against source data
+- **Feature Usage**: Most/least used dashboard sections
+- **Performance Impact**: No degradation to main site
 
 ## Dependencies
 
-### External Libraries
-- Recharts for visualizations (already installed)
-- Date-fns for date handling
-- React Query for data fetching
-- Framer Motion for animations (optional)
+### External Services
+- **Supabase MCP**: Database analytics queries
+- **Google Analytics MCP**: Web analytics integration
+- **Sentry MCP**: Error tracking and performance monitoring
+- **Linear MCP**: Project management and issue tracking
 
-### MCP Servers
-- Supabase MCP (configured)
-- Google Analytics MCP (needs service account)
-- Linear MCP (configured)
-- GitHub MCP (configured)
-
-### Database Functions
-All analytics functions created this morning are ready:
-- Quiz analytics functions ✅
-- Geographic analysis functions ✅
-- User segmentation functions ✅
-- Conversion funnel functions ✅
+### Technical Dependencies
+- **Recharts**: Chart visualization library
+- **React Query**: Data fetching and caching
+- **WebSocket**: Real-time data updates
+- **Framer Motion**: Smooth animations and transitions
 
 ## Risk Assessment
 
 ### High Risk
-- **Google Analytics MCP**: Needs service account configuration
-- **Real-time Performance**: May impact database under load
-- **Data Privacy**: Must ensure no PII exposure
+- **MCP Server Availability**: Dashboard depends on MCP connectivity
+- **Data Volume**: Large datasets may impact performance
+- **Real-time Updates**: WebSocket connection stability
 
-### Medium Risk
-- **Chart Performance**: Large datasets may slow rendering
-- **Mobile Experience**: Complex charts on small screens
-- **MCP Reliability**: Dependent on external service availability
-
-### Low Risk
-- **Database Queries**: Functions already tested and optimized
-- **UI Components**: Building on existing design system
-- **Authentication**: Using established patterns
-
-## Next Steps
-
-1. **Immediate**: Begin Phase 1 implementation
-2. **This Week**: Complete core analytics service
-3. **Next Week**: Add visualizations and MCP integration
-4. **Following Week**: Polish and deploy to production
+### Mitigation Strategies
+- **Fallback Data**: Cache recent data for offline scenarios
+- **Pagination**: Implement data pagination for large datasets
+- **Connection Retry**: Automatic reconnection for WebSocket failures
+- **Error Boundaries**: Graceful handling of component failures
 
 ---
 
-*This spec builds on our morning's security fixes and comprehensive MCP setup to create a world-class analytics platform.*
+*This spec leverages our comprehensive MCP infrastructure and existing analytics functions to create a world-class analytics dashboard.*

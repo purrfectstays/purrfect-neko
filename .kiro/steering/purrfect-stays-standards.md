@@ -13,10 +13,11 @@ inclusion: always
 - **VALIDATE** key formats in configuration files
 - **AUDIT** for exposed keys before every commit
 
-### Current Secure Keys (Post-Rotation)
-- Supabase Anon: `sb_publishable_t9qTtsvsmmU_wfVDyL-rjQ_g5mFNbST`
-- Supabase Service: `sb_secret_cDwJx30u4dozkmX4Jp_TWQ_kaNQm5Sl`
-- Resend API: `re_ccM4cgVw_9eiuFnJBsJqcSBpxeotUnxVS`
+### Current Secure Keys (Post-Rotation - January 17, 2025)
+- ✅ Supabase Anon: `sb_publishable_t9qTtsvsmmU_wfVDyL-rjQ_g5mFNbST` (ROTATED)
+- ✅ Supabase Service: `sb_secret_cDwJx30u4dozkmX4Jp_TWQ_kaNQm5Sl` (ROTATED)
+- ✅ Resend API: `re_ccM4cgVw_9eiuFnJBsJqcSBpxeotUnxVS` (ROTATED)
+- ⚠️ MCP Tokens: Require rotation (see MCP security section below)
 
 ### Memory Management
 - **ALWAYS** clean up setTimeout/setInterval in useEffect
@@ -73,8 +74,15 @@ inclusion: always
 
 ## MCP Integration Standards
 
+### MCP Security (CRITICAL - Exposed Tokens Found)
+- ⚠️ **GitHub Token**: `github_pat_11BSXNMBI0***` (ROTATE IMMEDIATELY)
+- ⚠️ **Netlify Token**: `nfp_7HY2JexAVrNoF9***` (ROTATE IMMEDIATELY)
+- ⚠️ **Linear API Key**: `lin_api_nB5hCeTbbrI4***` (ROTATE IMMEDIATELY)
+- ⚠️ **Sentry Token**: `sntryu_3456b0513fe2***` (ROTATE IMMEDIATELY)
+- ⚠️ **Old Resend Key**: `re_4kfSKN47_***` (UPDATE TO MATCH .ENV)
+
 ### Server Configuration
-- **SECURE** all MCP server tokens
+- **SECURE** all MCP server tokens (URGENT: See exposed tokens above)
 - **ROTATE** tokens monthly as configured
 - **MONITOR** MCP server health and connectivity
 - **DOCUMENT** all MCP capabilities and usage
