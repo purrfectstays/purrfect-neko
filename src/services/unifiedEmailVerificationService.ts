@@ -401,7 +401,7 @@ export class UnifiedEmailVerificationService {
       };
     }
 
-    console.log('🎫 Token validated:', cleanToken.substring(0, 8) + '...');
+    // Token validation completed
 
     try {
       // Test database connection
@@ -422,7 +422,6 @@ export class UnifiedEmailVerificationService {
       console.log('✅ Database connection verified');
 
       // Search for user with token (SECURITY: Only match verification_token, never user ID)
-      console.log('🔍 Searching for user with token...');
       const { data: searchData, error: searchError } = await supabase
         .from('waitlist_users')
         .select('*')

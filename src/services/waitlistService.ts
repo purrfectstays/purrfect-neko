@@ -213,8 +213,7 @@ export class WaitlistService {
 
       // Send verification email
       try {
-        console.log('🔧 Calling Edge Function: send-verification-email');
-        console.log('🔧 Supabase URL from env:', import.meta.env.VITE_SUPABASE_URL);
+        // Calling Edge Function: send-verification-email
         
         const { data: emailData, error: emailError } = await supabase.functions.invoke('send-verification-email', {
           body: {
@@ -256,10 +255,7 @@ export class WaitlistService {
           console.warn('User registered but email failed to send. User can request resend.');
         }
 
-        // Log successful email response for debugging
-        if (emailData) {
-          console.log('Verification email sent successfully:', emailData);
-        }
+        // Email sent successfully
       } catch (emailError: any) {
         // If email sending fails due to network issues, still return the user
         console.error('Email sending failed, but user was registered:', emailError);
@@ -298,8 +294,7 @@ export class WaitlistService {
       throw new Error('Invalid verification token format');
     }
 
-    console.log('🎫 Token validated:', cleanToken.substring(0, 8) + '...');
-    console.log('📏 Token length:', cleanToken.length);
+    // Token validation completed
 
     try {
       // 3. TEST DATABASE CONNECTION FIRST
@@ -317,7 +312,6 @@ export class WaitlistService {
       console.log('✅ Database connection verified');
 
       // 4. SEARCH FOR USER WITH TOKEN
-      console.log('🔍 Searching for user with token...');
       const { data: searchData, error: searchError } = await supabase
         .from('waitlist_users')
         .select('id, email, name, user_type, is_verified, verification_token')
@@ -344,9 +338,7 @@ export class WaitlistService {
             .order('created_at', { ascending: false })
             .limit(3);
           
-          console.log('🔍 Sample recent tokens in database:', allTokens?.map(t => ({ 
-            tokenPreview: t.verification_token?.substring(0, 8) + '...',
-            email: t.email,
+          // Debug information available in development only
             created: t.created_at,
             length: t.verification_token?.length 
           })));

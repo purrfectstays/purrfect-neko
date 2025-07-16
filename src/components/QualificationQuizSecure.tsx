@@ -11,7 +11,7 @@ import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 
 const QualificationQuizSecure: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setCurrentStep, setUser, verificationToken, waitlistUser } = useApp();
+  const { user, setUser, verificationToken, waitlistUser } = useApp();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);

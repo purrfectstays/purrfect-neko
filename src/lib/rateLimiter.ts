@@ -14,9 +14,19 @@ class RateLimiter {
   private storage = new Map<string, RateLimitEntry>();
   private configs = new Map<string, RateLimitConfig>();
 
+  private cleanupInterval: NodeJS.Timeout | null = null;
+
   constructor() {
     // Clean up expired entries every 5 minutes
-    setInterval(() => this.cleanup(), 5 * 60 * 1000);
+    this.cleanupInterval = setInterval(() => this.cleanup(), 5 * 60 * 1000);
+  }
+
+  // Add cleanup method for proper disposal
+  public dispose(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
   }
 
   /**

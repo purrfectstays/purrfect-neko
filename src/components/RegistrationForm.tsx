@@ -130,8 +130,7 @@ const RegistrationForm: React.FC = () => {
         email: formData.email,
         userType: formData.userType as 'cat-parent' | 'cattery-owner',
       });
-      console.log('✅ User registered successfully:', waitlistUser);
-      console.log('📧 Verification token created:', verificationToken ? 'Yes' : 'No');
+      // User registration completed successfully
 
       // Track successful registration with enhanced analytics
       analytics.trackRegistrationComplete(formData.userType, waitlistUser.waitlist_position);

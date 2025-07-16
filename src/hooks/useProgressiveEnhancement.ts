@@ -26,11 +26,13 @@ export const useProgressiveEnhancement = () => {
   const [isEnhanced, setIsEnhanced] = useState(false);
 
   useEffect(() => {
+    let enhancementTimeout: NodeJS.Timeout | null = null;
+
     const updateDeviceInfo = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       const devicePixelRatio = window.devicePixelRatio || 1;
-      
+
       // Determine device type
       const isMobile = width < 768;
       const isTablet = width >= 768 && width < 1024;
@@ -43,7 +45,7 @@ export const useProgressiveEnhancement = () => {
       // Detect connection speed (if available)
       const connection = (navigator as any).connection;
       let connectionType: 'slow' | 'fast' | 'unknown' = 'unknown';
-      
+
       if (connection) {
         if (connection.effectiveType === '4g' || connection.downlink > 10) {
           connectionType = 'fast';
@@ -65,7 +67,7 @@ export const useProgressiveEnhancement = () => {
 
       // Progressive enhancement after initial mobile render
       if (!isEnhanced && !isMobile) {
-        setTimeout(() => setIsEnhanced(true), 100);
+        enhancementTimeout = setTimeout(() => setIsEnhanced(true), 100);
       }
     };
 
@@ -74,13 +76,18 @@ export const useProgressiveEnhancement = () => {
 
     // Listen for resize events
     window.addEventListener('resize', updateDeviceInfo);
-    
+
     // Listen for connection changes
     if ((navigator as any).connection) {
       (navigator as any).connection.addEventListener('change', updateDeviceInfo);
     }
 
     return () => {
+      // Clean up timeout
+      if (enhancementTimeout) {
+        clearTimeout(enhancementTimeout);
+      }
+
       window.removeEventListener('resize', updateDeviceInfo);
       if ((navigator as any).connection) {
         (navigator as any).connection.removeEventListener('change', updateDeviceInfo);
@@ -127,10 +134,10 @@ export const useConditionalComponent = <T extends object>(
   props: T
 ): React.ReactElement => {
   const { deviceInfo, shouldLoadEnhanced } = useProgressiveEnhancement();
-  
+
   if (deviceInfo.isMobile || !shouldLoadEnhanced) {
     return React.createElement(MobileComponent, props);
   }
-  
+
   return React.createElement(DesktopComponent, props);
 };
