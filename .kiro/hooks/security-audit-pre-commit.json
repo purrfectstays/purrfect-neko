@@ -1,0 +1,50 @@
+{
+  "name": "Security Audit Pre-Commit",
+  "description": "Automatically scan for exposed API keys and security issues before commits",
+  "trigger": {
+    "type": "pre-commit",
+    "files": ["src/**/*.{ts,tsx,js,jsx}", ".env*", "*.json", "*.md"]
+  },
+  "actions": [
+    {
+      "type": "scan",
+      "name": "API Key Detection",
+      "command": "Check for exposed API keys and secrets",
+      "patterns": [
+        "sb_secret_",
+        "sb_publishable_", 
+        "re_[A-Za-z0-9_]+",
+        "github_pat_",
+        "nfp_",
+        "lin_api_",
+        "sntryu_"
+      ],
+      "exclude": [".env.example", "*.md"],
+      "action": "block_commit_if_found"
+    },
+    {
+      "type": "validate",
+      "name": "Environment Variables",
+      "command": "Ensure .env file is not committed",
+      "files": [".env"],
+      "action": "block_commit_if_found"
+    },
+    {
+      "type": "check",
+      "name": "Console Log Cleanup",
+      "command": "Scan for console.log statements with sensitive data",
+      "patterns": [
+        "console.log.*token",
+        "console.log.*key",
+        "console.log.*secret",
+        "console.log.*password"
+      ],
+      "action": "warn_if_found"
+    }
+  ],
+  "notifications": {
+    "success": "✅ Security audit passed - safe to commit",
+    "failure": "🚨 Security issues found - commit blocked",
+    "warning": "⚠️ Potential security concerns detected"
+  }
+}

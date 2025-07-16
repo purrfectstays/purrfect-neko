@@ -1,0 +1,47 @@
+{
+  "mcpServers": {
+    "aws-docs": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": ["search_documentation", "get_documentation"]
+    },
+    "filesystem": {
+      "command": "uvx",
+      "args": ["mcp-server-filesystem@latest"],
+      "env": {},
+      "disabled": false,
+      "autoApprove": ["read_file", "list_directory"]
+    },
+    "web-search": {
+      "command": "uvx", 
+      "args": ["mcp-server-brave-search@latest"],
+      "env": {
+        "BRAVE_API_KEY": "your_brave_api_key_here"
+      },
+      "disabled": true,
+      "autoApprove": []
+    },
+    "github": {
+      "command": "uvx",
+      "args": ["mcp-server-github@latest"], 
+      "env": {
+        "GITHUB_TOKEN": "your_github_token_here"
+      },
+      "disabled": true,
+      "autoApprove": ["search_repositories", "get_repository"]
+    },
+    "database": {
+      "command": "uvx",
+      "args": ["mcp-server-postgres@latest"],
+      "env": {
+        "DATABASE_URL": "your_database_url_here"
+      },
+      "disabled": true,
+      "autoApprove": []
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Accessibility Audit on Save",
+  "description": "Automatically check WCAG 2.1 AA compliance when saving React components",
+  "trigger": {
+    "type": "on-save",
+    "files": ["src/components/**/*.{ts,tsx}"]
+  },
+  "actions": [
+    {
+      "type": "accessibility_check",
+      "name": "ARIA Label Validation",
+      "command": "Ensure all form inputs have proper ARIA labels",
+      "patterns": [
+        "<input(?![^>]*aria-label)",
+        "<button(?![^>]*aria-label)",
+        "<select(?![^>]*aria-label)"
+      ],
+      "action": "warn_if_found"
+    },
+    {
+      "type": "accessibility_check", 
+      "name": "Error Message Alerts",
+      "command": "Validate error messages use role='alert'",
+      "patterns": [
+        "error.*message(?![^>]*role=[\"']alert[\"'])",
+        "validation.*error(?![^>]*role=[\"']alert[\"'])"
+      ],
+      "action": "warn_if_found"
+    },
+    {
+      "type": "accessibility_check",
+      "name": "Semantic HTML Structure",
+      "command": "Check for proper heading hierarchy and semantic elements",
+      "checks": [
+        "heading_hierarchy",
+        "semantic_structure",
+        "keyboard_navigation"
+      ],
+      "action": "report_compliance"
+    }
+  ],
+  "integrations": {
+    "linear": {
+      "create_issue_on_failure": true,
+      "priority": "medium",
+      "labels": ["accessibility", "compliance"]
+    }
+  },
+  "notifications": {
+    "success": "✅ Accessibility standards met",
+    "warning": "⚠️ Accessibility improvements needed",
+    "failure": "🚨 WCAG 2.1 AA compliance issues found"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Performance Monitor on Build",
+  "description": "Monitor bundle size and performance metrics after successful builds",
+  "trigger": {
+    "type": "post-build",
+    "condition": "build_success"
+  },
+  "actions": [
+    {
+      "type": "analyze",
+      "name": "Bundle Size Check",
+      "command": "Check if bundle size exceeds 250KB gzipped limit",
+      "target": "dist/assets/vendor-*.js.gz",
+      "threshold": "250KB",
+      "action": "warn_if_exceeded"
+    },
+    {
+      "type": "validate",
+      "name": "Memory Leak Detection",
+      "command": "Scan for potential memory leaks in components",
+      "patterns": [
+        "setTimeout.*useEffect",
+        "setInterval.*useEffect"
+      ],
+      "exclude_patterns": [
+        "clearTimeout",
+        "clearInterval"
+      ],
+      "action": "warn_if_found"
+    },
+    {
+      "type": "accessibility",
+      "name": "ARIA Compliance Check",
+      "command": "Validate ARIA labels and accessibility standards",
+      "files": ["src/components/**/*.{ts,tsx}"],
+      "checks": [
+        "aria-label presence on inputs",
+        "role='alert' on error messages",
+        "semantic HTML structure"
+      ],
+      "action": "report_compliance"
+    }
+  ],
+  "reports": {
+    "bundle_analysis": "dist/bundle-analysis.html",
+    "performance_metrics": ".kiro/reports/performance-{timestamp}.json",
+    "accessibility_report": ".kiro/reports/accessibility-{timestamp}.json"
+  },
+  "notifications": {
+    "success": "✅ Performance targets met - ready for deployment",
+    "warning": "⚠️ Performance concerns detected - review recommended",
+    "failure": "🚨 Performance thresholds exceeded - optimization required"
+  }
+}

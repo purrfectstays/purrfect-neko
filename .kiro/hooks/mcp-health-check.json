@@ -1,0 +1,60 @@
+{
+  "name": "MCP Server Health Check",
+  "description": "Monitor MCP server connectivity and rotate tokens as needed",
+  "trigger": {
+    "type": "scheduled",
+    "interval": "daily",
+    "time": "09:00"
+  },
+  "actions": [
+    {
+      "type": "health_check",
+      "name": "MCP Server Connectivity",
+      "servers": [
+        "supabase",
+        "github", 
+        "netlify",
+        "resend",
+        "linear"
+      ],
+      "timeout": "30s",
+      "action": "report_status"
+    },
+    {
+      "type": "token_validation",
+      "name": "API Token Health",
+      "command": "Validate all MCP server tokens are working",
+      "tokens": [
+        "SUPABASE_ACCESS_TOKEN",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "NETLIFY_ACCESS_TOKEN", 
+        "RESEND_API_KEY",
+        "LINEAR_API_KEY"
+      ],
+      "action": "alert_if_expired"
+    },
+    {
+      "type": "security_audit",
+      "name": "Token Rotation Check",
+      "command": "Check if tokens need monthly rotation",
+      "schedule": "monthly",
+      "action": "create_rotation_reminder"
+    }
+  ],
+  "integrations": {
+    "linear": {
+      "create_issue_on_failure": true,
+      "priority": "high",
+      "assignee": "auto"
+    },
+    "github": {
+      "create_issue_on_failure": true,
+      "labels": ["bug", "infrastructure", "urgent"]
+    }
+  },
+  "notifications": {
+    "all_healthy": "✅ All MCP servers operational",
+    "partial_failure": "⚠️ Some MCP servers experiencing issues",
+    "critical_failure": "🚨 Critical MCP infrastructure failure"
+  }
+}
