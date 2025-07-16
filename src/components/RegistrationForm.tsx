@@ -220,7 +220,12 @@ const RegistrationForm: React.FC = () => {
         </div>
 
         <div className="bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-8 border border-indigo-800/30 shadow-2xl">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form 
+            onSubmit={handleSubmit} 
+            className="space-y-6"
+            aria-label="Early access registration form"
+            role="form"
+          >
             {/* Honeypot field - hidden from users but visible to bots */}
             <input
               type="text"
@@ -246,10 +251,13 @@ const RegistrationForm: React.FC = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   className="w-full pl-12 pr-4 py-3 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-manrope"
                   placeholder="Enter your full name"
+                  aria-label="Full name"
+                  aria-required="true"
+                  aria-describedby={errors.name ? "name-error" : undefined}
                 />
               </div>
               {errors.name && (
-                <p className="mt-1 text-sm text-red-400 font-manrope">{errors.name}</p>
+                <p id="name-error" className="mt-1 text-sm text-red-400 font-manrope" role="alert">{errors.name}</p>
               )}
             </div>
 
@@ -267,10 +275,13 @@ const RegistrationForm: React.FC = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   className="w-full pl-12 pr-4 py-3 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-manrope"
                   placeholder="your@email.com"
+                  aria-label="Email address"
+                  aria-required="true"
+                  aria-describedby={errors.email ? "email-error" : undefined}
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-400 font-manrope">{errors.email}</p>
+                <p id="email-error" className="mt-1 text-sm text-red-400 font-manrope" role="alert">{errors.email}</p>
               )}
             </div>
 
@@ -288,10 +299,13 @@ const RegistrationForm: React.FC = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, catteryName: e.target.value }))}
                   className="w-full pl-12 pr-4 py-3 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-manrope"
                   placeholder="Enter your cattery name"
+                  aria-label="Cattery name"
+                  aria-required="true"
+                  aria-describedby={errors.catteryName ? "catteryName-error" : undefined}
                 />
               </div>
               {errors.catteryName && (
-                <p className="mt-1 text-sm text-red-400 font-manrope">{errors.catteryName}</p>
+                <p id="catteryName-error" className="mt-1 text-sm text-red-400 font-manrope" role="alert">{errors.catteryName}</p>
               )}
             </div>
 
@@ -322,7 +336,7 @@ const RegistrationForm: React.FC = () => {
                 Security Check
               </label>
               <div className="bg-zinc-700/30 border border-zinc-600 rounded-lg p-4 mb-3">
-                <p className="text-white font-manrope mb-2">{mathCaptcha.question}</p>
+                <p id="captcha-question" className="text-white font-manrope mb-2">{mathCaptcha.question}</p>
                 <input
                   type="text"
                   id="captcha"
@@ -330,10 +344,13 @@ const RegistrationForm: React.FC = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, captchaAnswer: e.target.value }))}
                   className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-manrope"
                   placeholder="Enter the answer"
+                  aria-label="Security check answer"
+                  aria-required="true"
+                  aria-describedby={errors.captchaAnswer ? "captcha-error" : "captcha-question"}
                 />
               </div>
               {errors.captchaAnswer && (
-                <p className="mt-1 text-sm text-red-400 font-manrope">{errors.captchaAnswer}</p>
+                <p id="captcha-error" className="mt-1 text-sm text-red-400 font-manrope" role="alert">{errors.captchaAnswer}</p>
               )}
             </div>
 
@@ -347,7 +364,7 @@ const RegistrationForm: React.FC = () => {
             {/* Submit Error */}
             {errors.submit && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
-                <p className="text-red-400 font-manrope text-sm">{errors.submit}</p>
+                <p id="submit-error" className="text-red-400 font-manrope text-sm" role="alert">{errors.submit}</p>
               </div>
             )}
 
@@ -357,6 +374,8 @@ const RegistrationForm: React.FC = () => {
               disabled={isSubmitting}
               className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-manrope font-bold py-3 px-6 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               onClick={() => analytics.trackCTAClick('secure_position', 'registration_form')}
+              aria-label={isSubmitting ? "Submitting registration form" : "Submit registration form"}
+              aria-describedby={errors.submit ? "submit-error" : undefined}
             >
               {isSubmitting ? (
                 <>

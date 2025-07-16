@@ -15,14 +15,21 @@ export function getCorsHeaders(origin: string | null): Record<string, string> {
     // Parse comma-separated origins from environment
     allowedOrigins = envOrigins.split(',').map(url => url.trim());
   } else {
-    // Fallback to default origins
-    allowedOrigins = [
-      siteUrl,
-      'https://purrfectstays.org',
-      'https://www.purrfectstays.org',
-      'http://localhost:5173',
-      'http://localhost:3000'
-    ];
+    // Production-only origins (no localhost fallback)
+    const isProd = Deno.env.get('NODE_ENV') === 'production';
+    allowedOrigins = isProd 
+      ? [
+          siteUrl,
+          'https://purrfectstays.org',
+          'https://www.purrfectstays.org'
+        ]
+      : [
+          siteUrl,
+          'https://purrfectstays.org',
+          'https://www.purrfectstays.org',
+          'http://localhost:5173',
+          'http://localhost:3000'
+        ];
   }
   
   // For development, be more permissive with localhost

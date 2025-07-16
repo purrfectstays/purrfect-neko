@@ -194,34 +194,58 @@ const AppContent: React.FC = () => {
           
           {/* Landing page sub-routes */}
           <Route path="/landingpage/quiz" element={
-            <Suspense fallback={<LoadingComponent />}>
-              <QualificationQuizSecure />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <QualificationQuizSecure />
+              </Suspense>
+            </ErrorBoundary>
           } />
           <Route path="/landingpage/success" element={
-            <Suspense fallback={<LoadingComponent />}>
-              <SuccessPage />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <SuccessPage />
+              </Suspense>
+            </ErrorBoundary>
           } />
           
           {/* Legacy routes for backward compatibility */}
           {/* Removed verification routes - no longer needed */}
           <Route path="/quiz" element={
-            <Suspense fallback={<LoadingComponent />}>
-              <QualificationQuizSecure />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <QualificationQuizSecure />
+              </Suspense>
+            </ErrorBoundary>
           } />
           <Route path="/success" element={
-            <Suspense fallback={<LoadingComponent />}>
-              <SuccessPage />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <SuccessPage />
+              </Suspense>
+            </ErrorBoundary>
           } />
           
           {/* Legal pages routes */}
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/cookies" element={<CookiePolicy />} />
-          <Route path="/support" element={<SupportPage />} />
+          <Route path="/privacy" element={
+            <ErrorBoundary>
+              <PrivacyPolicy />
+            </ErrorBoundary>
+          } />
+          <Route path="/terms" element={
+            <ErrorBoundary>
+              <TermsOfService />
+            </ErrorBoundary>
+          } />
+          <Route path="/cookies" element={
+            <ErrorBoundary>
+              <CookiePolicy />
+            </ErrorBoundary>
+          } />
+          <Route path="/support" element={
+            <ErrorBoundary>
+              <SupportPage />
+            </ErrorBoundary>
+          } />
           
           {/* QR Code page */}
           <Route path="/qr" element={<QRCodePage />} />
@@ -252,9 +276,11 @@ const AppContent: React.FC = () => {
           
           {/* Guides routes */}
           <Route path="/guides" element={
-            <Suspense fallback={<LoadingComponent />}>
-              <GuidesLanding />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <GuidesLanding />
+              </Suspense>
+            </ErrorBoundary>
           } />
           <Route path="/guides/choosing-cattery" element={
             <Suspense fallback={<LoadingComponent />}>

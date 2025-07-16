@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { ArrowRight, Star, Check, Shield, Clock, Users, Search, Calendar, BarChart3, Zap, MapPin, TrendingUp, Mail, User } from 'lucide-react';
 import { WaitlistService } from '../services/waitlistService';
 import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
@@ -379,6 +379,16 @@ const InlineRegistrationForm: React.FC = () => {
 const TemplatePreview: React.FC = () => {
   const { setCurrentStep } = useApp();
   const { deviceInfo, shouldLoadEnhanced } = useProgressiveEnhancement();
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
   
   // Function to scroll to registration form
   const scrollToRegistration = () => {
@@ -388,8 +398,11 @@ const TemplatePreview: React.FC = () => {
         behavior: 'smooth', 
         block: 'center' 
       });
-      // Focus on email input after scroll
-      setTimeout(() => {
+      // Focus on email input after scroll (with cleanup)
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
         const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
         if (emailInput) {
           emailInput.focus();

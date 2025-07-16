@@ -182,7 +182,7 @@ const CountdownTimer: React.FC = () => {
         currentController.abort();
       }
     };
-  }, [setWaitlistCount]); // Removed retryCount and connectionStatus from dependencies
+  }, [setWaitlistCount, connectionStatus, consecutiveFailures, isRequestInFlight]); // Fixed critical memory leak
 
   const getStatusMessage = () => {
     if (!isSupabaseConfigured) {

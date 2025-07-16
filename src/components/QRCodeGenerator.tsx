@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import { Download, Share2, Copy, Check } from 'lucide-react';
 
@@ -22,6 +22,16 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(true);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const generateQRCode = async () => {
@@ -74,7 +84,9 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
         // Fallback: copy URL to clipboard
         await navigator.clipboard.writeText(url);
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        // Clear existing timeout and set new one
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => setCopied(false), 2000);
       }
     } catch (error) {
       console.log('Share cancelled or failed');
@@ -85,7 +97,9 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Clear existing timeout and set new one
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error('Failed to copy URL:', error);
     }

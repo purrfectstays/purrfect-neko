@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle, Calendar, Share2, Copy, Check, FileText, Shield, Gift } from 'lucide-react';
 import RegionalUrgency from './RegionalUrgency';
 
 const SuccessPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleShare = async () => {
     const shareData = {
@@ -29,7 +39,9 @@ const SuccessPage: React.FC = () => {
     try {
       await navigator.clipboard.writeText(window.location.origin);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Clear existing timeout and set new one
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
@@ -39,7 +51,9 @@ const SuccessPage: React.FC = () => {
       document.execCommand('copy');
       document.body.removeChild(textArea);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Clear existing timeout and set new one
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), 2000);
     }
   };
   return (

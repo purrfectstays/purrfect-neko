@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Star, Clock, Wifi, Car, Heart, ArrowRight, Filter, Search, Crown, AlertCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -115,13 +115,28 @@ const ExploreCatteries: React.FC = () => {
     }
   };
 
+  const timeoutRef1 = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef2 = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef1.current) clearTimeout(timeoutRef1.current);
+      if (timeoutRef2.current) clearTimeout(timeoutRef2.current);
+    };
+  }, []);
+
   const handleJoinEarlyAccess = () => {
     setCurrentStep('landing');
-    setTimeout(() => {
+    // Clear any existing timeouts
+    if (timeoutRef1.current) clearTimeout(timeoutRef1.current);
+    if (timeoutRef2.current) clearTimeout(timeoutRef2.current);
+    
+    timeoutRef1.current = setTimeout(() => {
       const registrationElement = document.getElementById('register');
       if (registrationElement) {
         registrationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => {
+        timeoutRef2.current = setTimeout(() => {
           const emailInput = registrationElement.querySelector('input[type="email"]') as HTMLInputElement;
           if (emailInput) emailInput.focus();
         }, 500);
