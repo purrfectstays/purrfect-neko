@@ -1,3 +1,7 @@
+/* Import performance optimizations first */
+@import './styles/mobile-optimizations.css';
+@import './styles/performance-optimizations.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -31,7 +31,7 @@ const RegistrationForm: React.FC = () => {
     name: '',
     email: '',
     catteryName: '',
-    userType: 'cattery-owner' as 'cat-parent' | 'cattery-owner',
+    userType: '' as 'cat-parent' | 'cattery-owner' | '',
     honeypot: '', // Hidden field for bot detection
     captchaAnswer: '' // Math CAPTCHA answer
   });
@@ -58,7 +58,11 @@ const RegistrationForm: React.FC = () => {
       newErrors.email = 'Please use a permanent email address';
     }
     
-    if (!formData.catteryName.trim()) {
+    if (!formData.userType) {
+      newErrors.userType = 'Please select whether you are a cat parent or cattery owner';
+    }
+    
+    if (formData.userType === 'cattery-owner' && !formData.catteryName.trim()) {
       newErrors.catteryName = 'Cattery name is required';
     }
     
@@ -284,29 +288,96 @@ const RegistrationForm: React.FC = () => {
               )}
             </div>
 
-            {/* Cattery Name Input */}
+            {/* User Type Selection */}
             <div>
-              <label htmlFor="catteryName" className="block font-manrope font-medium text-white mb-2">
-                Cattery Name
+              <label className="block font-manrope font-medium text-white mb-3">
+                I am a...
               </label>
-              <div className="relative">
-                <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-zinc-400" />
-                <input
-                  type="text"
-                  id="catteryName"
-                  value={formData.catteryName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, catteryName: e.target.value }))}
-                  className="w-full pl-12 pr-4 py-3 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-manrope"
-                  placeholder="Enter your cattery name"
-                  aria-label="Cattery name"
-                  aria-required="true"
-                  aria-describedby={errors.catteryName ? "catteryName-error" : undefined}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, userType: 'cat-parent' }))}
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
+                    formData.userType === 'cat-parent'
+                      ? 'border-green-500 bg-green-500/10 text-white'
+                      : 'border-zinc-600 bg-zinc-700/50 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-600/50'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      formData.userType === 'cat-parent' ? 'border-green-500 bg-green-500' : 'border-zinc-500'
+                    }`}>
+                      {formData.userType === 'cat-parent' && (
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <Shield className="h-4 w-4 text-green-400" />
+                        <span className="font-semibold">Cat Parent</span>
+                      </div>
+                      <p className="text-xs text-zinc-400 mt-1">Looking for cattery care</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, userType: 'cattery-owner' }))}
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
+                    formData.userType === 'cattery-owner'
+                      ? 'border-purple-500 bg-purple-500/10 text-white'
+                      : 'border-zinc-600 bg-zinc-700/50 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-600/50'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      formData.userType === 'cattery-owner' ? 'border-purple-500 bg-purple-500' : 'border-zinc-500'
+                    }`}>
+                      {formData.userType === 'cattery-owner' && (
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <TrendingUp className="h-4 w-4 text-purple-400" />
+                        <span className="font-semibold">Cattery Owner</span>
+                      </div>
+                      <p className="text-xs text-zinc-400 mt-1">Operating a cattery business</p>
+                    </div>
+                  </div>
+                </button>
               </div>
-              {errors.catteryName && (
-                <p id="catteryName-error" className="mt-1 text-sm text-red-400 font-manrope" role="alert">{errors.catteryName}</p>
+              {errors.userType && (
+                <p className="mt-2 text-sm text-red-400 font-manrope" role="alert">{errors.userType}</p>
               )}
             </div>
+
+            {/* Cattery Name Input - Conditional */}
+            {formData.userType === 'cattery-owner' && (
+              <div>
+                <label htmlFor="catteryName" className="block font-manrope font-medium text-white mb-2">
+                  Cattery Name
+                </label>
+                <div className="relative">
+                  <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-zinc-400" />
+                  <input
+                    type="text"
+                    id="catteryName"
+                    value={formData.catteryName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, catteryName: e.target.value }))}
+                    className="w-full pl-12 pr-4 py-3 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-manrope"
+                    placeholder="Enter your cattery name"
+                    aria-label="Cattery name"
+                    aria-required="true"
+                    aria-describedby={errors.catteryName ? "catteryName-error" : undefined}
+                  />
+                </div>
+                {errors.catteryName && (
+                  <p id="catteryName-error" className="mt-1 text-sm text-red-400 font-manrope" role="alert">{errors.catteryName}</p>
+                )}
+              </div>
+            )}
 
             {/* Cattery Owner Benefits - Partner Focus */}
             <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">

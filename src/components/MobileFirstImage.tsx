@@ -72,6 +72,12 @@ const MobileFirstImage: React.FC<MobileFirstImageProps> = ({
 
   // Generate WebP sources with fallback
   const generateSrcSet = (baseSrc: string) => {
+    if (!baseSrc) {
+      return {
+        webp: '',
+        original: ''
+      };
+    }
     const webpSrc = baseSrc.replace(/\.(jpg|jpeg|png)$/i, '.webp');
     return {
       webp: webpSrc,

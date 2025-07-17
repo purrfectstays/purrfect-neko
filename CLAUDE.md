@@ -2,6 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Startup Behavior
+
+When starting a new Claude Code session in this project, offer the following options:
+
+1. **Standard Mode** - Regular Claude Code assistance
+2. **BMad-Method Mode** - Activate specialized agent framework
+
+To activate BMad-Method, users can:
+- Type `*help` to see all available agents and workflows
+- Type `*agent bmad-orchestrator` to start with the orchestrator
+- Type `*workflow-guidance` for help selecting the right workflow
+
+The BMad-Method framework provides specialized agents (Analyst, PM, Architect, UX Expert, etc.) and structured workflows for development tasks. 
+
+**Important**: The complete BMad-Method framework is stored in `/team-fullstack.txt` (417KB). This file contains all agent definitions, workflows, tasks, and knowledge base. Claude will load specific sections as needed rather than the entire file at once.
+
 ## Development Commands
 
 ```bash
@@ -404,6 +420,94 @@ npm run test
 - **Graceful Degradation**: Fallbacks when external services fail
 - **Bundle Analysis**: Available at `dist/bundle-analysis.html` after build
 - **Compression**: Gzip and Brotli compression enabled in Netlify
+
+## BMad-Method Integration
+
+This project integrates the BMad-Method framework for enhanced development workflows and specialized AI assistance.
+
+### 🎭 BMad-Method Overview
+
+The BMad-Method is a comprehensive agent-based framework that transforms Claude into specialized roles:
+- **BMad Orchestrator**: Master coordinator for workflow management
+- **Analyst**: Requirements analysis and system understanding
+- **PM (Project Manager)**: Project planning and coordination
+- **UX Expert**: User experience and interface design
+- **Architect**: System architecture and technical design
+- **PO (Product Owner)**: Product vision and backlog management
+
+### 🚀 Quick Start Commands
+
+All BMad commands start with `*` (asterisk):
+
+**Core Commands:**
+- `*help` - Show available agents and workflows
+- `*status` - Show current context and active agent
+- `*agent [name]` - Transform into specialized agent
+- `*exit` - Return to normal Claude mode
+
+**Workflow Commands:**
+- `*workflow [name]` - Start specific workflow
+- `*workflow-guidance` - Get help selecting the right workflow
+- `*plan` - Create detailed workflow plan
+- `*plan-status` - Show workflow progress
+
+**Available Workflows:**
+- `brownfield-fullstack` - Enhance existing full-stack apps
+- `brownfield-ui` - Improve existing UI/frontend
+- `brownfield-service` - Upgrade existing services
+- `greenfield-fullstack` - Build new full-stack apps
+- `greenfield-ui` - Create new UI/frontend
+- `greenfield-service` - Develop new services
+
+### 📋 Usage Examples
+
+1. **Start a new feature:**
+   ```
+   *agent analyst
+   *task requirements-analysis
+   ```
+
+2. **Plan architectural changes:**
+   ```
+   *agent architect
+   *workflow brownfield-fullstack
+   ```
+
+3. **Get workflow guidance:**
+   ```
+   *workflow-guidance
+   [Answer questions about your project]
+   ```
+
+### 🎯 When to Use BMad-Method
+
+Use BMad-Method when you need:
+- Structured approach to complex features
+- Multiple perspectives (UX, architecture, PM)
+- Workflow-driven development
+- Comprehensive documentation
+- Team-like collaboration from AI
+
+### 📁 BMad Resources
+
+The full BMad-Method framework is stored in `team-fullstack.txt`. This file contains:
+- Complete agent definitions
+- All workflow templates
+- Task libraries
+- Checklist templates
+- Utils and knowledge base
+
+**Note**: BMad agents load resources only when needed - never pre-load entire framework.
+
+### 🔄 Auto-Activation (Optional)
+
+To automatically start in BMad mode, begin conversations with:
+```
+*agent bmad-orchestrator
+*help
+```
+
+This provides immediate access to all BMad capabilities.
 
 ## PRP (Product Requirements Prompt) Workflow
 

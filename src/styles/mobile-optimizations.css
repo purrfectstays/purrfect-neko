@@ -1,0 +1,81 @@
+/* Mobile Performance Optimizations */
+
+/* Safe Area Support for iOS devices */
+.mobile-container {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+/* Touch Target Optimization */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Enhanced touch targets for mobile */
+@media (max-width: 768px) {
+  .touch-target {
+    min-height: 56px;
+    min-width: 56px;
+    padding: 12px 16px;
+  }
+}
+
+/* Hardware-accelerated animations */
+.step-transition {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  transition: transform 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Reduce repaints for progress indicators */
+.progress-indicator {
+  contain: layout style paint;
+}
+
+/* Thumb zone optimization */
+.thumb-zone-action {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 16px);
+  left: 16px;
+  right: 16px;
+  z-index: 50;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Performance optimized animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 300ms ease-out;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .step-transition,
+  .fade-in-up {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .touch-target {
+    border: 2px solid currentColor;
+  }
+}

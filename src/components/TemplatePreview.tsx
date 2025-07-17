@@ -10,6 +10,7 @@ import { useApp } from '../context/AppContext';
 import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { useProgressiveEnhancement } from '../hooks/useProgressiveEnhancement';
 import MobileFirstImage from './MobileFirstImage';
+import PerformanceOptimizedImage from './PerformanceOptimizedImage';
 
 // Lazy load non-critical components for better performance
 // HeavyComponents removed as it was unused

@@ -108,10 +108,10 @@ const HeroSection: React.FC = () => {
             {/* Enhanced CTA */}
             <div className="space-y-6">
               <button
-                onClick={() => setCurrentStep('registration')}
+                onClick={() => window.location.href = '/join'}
                 className="group bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-manrope font-bold text-lg px-8 py-4 rounded-full hover:from-indigo-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-indigo-500/25 inline-flex items-center space-x-3"
               >
-                <span>Secure Your Early Access Spot</span>
+                <span>Join in 60 Seconds</span>
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
               

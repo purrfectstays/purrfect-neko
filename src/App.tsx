@@ -12,6 +12,7 @@ import './lib/performanceMonitor'; // Initialize performance monitoring
 // Eager load critical components
 import MainSite from './components/MainSite';
 import TemplatePreview from './components/TemplatePreview';
+import TemplatePreviewOptimized from './components/TemplatePreviewOptimized';
 import Footer from './components/Footer';
 import ChatbotSupport from './components/ChatbotSupport';
 import ResourceAccessButton from './components/ResourceAccessButton';
@@ -21,8 +22,12 @@ import LoadingSpinner from './components/LoadingSpinner';
 const LandingPage = lazy(() => import('./components/LandingPage'));
 const RegistrationForm = lazy(() => import('./components/RegistrationForm'));
 const EmailVerification = lazy(() => import('./components/EmailVerification'));
-const QualificationQuizSecure = lazy(() => import('./components/QualificationQuizSecure'));
+const QualificationQuizEnhanced = lazy(() => import('./components/QualificationQuizEnhanced'));
 const SuccessPage = lazy(() => import('./components/SuccessPage'));
+const MobileRapidFlow = lazy(() => import('./components/MobileRapidFlow'));
+const MobileRapidFlowOptimized = lazy(() => import('./components/MobileRapidFlowOptimized'));
+const MobileRapidFlowUltra = lazy(() => import('./components/MobileRapidFlowUltra'));
+const HeroSectionOptimized = lazy(() => import('./components/HeroSectionOptimized'));
 const ExploreCatteries = lazy(() => import('./components/ExploreCatteries'));
 const SupportPage = lazy(() => import('./components/SupportPage'));
 const PrivacyPolicy = lazy(() => import('./components/legal/PrivacyPolicy'));
@@ -62,7 +67,7 @@ const HomeHandler: React.FC = () => {
       case 'landing':
         return (
           <>
-            <TemplatePreview />
+            <TemplatePreviewOptimized />
             <Footer />
           </>
         );
@@ -81,7 +86,7 @@ const HomeHandler: React.FC = () => {
       case 'quiz':
         return (
           <Suspense fallback={<LoadingComponent />}>
-            <QualificationQuizSecure />
+            <QualificationQuizEnhanced />
           </Suspense>
         );
       case 'success':
@@ -129,7 +134,7 @@ const HomeHandler: React.FC = () => {
       default:
         return (
           <>
-            <TemplatePreview />
+            <TemplatePreviewOptimized />
             <Footer />
           </>
         );
@@ -196,7 +201,7 @@ const AppContent: React.FC = () => {
           <Route path="/landingpage/quiz" element={
             <ErrorBoundary>
               <Suspense fallback={<LoadingComponent />}>
-                <QualificationQuizSecure />
+                <QualificationQuizEnhanced />
               </Suspense>
             </ErrorBoundary>
           } />
@@ -208,12 +213,50 @@ const AppContent: React.FC = () => {
             </ErrorBoundary>
           } />
           
+          {/* NEW: Ultra-Optimized Mobile Rapid Flow - Primary Registration Path */}
+          <Route path="/join" element={
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <MobileRapidFlowUltra />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          
+          {/* A/B Testing versions */}
+          <Route path="/join-v1" element={
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <MobileRapidFlow />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          
+          <Route path="/join-v2" element={
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <MobileRapidFlowOptimized />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          
+          {/* Optimized landing with new hero */}
+          <Route path="/hero-demo" element={
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <HeroSectionOptimized />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          
+          {/* Redirect old registration paths to new rapid flow */}
+          <Route path="/register" element={<Navigate to="/join" replace />} />
+          <Route path="/registration" element={<Navigate to="/join" replace />} />
+          
           {/* Legacy routes for backward compatibility */}
-          {/* Removed verification routes - no longer needed */}
           <Route path="/quiz" element={
             <ErrorBoundary>
               <Suspense fallback={<LoadingComponent />}>
-                <QualificationQuizSecure />
+                <QualificationQuizEnhanced />
               </Suspense>
             </ErrorBoundary>
           } />
@@ -265,6 +308,21 @@ const AppContent: React.FC = () => {
           <Route path="/legacy-landing" element={
             <div className="min-h-screen bg-zinc-900">
               <LandingPage />
+              <Footer />
+            </div>
+          } />
+          
+          {/* Original vs Optimized comparison routes */}
+          <Route path="/original-landing" element={
+            <div className="min-h-screen bg-zinc-900">
+              <TemplatePreview />
+              <Footer />
+            </div>
+          } />
+          
+          <Route path="/optimized-landing" element={
+            <div className="min-h-screen bg-zinc-900">
+              <TemplatePreviewOptimized />
               <Footer />
             </div>
           } />

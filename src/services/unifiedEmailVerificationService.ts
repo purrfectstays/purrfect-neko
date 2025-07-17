@@ -232,19 +232,21 @@ export class UnifiedEmailVerificationService {
       );
     }
 
-    // Test connectivity before attempting registration
-    const { connected, corsError } = await testNetworkConnectivity();
-    if (!connected) {
-      if (corsError) {
+    // Test connectivity before attempting registration (skip in development)
+    if (!import.meta.env.DEV) {
+      const { connected, corsError } = await testNetworkConnectivity();
+      if (!connected) {
+        if (corsError) {
+          throw new UnifiedEmailVerificationError(
+            'CORS configuration required. Please add your domain to Supabase CORS settings.',
+            'CORS_ERROR'
+          );
+        }
         throw new UnifiedEmailVerificationError(
-          'CORS configuration required. Please add your domain to Supabase CORS settings.',
-          'CORS_ERROR'
+          'Unable to connect to the service. Please check your internet connection and try again.',
+          'NETWORK_ERROR'
         );
       }
-      throw new UnifiedEmailVerificationError(
-        'Unable to connect to the service. Please check your internet connection and try again.',
-        'NETWORK_ERROR'
-      );
     }
 
     try {

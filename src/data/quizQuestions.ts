@@ -41,7 +41,7 @@ export const catParentQuestions: QuizQuestion[] = [
     id: 'budget',
     question: "What's your average budget per stay?",
     type: 'multiple-choice',
-    options: ['Under $50', '$50-100', '$100-200', '$200-300', 'Over $300'],
+    options: ['Under $25', '$25-40', '$40-60', '$60-80', 'Over $80'],
     required: true
   },
   {
