@@ -135,21 +135,15 @@ const TemplatePreviewOptimized: React.FC = () => {
               </button>
             </div>
             <div className="relative image-contain">
-              <picture>
-                <source 
-                  srcSet="/landingpageimage2.webp" 
-                  type="image/webp"
-                />
-                <img 
-                  src="/landingpageimage2.jpg" 
-                  alt="Premium cattery facilities and services showcasing comfortable and modern amenities"
-                  className="w-full h-[500px] object-cover rounded-2xl shadow-2xl border-4 border-green-500/20 prevent-cls"
-                  loading="lazy"
-                  decoding="async"
-                  width="600"
-                  height="500"
-                />
-              </picture>
+              <img 
+                src="/landingpageimage2.jpg" 
+                alt="Premium cattery facilities and services showcasing comfortable and modern amenities"
+                className="w-full h-[500px] object-cover rounded-2xl shadow-2xl border-4 border-green-500/20 prevent-cls"
+                loading="lazy"
+                decoding="async"
+                width="600"
+                height="500"
+              />
               
               {/* Overlay badge */}
               <div className="absolute top-6 right-6 bg-green-500 text-white px-6 py-3 rounded-full font-bold shadow-lg mobile-optimized">

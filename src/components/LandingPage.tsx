@@ -176,7 +176,7 @@ const MobileOptimizedHeroSection: React.FC = () => {
           <div className="flex justify-center order-1 lg:order-2">
             <div className="relative w-full max-w-sm lg:max-w-md">
               <img 
-                src="/7054d274-40cc-49d1-ba82-70530de86643.jpg" 
+                src="/landingpageimage1.jpg" 
                 alt="Two beautiful cats relaxing together in a premium cattery environment"
                 className="w-full h-64 sm:h-80 lg:h-96 object-cover object-center rounded-2xl shadow-2xl border-4 border-indigo-500/20"
               />

@@ -97,8 +97,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ waitlistStats }) => {
           {/* Right Content - Hero Image */}
           <div className="relative">
             <MobileFirstImage
-              mobileSrc="/images/hero-main.jpg"
-              desktopSrc="/images/hero-main.jpg"
+              mobileSrc="/landingpageimage1.jpg"
+              desktopSrc="/landingpageimage1.jpg"
               alt="Premium cattery environment showcasing comfortable spaces for cats with modern amenities"
               className="rounded-2xl shadow-2xl prevent-cls"
               priority={true}
