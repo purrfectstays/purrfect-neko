@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Star, Clock, Wifi, Car, Heart, ArrowRight, Filter, Search, Crown, AlertCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import Header from './Header';
+import CurrencyDisplay from './CurrencyDisplay';
 
 interface DemoCattery {
   id: string;
@@ -10,6 +12,8 @@ interface DemoCattery {
   rating: number;
   reviewCount: number;
   priceRange: string;
+  priceMin: number; // USD price for conversion
+  priceMax: number; // USD price for conversion
   image: string;
   specialties: string[];
   amenities: string[];
@@ -31,6 +35,8 @@ const ExploreCatteries: React.FC = () => {
       rating: 4.9,
       reviewCount: 127,
       priceRange: '$45-65/night',
+      priceMin: 45,
+      priceMax: 65,
       image: '/previewimage1.jpg',
       specialties: ['Senior Cats', 'Medical Care', 'Socialization'],
       amenities: ['24/7 Monitoring', 'Individual Suites', 'Outdoor Viewing'],
@@ -45,6 +51,8 @@ const ExploreCatteries: React.FC = () => {
       rating: 4.8,
       reviewCount: 89,
       priceRange: '$35-50/night',
+      priceMin: 35,
+      priceMax: 50,
       image: '/previewimage2.jpg',
       specialties: ['Multiple Cats', 'Play Time', 'Grooming'],
       amenities: ['Large Play Areas', 'Grooming Services', 'Daily Updates'],
@@ -59,6 +67,8 @@ const ExploreCatteries: React.FC = () => {
       rating: 4.7,
       reviewCount: 203,
       priceRange: '$55-80/night',
+      priceMin: 55,
+      priceMax: 80,
       image: '/previewimage3.jpg',
       specialties: ['Luxury Suites', 'Special Diets', 'Spa Services'],
       amenities: ['Luxury Suites', 'Spa Treatments', 'Custom Diets', 'Live Webcams'],
@@ -73,6 +83,8 @@ const ExploreCatteries: React.FC = () => {
       rating: 4.6,
       reviewCount: 156,
       priceRange: '$40-55/night',
+      priceMin: 40,
+      priceMax: 55,
       image: '/previewimage4.jpg',
       specialties: ['Anxious Cats', 'Quiet Environment', 'Homestyle Care'],
       amenities: ['Quiet Spaces', 'Anxiety Support', 'Home-like Setting'],
@@ -149,8 +161,9 @@ const ExploreCatteries: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-900 py-20">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="min-h-screen bg-zinc-900">
+      <Header />
+      <div className="max-w-7xl mx-auto px-4 pt-20">
         {/* Header with Demo Notice */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">Explore Premium Catteries</h1>
@@ -288,7 +301,9 @@ const ExploreCatteries: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-green-400 font-semibold">{cattery.priceRange}</span>
+                  <div className="text-green-400 font-semibold">
+                    <CurrencyDisplay usdAmount={cattery.priceMin} className="inline" />-<CurrencyDisplay usdAmount={cattery.priceMax} className="inline" />/night
+                  </div>
                   <button className="flex items-center space-x-1 text-indigo-400 hover:text-indigo-300 transition-colors">
                     <span className="text-sm">View Details</span>
                     <ArrowRight className="h-4 w-4" />

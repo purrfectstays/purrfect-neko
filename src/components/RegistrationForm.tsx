@@ -7,10 +7,10 @@ import RegionalUrgency from './RegionalUrgency';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
-import { 
-  isDisposableEmail, 
-  isSuspiciousName, 
-  generateBrowserFingerprint, 
+import {
+  isDisposableEmail,
+  isSuspiciousName,
+  generateBrowserFingerprint,
   InteractionTracker,
   generateMathCaptcha,
   validateCaptcha
@@ -19,7 +19,7 @@ import {
 const RegistrationForm: React.FC = () => {
   const { setCurrentStep, setUser, setWaitlistUser, setVerificationToken } = useApp();
   const { location, waitlistData } = useGeolocation();
-  
+
   // Track registration form behavior for optimization
   const { trackFormSubmission } = useBehaviorTracking('registration_form', {
     trackScrollDepth: false,
@@ -42,14 +42,14 @@ const RegistrationForm: React.FC = () => {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     // Basic validation
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     } else if (isSuspiciousName(formData.name)) {
       newErrors.name = 'Please enter a valid name';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -57,67 +57,67 @@ const RegistrationForm: React.FC = () => {
     } else if (isDisposableEmail(formData.email)) {
       newErrors.email = 'Please use a permanent email address';
     }
-    
+
     if (!formData.userType) {
       newErrors.userType = 'Please select whether you are a cat parent or cattery owner';
     }
-    
+
     if (formData.userType === 'cattery-owner' && !formData.catteryName.trim()) {
       newErrors.catteryName = 'Cattery name is required';
     }
-    
+
     // CAPTCHA validation
     if (!validateCaptcha(formData.captchaAnswer, mathCaptcha.answer)) {
       newErrors.captchaAnswer = 'Please solve the math problem correctly';
     }
-    
+
     // Bot detection checks
     if (interactionTracker.isSuspiciouslyFast()) {
       newErrors.submit = 'Please take your time filling out the form';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Rate limiting check
     const clientId = RateLimiter.getClientIdentifier();
     const rateLimitResult = rateLimiter.isAllowed(clientId, 'registration');
-    
+
     if (!rateLimitResult.allowed) {
       const minutes = Math.ceil((rateLimitResult.retryAfter || 0) / 60);
-      setErrors({ 
-        submit: `Too many registration attempts. Please try again in ${minutes} minutes.` 
+      setErrors({
+        submit: `Too many registration attempts. Please try again in ${minutes} minutes.`
       });
       return;
     }
-    
+
     // Track registration start
     analytics.trackRegistrationStart();
-    
+
     // Enhanced bot detection
     if (formData.honeypot) {
       console.log('Bot detected via honeypot field');
       return; // Silently fail without showing any error
     }
-    
+
     // Generate browser fingerprint for duplicate detection
     const browserFingerprint = generateBrowserFingerprint();
     const interactionData = interactionTracker.getInteractionData();
-    
+
     // Additional bot checks
     if (interactionTracker.isSuspiciouslyFast()) {
       setErrors({ submit: 'Please take your time filling out the form' });
       return;
     }
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Check if user already exists
       const existingUser = await UnifiedEmailVerificationService.getUserByEmail(formData.email);
@@ -161,36 +161,36 @@ const RegistrationForm: React.FC = () => {
         quizCompleted: false,
         waitlistPosition: waitlistUser.waitlist_position
       });
-      
+
       // Track successful form submission
       trackFormSubmission('waitlist_registration', true);
-      
+
       // Show success message before redirecting
-      setErrors({ 
-        success: 'Registration successful! Redirecting to qualification quiz...' 
+      setErrors({
+        success: 'Registration successful! Redirecting to qualification quiz...'
       });
-      
+
       // Go directly to quiz - no verification step needed
       setTimeout(() => {
         setCurrentStep('quiz');
       }, 1500);
     } catch (error) {
       console.error('Registration error:', error);
-      
+
       // Track failed form submission
       trackFormSubmission('waitlist_registration', false, error instanceof Error ? error.message : 'Unknown error');
-      
+
       // Track registration error
       analytics.trackError('registration_failed', error instanceof Error ? error.message : 'Unknown error');
-      
+
       // Provide more specific error message for edge function failures
       if (error instanceof Error && error.message.includes('Edge Function')) {
-        setErrors({ 
-          submit: 'Failed to send verification email: Failed to send a request to the Edge Function. Please try again later.' 
+        setErrors({
+          submit: 'Failed to send verification email: Failed to send a request to the Edge Function. Please try again later.'
         });
       } else {
-        setErrors({ 
-          submit: error instanceof Error ? error.message : 'Registration failed. Please try again.' 
+        setErrors({
+          submit: error instanceof Error ? error.message : 'Registration failed. Please try again.'
         });
       }
     } finally {
@@ -210,21 +210,21 @@ const RegistrationForm: React.FC = () => {
             <ArrowLeft className="h-4 w-4" />
             <span className="font-manrope">Back to Landing Page</span>
           </button>
-          
+
           <h1 className="font-manrope font-bold text-3xl text-white mb-4">
             Become an Early Access Member
           </h1>
           <p className="font-manrope text-zinc-300 mb-6">
             Join the exclusive community shaping the future of cattery bookings
           </p>
-          
+
           {/* Regional Urgency */}
           <RegionalUrgency variant="banner" showDetails={false} className="mb-6" />
         </div>
 
         <div className="bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-8 border border-indigo-800/30 shadow-2xl">
-          <form 
-            onSubmit={handleSubmit} 
+          <form
+            onSubmit={handleSubmit}
             className="space-y-6"
             aria-label="Early access registration form"
             role="form"
@@ -297,16 +297,14 @@ const RegistrationForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, userType: 'cat-parent' }))}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
-                    formData.userType === 'cat-parent'
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${formData.userType === 'cat-parent'
                       ? 'border-green-500 bg-green-500/10 text-white'
                       : 'border-zinc-600 bg-zinc-700/50 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-600/50'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                      formData.userType === 'cat-parent' ? 'border-green-500 bg-green-500' : 'border-zinc-500'
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData.userType === 'cat-parent' ? 'border-green-500 bg-green-500' : 'border-zinc-500'
+                      }`}>
                       {formData.userType === 'cat-parent' && (
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       )}
@@ -324,16 +322,14 @@ const RegistrationForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, userType: 'cattery-owner' }))}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
-                    formData.userType === 'cattery-owner'
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${formData.userType === 'cattery-owner'
                       ? 'border-purple-500 bg-purple-500/10 text-white'
                       : 'border-zinc-600 bg-zinc-700/50 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-600/50'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                      formData.userType === 'cattery-owner' ? 'border-purple-500 bg-purple-500' : 'border-zinc-500'
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData.userType === 'cattery-owner' ? 'border-purple-500 bg-purple-500' : 'border-zinc-500'
+                      }`}>
                       {formData.userType === 'cattery-owner' && (
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       )}

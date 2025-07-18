@@ -2,10 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, DollarSign, Calculator, Target, TrendingUp, Clock, Heart, AlertCircle } from 'lucide-react';
 import Footer from '../Footer';
+import Header from '../Header';
+import CurrencyDisplay from '../CurrencyDisplay';
 
 const BudgetPlanningGuide: React.FC = () => {
   return (
     <div className="min-h-screen bg-zinc-900">
+      <Header />
       {/* Header */}
       <div className="bg-gradient-to-br from-blue-600 to-cyan-700 py-16">
         <div className="container mx-auto px-6">
@@ -58,7 +61,9 @@ const BudgetPlanningGuide: React.FC = () => {
               <div className="bg-green-900/20 border border-green-600/30 rounded-xl p-6 text-center">
                 <DollarSign className="w-8 h-8 text-green-400 mx-auto mb-3" />
                 <h3 className="text-xl font-bold text-green-400 mb-2">Budget Option</h3>
-                <p className="text-2xl font-bold text-white mb-2">$35-50</p>
+                <p className="text-2xl font-bold text-white mb-2">
+                  <CurrencyDisplay usdAmount={35} className="inline" />-<CurrencyDisplay usdAmount={50} className="inline" />
+                </p>
                 <p className="text-green-200 text-sm">per night</p>
                 <ul className="text-xs text-zinc-300 mt-3 space-y-1">
                   <li>• Basic care & feeding</li>
@@ -70,7 +75,9 @@ const BudgetPlanningGuide: React.FC = () => {
               <div className="bg-blue-900/20 border border-blue-600/30 rounded-xl p-6 text-center">
                 <Calculator className="w-8 h-8 text-blue-400 mx-auto mb-3" />
                 <h3 className="text-xl font-bold text-blue-400 mb-2">Standard Option</h3>
-                <p className="text-2xl font-bold text-white mb-2">$50-75</p>
+                <p className="text-2xl font-bold text-white mb-2">
+                  <CurrencyDisplay usdAmount={50} className="inline" />-<CurrencyDisplay usdAmount={75} className="inline" />
+                </p>
                 <p className="text-blue-200 text-sm">per night</p>
                 <ul className="text-xs text-zinc-300 mt-3 space-y-1">
                   <li>• Individual accommodations</li>
@@ -82,7 +89,9 @@ const BudgetPlanningGuide: React.FC = () => {
               <div className="bg-purple-900/20 border border-purple-600/30 rounded-xl p-6 text-center">
                 <TrendingUp className="w-8 h-8 text-purple-400 mx-auto mb-3" />
                 <h3 className="text-xl font-bold text-purple-400 mb-2">Premium Option</h3>
-                <p className="text-2xl font-bold text-white mb-2">$75-120</p>
+                <p className="text-2xl font-bold text-white mb-2">
+                  <CurrencyDisplay usdAmount={75} className="inline" />-<CurrencyDisplay usdAmount={120} className="inline" />
+                </p>
                 <p className="text-purple-200 text-sm">per night</p>
                 <ul className="text-xs text-zinc-300 mt-3 space-y-1">
                   <li>• Luxury suites</li>

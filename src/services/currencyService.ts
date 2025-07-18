@@ -52,6 +52,16 @@ export class CurrencyService {
       countryCode: 'EU',
       country: 'European Union',
       currency: { code: 'EUR', symbol: '€', name: 'Euro', rate: 0.92 }
+    },
+    {
+      countryCode: 'JP',
+      country: 'Japan',
+      currency: { code: 'JPY', symbol: '¥', name: 'Japanese Yen', rate: 150.0 }
+    },
+    {
+      countryCode: 'US',
+      country: 'United States',
+      currency: { code: 'USD', symbol: '$', name: 'US Dollar', rate: 1.0 }
     }
   ];
 

@@ -63,14 +63,19 @@ const MobileOptimizedHeroSection: React.FC = () => {
                 </span>
               </h1>
               
-              {/* Honest value proposition */}
+              {/* Enhanced value proposition with lead magnet */}
               <div className="space-y-2 lg:space-y-3">
                 <p className="text-lg sm:text-xl lg:text-2xl text-green-400 font-semibold">
-                  Help us create the platform cat parents and cattery owners actually need
+                  Join Founding Members & Get Instant Access to Our Premium Cattery Evaluation Toolkit
                 </p>
                 <p className="text-base sm:text-lg lg:text-xl text-zinc-300">
-                  Join our founding community and shape development from day one • Launching Q4 2025
+                  Help shape the platform + receive premium resources while we build • Launching Q4 2025
                 </p>
+                <div className="bg-gradient-to-r from-green-500/20 to-indigo-500/20 border border-green-500/30 rounded-lg p-3 lg:p-4">
+                  <p className="text-sm lg:text-base text-green-300 font-medium">
+                    🎁 <span className="text-green-400 font-bold">FREE</span> Premium Resources for Founding Members
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -98,7 +103,7 @@ const MobileOptimizedHeroSection: React.FC = () => {
                   <h3 className="font-bold text-sm lg:text-base text-green-400">For Cat Parents</h3>
                 </div>
                 <p className="text-xs lg:text-sm text-zinc-300">
-                  Shape the features you need • Free premium cat care guides • First access to beta • Connect with local cat community
+                  Shape platform features you need • Instant access to premium toolkit • First beta access • Connect with global cat community • Founding member benefits
                 </p>
               </div>
               
@@ -108,7 +113,7 @@ const MobileOptimizedHeroSection: React.FC = () => {
                   <h3 className="font-bold text-sm lg:text-base text-purple-400">For Cattery Owners</h3>
                 </div>
                 <p className="text-xs lg:text-sm text-zinc-300">
-                  Influence platform design • Early partner access • Business growth guides • Connect with potential customers
+                  Influence SaaS platform design • Early partner access • Business toolkit & visibility guides • Connect with potential customers • Founding partner pricing
                 </p>
               </div>
             </div>
@@ -117,29 +122,52 @@ const MobileOptimizedHeroSection: React.FC = () => {
             <div className="space-y-4">
               {/* CTA Buttons Row - Aligned on Desktop */}
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-center lg:justify-start">
-                {/* Primary CTA - Honest */}
+                {/* Enhanced Primary CTA */}
                 <button
                   onClick={() => setCurrentStep('registration')}
                   className="w-full sm:w-auto group bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-lg lg:text-xl px-8 lg:px-12 py-4 lg:py-5 rounded-full hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 inline-flex items-center justify-center space-x-3"
                 >
-                  <span>Join Founding Community + Get Free Guides</span>
+                  <span>Get My Premium Toolkit + Founding Access</span>
                   <ArrowRight className="h-5 w-5 lg:h-6 lg:w-6 group-hover:translate-x-1 transition-transform" />
                 </button>
 
-                {/* Secondary CTA */}
+                {/* Enhanced Secondary CTA */}
                 <button
                   onClick={() => setCurrentStep('registration')}
                   className="w-full sm:w-auto bg-purple-600/80 border border-purple-500 text-white font-semibold text-lg lg:text-xl px-8 lg:px-12 py-4 lg:py-5 rounded-full hover:bg-purple-700/80 transition-all duration-300"
                 >
-                  Help Shape the Platform + Resources
+                  Join Community + Free Resources
                 </button>
               </div>
 
-              {/* Benefits text below buttons - Honest */}
-              <div className="text-center lg:text-left">
+              {/* Enhanced Benefits with Toolkit Details */}
+              <div className="text-center lg:text-left space-y-3">
                 <p className="text-xs lg:text-sm text-zinc-400">
-                  🎁 Instant access to premium cat care guides • 🔒 No commitment • 🚀 Shape the future platform
+                  🎁 Instant download + community access • 🔒 No commitment • 🚀 Help shape the platform
                 </p>
+                
+                {/* Toolkit Value Stack */}
+                <div className="bg-zinc-800/30 border border-indigo-500/30 rounded-lg p-4 space-y-2">
+                  <h4 className="text-sm font-semibold text-indigo-400">Your Premium Cattery Evaluation Toolkit Includes:</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-zinc-300">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-green-400">✓</span>
+                      <span>50-page Premium Cat Travel Guide</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-green-400">✓</span>
+                      <span>Cattery Safety Checklist (scored)</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-green-400">✓</span>
+                      <span>Regional Pricing Database</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-green-400">✓</span>
+                      <span>Emergency Contact Templates</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

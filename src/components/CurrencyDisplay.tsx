@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { CurrencyService, CurrencyInfo } from '../services/currencyService';
 import { GeolocationService, LocationData } from '../services/geolocationService';
+import { useApp } from '../context/AppContext';
 
 interface CurrencyDisplayProps {
   usdAmount: number;
   showOriginal?: boolean;
   className?: string;
   location?: LocationData;
+  useContextCurrency?: boolean; // New prop to use currency from context
 }
 
 const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({ 
   usdAmount, 
   showOriginal = false, 
   className = '',
-  location 
+  location,
+  useContextCurrency = true // Default to using context currency
 }) => {
+  const { selectedCurrency } = useApp();
   const [localizedPrice, setLocalizedPrice] = useState<string>('');
   const [currency, setCurrency] = useState<CurrencyInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,9 +30,16 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
         setLoading(true);
         setError(null);
 
-        // Get location if not provided
-        const userLocation = location || await GeolocationService.getUserLocation();
-        const userCurrency = CurrencyService.getCurrencyForCountry(userLocation.countryCode);
+        let userCurrency: CurrencyInfo;
+        
+        if (useContextCurrency) {
+          // Use currency from context
+          userCurrency = selectedCurrency;
+        } else {
+          // Auto-detect based on location
+          const userLocation = location || await GeolocationService.getUserLocation();
+          userCurrency = CurrencyService.getCurrencyForCountry(userLocation.countryCode);
+        }
         
         setCurrency(userCurrency);
 
@@ -50,7 +61,7 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
     };
 
     loadLocalizedPrice();
-  }, [usdAmount, location]);
+  }, [usdAmount, location, useContextCurrency, selectedCurrency]);
 
   if (loading) {
     return (

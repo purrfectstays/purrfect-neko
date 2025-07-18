@@ -41,6 +41,66 @@ npm run preview
 
 This is a **React + TypeScript + Vite** waitlist landing page for Purrfect Stays, a cattery booking platform.
 
+### Business Context & Objectives
+
+**CRITICAL**: This is a **LEAD GENERATION LANDING PAGE**, not a full product. Key business context:
+
+- **Primary Goal**: Lead generation and waitlist building for global cat communities
+- **Market Research Focus**: Collecting data to determine pricing, features, and feedback from target audience
+- **Target Audience**: Cat communities worldwide (cat parents and cattery owners)
+- **Planned Service**: Real-time availability platform for catteries
+  - **For Cat Parents**: Real-time booking availability when searching for cattery services
+  - **For Cattery Owners**: SaaS platform providing visibility and booking management tools
+- **Quiz Purpose**: Dual function - engagement optimization + market research data collection
+- **Success Metrics**: Lead volume, data quality, global community engagement, market validation
+
+**Development Focus**: Optimize for lead capture, data collection quality, and community building rather than product onboarding.
+
+### Lead Generation Enhancements (Implemented)
+
+**IMPORTANT**: The following lead generation optimizations have been implemented while preserving all existing functionality:
+
+#### **Enhanced Landing Page** (`LandingPage.tsx`)
+- **Lead Magnet**: Professional cattery evaluation resources (no specific price mentioned to avoid misleading claims)
+- **Value Proposition**: Founding member benefits with immediate resource access
+- **Geographic Localization**: Ready for dynamic regional messaging using existing geolocation service
+- **Enhanced CTAs**: Focus on immediate value delivery alongside community building
+
+#### **Market Research Quiz** (`quizQuestions.ts`)
+- **Feature Validation Questions**: Real-time availability importance for SaaS validation
+- **Pricing Sensitivity**: Local market spending patterns and SaaS willingness to pay
+- **B2B Validation**: Cattery owner challenges and platform value assessment
+- **Currency Localization**: Multi-currency pricing options (£/$/€) for global audience
+- **Total Questions Added**: 7 new strategic questions maintaining existing flow
+
+#### **Enhanced Success Page** (`SuccessPage.tsx`)
+- **Community Position Tracking**: Waitlist position and regional ranking display
+- **Viral Referral Mechanics**: Position advancement through referrals
+- **Global Community Dashboard**: Regional leaderboards and market readiness tracking
+- **Progressive Rewards System**: Tiered benefits for community growth
+- **Market Validation Tracking**: Regional milestone progress for launch readiness
+
+#### **Implementation Approach**
+- **Non-Disruptive**: All existing functionality preserved completely
+- **Additive Enhancement**: New features built alongside existing content
+- **Performance Optimized**: Enhanced components maintain build efficiency
+- **A/B Testing Ready**: Original flow intact for comparison testing
+
+#### **Expected Business Impact**
+- **Lead Quality**: Enhanced pre-qualification through strategic quiz questions
+- **Market Intelligence**: Actionable data for SaaS pricing, feature prioritization, and regional expansion
+- **Viral Growth**: Community-driven referral mechanics for organic expansion
+- **Global Scaling**: Localized approach for international market penetration
+
+#### **Key Metrics to Track**
+- **Conversion Rate**: Landing page to quiz completion
+- **Data Quality**: Percentage of actionable market research responses
+- **Viral Coefficient**: Referral-driven growth rate
+- **Regional Penetration**: Geographic distribution and density
+- **Feature Validation**: Real-time availability demand signals
+
+**Note**: All enhancements use realistic, achievable messaging focused on community building and resource sharing rather than overstated value claims.
+
 ### Core Architecture
 - **Frontend**: React 18 with TypeScript, styled with Tailwind CSS
 - **Backend**: Supabase (PostgreSQL, Auth, Edge Functions)

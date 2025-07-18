@@ -1,11 +1,13 @@
 import React from 'react';
 import { Shield, Lock, Eye, Users, Database, Mail, ArrowLeft } from 'lucide-react';
 import { navigateToLandingPage } from '../../utils/navigation';
+import Header from '../Header';
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="min-h-screen bg-zinc-900 py-20">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-zinc-900">
+      <Header />
+      <div className="max-w-4xl mx-auto px-4 pt-20">
         {/* Back to Landing Page */}
         <div className="mb-8">
           <button

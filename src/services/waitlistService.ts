@@ -550,6 +550,83 @@ export class WaitlistService {
     }
   }
 
+  static async submitEnhancedQuizResponses(
+    userId: string,
+    responses: Array<{
+      question_id: string;
+      answer: string;
+      enhanced_score?: number;
+      tier?: string;
+      qualified?: boolean;
+    }>,
+    scoreResult?: {
+      score: number;
+      tier: string;
+      qualified: boolean;
+      benefits?: Array<{ key: string; value: string; }>;
+    }
+  ): Promise<{ user: WaitlistUser; waitlistPosition: number; scoreResult?: any }> {
+    if (!isSupabaseConfigured) {
+      throw new Error('Service unavailable: Database configuration is invalid');
+    }
+
+    try {
+      // Insert quiz responses (basic format to match existing schema)
+      const { error: quizError } = await supabase
+        .from('quiz_responses')
+        .insert(
+          responses.map(response => ({
+            user_id: userId,
+            question_id: response.question_id,
+            answer: response.answer.toString(),
+          }))
+        );
+
+      if (quizError) {
+        throw handleServiceError(quizError, 'Enhanced quiz submission');
+      }
+
+      // Mark quiz as completed (this will trigger waitlist position assignment)
+      const { data, error } = await supabase
+        .from('waitlist_users')
+        .update({ quiz_completed: true })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error || !data) {
+        throw handleServiceError(error || new Error('No data returned'), 'Enhanced quiz completion');
+      }
+
+      // Send welcome email with enhanced data
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+          body: {
+            email: data.email,
+            name: data.name,
+            waitlistPosition: data.waitlist_position,
+            userType: data.user_type,
+            scoreResult: scoreResult || null,
+          }
+        });
+
+        if (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+        }
+      } catch (emailError) {
+        console.warn('Welcome email sending failed:', emailError);
+      }
+
+      return { 
+        user: data, 
+        waitlistPosition: data.waitlist_position || 0,
+        scoreResult: scoreResult
+      };
+    } catch (error) {
+      throw handleServiceError(error, 'submitEnhancedQuizResponses');
+    }
+  }
+
   static async getWaitlistStats(signal?: AbortSignal): Promise<{
     totalUsers: number;
     verifiedUsers: number;

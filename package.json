@@ -12,6 +12,7 @@
     "test:edge-functions": "node scripts/test-edge-functions.js"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.39.0",
     "@types/qrcode": "^1.5.5",
     "@vitejs/plugin-react": "^4.6.0",
