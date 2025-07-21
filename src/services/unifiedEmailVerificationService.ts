@@ -256,22 +256,8 @@ export class UnifiedEmailVerificationService {
       );
     }
 
-    // Test connectivity before attempting registration (skip in development)
-    if (!import.meta.env.DEV) {
-      const { connected, corsError } = await testNetworkConnectivity();
-      if (!connected) {
-        if (corsError) {
-          throw new UnifiedEmailVerificationError(
-            'CORS configuration required. Please add your domain to Supabase CORS settings.',
-            'CORS_ERROR'
-          );
-        }
-        throw new UnifiedEmailVerificationError(
-          'Unable to connect to the service. Please check your internet connection and try again.',
-          'NETWORK_ERROR'
-        );
-      }
-    }
+    // Skip connectivity test - it causes false negatives on mobile devices
+    // The actual Supabase operations will fail with proper error messages if there's a real connectivity issue
 
     try {
       // Generate 6-digit verification code instead of UUID
@@ -308,6 +294,14 @@ export class UnifiedEmailVerificationService {
         .single();
 
       if (error) {
+        // Provide more specific error messages for common issues
+        if (error.message?.includes('Failed to fetch')) {
+          throw new UnifiedEmailVerificationError(
+            'Network error: Please check your connection and try again.',
+            'NETWORK_ERROR',
+            { originalError: error }
+          );
+        }
         throw handleServiceError(error, 'registerUser');
       }
 

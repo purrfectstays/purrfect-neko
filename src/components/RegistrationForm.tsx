@@ -178,10 +178,14 @@ const RegistrationForm: React.FC = () => {
       // Track registration error
       analytics.trackError('registration_failed', error instanceof Error ? error.message : 'Unknown error');
 
-      // Provide more specific error message for edge function failures
-      if (error instanceof Error && error.message.includes('Edge Function')) {
+      // Provide more specific error message for common failures
+      if (error instanceof Error && error.message.includes('NETWORK_ERROR')) {
         setErrors({
-          submit: 'Failed to send verification email: Failed to send a request to the Edge Function. Please try again later.'
+          submit: 'Network error: Please check your connection and try again.'
+        });
+      } else if (error instanceof Error && error.message.includes('Edge Function')) {
+        setErrors({
+          submit: 'Service temporarily unavailable. Please try again in a moment.'
         });
       } else {
         setErrors({
