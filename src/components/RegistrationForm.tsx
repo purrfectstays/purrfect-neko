@@ -31,7 +31,6 @@ const RegistrationForm: React.FC = () => {
     name: '',
     email: '',
     catteryName: '',
-    userType: '' as 'cat-parent' | 'cattery-owner' | '',
     honeypot: '', // Hidden field for bot detection
     captchaAnswer: '' // Math CAPTCHA answer
   });
@@ -58,11 +57,7 @@ const RegistrationForm: React.FC = () => {
       newErrors.email = 'Please use a permanent email address';
     }
 
-    if (!formData.userType) {
-      newErrors.userType = 'Please select whether you are a cat parent or cattery owner';
-    }
-
-    if (formData.userType === 'cattery-owner' && !formData.catteryName.trim()) {
+    if (!formData.catteryName.trim()) {
       newErrors.catteryName = 'Cattery name is required';
     }
 
@@ -132,19 +127,19 @@ const RegistrationForm: React.FC = () => {
       const { user: waitlistUser, verificationToken } = await UnifiedEmailVerificationService.registerUser({
         name: formData.name,
         email: formData.email,
-        userType: formData.userType as 'cat-parent' | 'cattery-owner',
+        userType: 'cattery-owner',
       });
       // User registration completed successfully
 
       // Track successful registration with enhanced analytics
-      analytics.trackRegistrationComplete(formData.userType, waitlistUser.waitlist_position);
+      analytics.trackRegistrationComplete('cattery-owner', waitlistUser.waitlist_position);
 
       // Track geographic market insights
       if (location && waitlistData) {
         analytics.trackGeographicInsight(
           location.country,
           location.region,
-          formData.userType,
+          'cattery-owner',
           waitlistData.currentPosition
         );
       }
@@ -156,7 +151,7 @@ const RegistrationForm: React.FC = () => {
         id: waitlistUser.id,
         name: formData.name,
         email: formData.email,
-        userType: formData.userType as 'cat-parent' | 'cattery-owner',
+        userType: 'cattery-owner',
         isVerified: true, // All users are now auto-verified
         quizCompleted: false,
         waitlistPosition: waitlistUser.waitlist_position
@@ -167,7 +162,7 @@ const RegistrationForm: React.FC = () => {
 
       // Show success message before redirecting
       setErrors({
-        success: 'Registration successful! Redirecting to qualification quiz...'
+        success: 'Cattery registration successful! Redirecting to qualification quiz...'
       });
 
       // Go directly to quiz - no verification step needed
@@ -212,10 +207,10 @@ const RegistrationForm: React.FC = () => {
           </button>
 
           <h1 className="font-manrope font-bold text-3xl text-white mb-4">
-            Become an Early Access Member
+            Cattery Registration
           </h1>
           <p className="font-manrope text-zinc-300 mb-6">
-            Join the exclusive community shaping the future of cattery bookings
+            Join as a founding cattery partner and help shape the future of cattery bookings
           </p>
 
           {/* Regional Urgency */}
@@ -288,92 +283,29 @@ const RegistrationForm: React.FC = () => {
               )}
             </div>
 
-            {/* User Type Selection */}
+            {/* Cattery Name Input - Required */}
             <div>
-              <label className="block font-manrope font-medium text-white mb-3">
-                I am a...
+              <label htmlFor="catteryName" className="block font-manrope font-medium text-white mb-2">
+                Cattery Name
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, userType: 'cat-parent' }))}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${formData.userType === 'cat-parent'
-                      ? 'border-green-500 bg-green-500/10 text-white'
-                      : 'border-zinc-600 bg-zinc-700/50 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-600/50'
-                    }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData.userType === 'cat-parent' ? 'border-green-500 bg-green-500' : 'border-zinc-500'
-                      }`}>
-                      {formData.userType === 'cat-parent' && (
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      )}
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <Shield className="h-4 w-4 text-green-400" />
-                        <span className="font-semibold">Cat Parent</span>
-                      </div>
-                      <p className="text-xs text-zinc-400 mt-1">Looking for cattery care</p>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, userType: 'cattery-owner' }))}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${formData.userType === 'cattery-owner'
-                      ? 'border-purple-500 bg-purple-500/10 text-white'
-                      : 'border-zinc-600 bg-zinc-700/50 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-600/50'
-                    }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData.userType === 'cattery-owner' ? 'border-purple-500 bg-purple-500' : 'border-zinc-500'
-                      }`}>
-                      {formData.userType === 'cattery-owner' && (
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      )}
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <TrendingUp className="h-4 w-4 text-purple-400" />
-                        <span className="font-semibold">Cattery Owner</span>
-                      </div>
-                      <p className="text-xs text-zinc-400 mt-1">Operating a cattery business</p>
-                    </div>
-                  </div>
-                </button>
+              <div className="relative">
+                <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-zinc-400" />
+                <input
+                  type="text"
+                  id="catteryName"
+                  value={formData.catteryName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, catteryName: e.target.value }))}
+                  className="w-full pl-12 pr-4 py-3 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-manrope"
+                  placeholder="Enter your cattery business name"
+                  aria-label="Cattery name"
+                  aria-required="true"
+                  aria-describedby={errors.catteryName ? "catteryName-error" : undefined}
+                />
               </div>
-              {errors.userType && (
-                <p className="mt-2 text-sm text-red-400 font-manrope" role="alert">{errors.userType}</p>
+              {errors.catteryName && (
+                <p id="catteryName-error" className="mt-1 text-sm text-red-400 font-manrope" role="alert">{errors.catteryName}</p>
               )}
             </div>
-
-            {/* Cattery Name Input - Conditional */}
-            {formData.userType === 'cattery-owner' && (
-              <div>
-                <label htmlFor="catteryName" className="block font-manrope font-medium text-white mb-2">
-                  Cattery Name
-                </label>
-                <div className="relative">
-                  <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-zinc-400" />
-                  <input
-                    type="text"
-                    id="catteryName"
-                    value={formData.catteryName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, catteryName: e.target.value }))}
-                    className="w-full pl-12 pr-4 py-3 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-manrope"
-                    placeholder="Enter your cattery name"
-                    aria-label="Cattery name"
-                    aria-required="true"
-                    aria-describedby={errors.catteryName ? "catteryName-error" : undefined}
-                  />
-                </div>
-                {errors.catteryName && (
-                  <p id="catteryName-error" className="mt-1 text-sm text-red-400 font-manrope" role="alert">{errors.catteryName}</p>
-                )}
-              </div>
-            )}
 
             {/* Cattery Owner Benefits - Partner Focus */}
             <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
@@ -450,7 +382,7 @@ const RegistrationForm: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <span>Secure My Early Access Position</span>
+                  <span>Register My Cattery</span>
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
@@ -459,9 +391,9 @@ const RegistrationForm: React.FC = () => {
 
           <div className="mt-6 text-center">
             <p className="font-manrope text-sm text-zinc-400">
-              Join as a founding cattery partner with exclusive benefits.
+              Register your cattery business as a founding partner.
               <br />
-              <span className="text-purple-300">Unsubscribe anytime • No spam guarantee</span>
+              <span className="text-purple-300">Exclusive founding member benefits • Unsubscribe anytime</span>
             </p>
           </div>
         </div>

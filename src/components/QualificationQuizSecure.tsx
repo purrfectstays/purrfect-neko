@@ -200,7 +200,9 @@ const QualificationQuizSecure: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    console.log('🎯 Quiz submission started...');
+    if (import.meta.env.DEV) {
+      console.log('🎯 Quiz submission started...');
+    }
     
     if (!user?.id) {
       console.error('❌ No user ID found');
@@ -208,8 +210,18 @@ const QualificationQuizSecure: React.FC = () => {
       return;
     }
     
-    console.log('✅ User ID found:', user.id);
-    console.log('📋 Quiz answers:', answers);
+    // Validate user ID format
+    const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(user.id);
+    if (!isValidUUID) {
+      console.error('❌ Invalid user ID format:', user.id);
+      alert('Invalid user session. Please refresh the page and try again.');
+      return;
+    }
+    
+    if (import.meta.env.DEV) {
+      console.log('✅ User ID found:', user.id);
+      console.log('📋 Quiz answers:', answers);
+    }
     
     // Rate limiting check (bypass in development)
     const isDevelopment = import.meta.env.DEV;
@@ -260,7 +272,51 @@ const QualificationQuizSecure: React.FC = () => {
         };
       } else {
         // Submit quiz responses using WaitlistService for production
-        result = await WaitlistService.submitQuizResponses(user.id, quizResponses);
+        try {
+          result = await WaitlistService.submitQuizResponses(user.id, quizResponses);
+        } catch (error) {
+          // Handle foreign key constraint errors by attempting user synchronization
+          if (error instanceof Error && 
+              (error.message.includes('foreign key constraint') || 
+               error.message.includes('User session expired') ||
+               error.message.includes('User not found'))) {
+            
+            console.warn('🔄 User ID mismatch detected, attempting to find user by email...');
+            
+            // Try to find the user by email instead
+            try {
+              const foundUser = await WaitlistService.getUserByEmail(user.email);
+              if (foundUser && foundUser.is_verified) {
+                console.log('✅ Found user by email, updating context...');
+                
+                // Update the user context with the correct ID
+                const correctedUser = {
+                  id: foundUser.id,
+                  name: foundUser.name,
+                  email: foundUser.email,
+                  userType: foundUser.user_type,
+                  isVerified: foundUser.is_verified,
+                  quizCompleted: foundUser.quiz_completed,
+                  waitlistPosition: foundUser.waitlist_position
+                };
+                
+                setUser(correctedUser);
+                
+                // Retry quiz submission with correct user ID
+                result = await WaitlistService.submitQuizResponses(foundUser.id, quizResponses);
+                console.log('✅ Quiz submission successful after user ID correction');
+              } else {
+                throw new Error('Unable to find verified user account. Please refresh the page and try again.');
+              }
+            } catch (syncError) {
+              console.error('❌ User synchronization failed:', syncError);
+              throw new Error('User session synchronization failed. Please refresh the page and try again.');
+            }
+          } else {
+            // Re-throw other errors
+            throw error;
+          }
+        }
       }
       
       console.log('✅ Quiz submission successful:', result);

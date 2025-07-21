@@ -106,7 +106,7 @@ const SocialProof: React.FC = () => {
                   ✅ <strong>Transparent Development:</strong> Regular updates on our progress and milestones
                 </p>
                 <p className="font-manrope text-zinc-300 text-sm">
-                  ✅ <strong>Industry Partnerships:</strong> Working with established cattery associations
+                  ✅ <strong>Industry Research:</strong> Building relationships with cattery professionals
                 </p>
                 <p className="font-manrope text-zinc-300 text-sm">
                   ✅ <strong>Data Security:</strong> Enterprise-grade security for all user information

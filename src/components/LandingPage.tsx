@@ -66,14 +66,14 @@ const MobileOptimizedHeroSection: React.FC = () => {
               {/* Enhanced value proposition with lead magnet */}
               <div className="space-y-2 lg:space-y-3">
                 <p className="text-lg sm:text-xl lg:text-2xl text-green-400 font-semibold">
-                  Join Founding Members & Get Instant Access to Our Premium Cattery Evaluation Toolkit
+                  Join Founding Members & Get Instant Access to Our Cattery Evaluation Resources
                 </p>
                 <p className="text-base sm:text-lg lg:text-xl text-zinc-300">
                   Help shape the platform + receive premium resources while we build • Launching Q4 2025
                 </p>
                 <div className="bg-gradient-to-r from-green-500/20 to-indigo-500/20 border border-green-500/30 rounded-lg p-3 lg:p-4">
                   <p className="text-sm lg:text-base text-green-300 font-medium">
-                    🎁 <span className="text-green-400 font-bold">FREE</span> Premium Resources for Founding Members
+                    🎁 <span className="text-green-400 font-bold">FREE</span> Resources for Founding Members
                   </p>
                 </div>
               </div>
@@ -103,7 +103,7 @@ const MobileOptimizedHeroSection: React.FC = () => {
                   <h3 className="font-bold text-sm lg:text-base text-green-400">For Cat Parents</h3>
                 </div>
                 <p className="text-xs lg:text-sm text-zinc-300">
-                  Shape platform features you need • Instant access to premium toolkit • First beta access • Connect with global cat community • Founding member benefits
+                  Shape platform features you need • Instant access to resource toolkit • First beta access • Connect with global cat community • Founding member benefits
                 </p>
               </div>
               
@@ -127,7 +127,7 @@ const MobileOptimizedHeroSection: React.FC = () => {
                   onClick={() => setCurrentStep('registration')}
                   className="w-full sm:w-auto group bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-lg lg:text-xl px-8 lg:px-12 py-4 lg:py-5 rounded-full hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 inline-flex items-center justify-center space-x-3"
                 >
-                  <span>Get My Premium Toolkit + Founding Access</span>
+                  <span>Get My Resource Toolkit + Founding Access</span>
                   <ArrowRight className="h-5 w-5 lg:h-6 lg:w-6 group-hover:translate-x-1 transition-transform" />
                 </button>
 
@@ -414,38 +414,55 @@ const MobileValueProposition: React.FC = () => {
   );
 };
 
-// Mobile Sticky CTA Bar
+// TEST: Simple fixed positioned element
 const MobileStickyCTA: React.FC = () => {
   const { setCurrentStep } = useApp();
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      const showAfter = window.innerHeight * 0.8; // Show after scrolling 80% of viewport
-      setIsVisible(scrollPosition > showAfter);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  if (!isVisible) return null;
-
+  
+  console.log('MobileStickyCTA rendering!');
+  
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-gradient-to-t from-zinc-900 to-transparent lg:hidden">
-      <div className="flex space-x-2">
+    <div 
+      id="test-mobile-cta"
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 999999,
+        backgroundColor: 'red',
+        color: 'white',
+        padding: '10px',
+        borderRadius: '10px',
+        width: '200px',
+        height: '100px'
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div>TEST COMPONENT</div>
         <button
-          onClick={() => setCurrentStep('registration')}
-          className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg"
+          onClick={() => alert('Test button 1')}
+          style={{
+            backgroundColor: 'green',
+            color: 'white',
+            border: 'none',
+            padding: '8px 12px',
+            borderRadius: '20px',
+            fontSize: '12px'
+          }}
         >
-          Join Community
+          Test Button 1
         </button>
         <button
-          onClick={() => setCurrentStep('registration')}
-          className="flex-1 bg-purple-600/90 border border-purple-500 text-white font-semibold py-3 rounded-full hover:bg-purple-700/90 transition-all duration-300"
+          onClick={() => alert('Test button 2')}
+          style={{
+            backgroundColor: 'blue',
+            color: 'white',
+            border: 'none',
+            padding: '8px 12px',
+            borderRadius: '20px',
+            fontSize: '12px'
+          }}
         >
-          Free Guides
+          Test Button 2
         </button>
       </div>
     </div>

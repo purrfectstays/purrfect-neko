@@ -24,7 +24,7 @@ const validateSupabaseConfig = () => {
   
   if (!supabaseAnonKey) {
     errors.push('VITE_SUPABASE_ANON_KEY is missing');
-  } else if (!supabaseAnonKey.startsWith('sb_publishable_') || supabaseAnonKey.length < 40) {
+  } else if ((!supabaseAnonKey.startsWith('eyJ') && !supabaseAnonKey.startsWith('sb_publishable_')) || supabaseAnonKey.length < 40) {
     errors.push('VITE_SUPABASE_ANON_KEY appears to be truncated or invalid');
   }
   

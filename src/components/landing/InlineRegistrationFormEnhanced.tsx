@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Mail, User, MapPin, Globe, Smartphone } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { supabase } from '../../lib/supabase';
+import { UnifiedEmailVerificationService } from '../../services/unifiedEmailVerificationService';
 
 // Enhanced data collection hooks
 const useInvisibleDataCollection = () => {
@@ -152,38 +153,10 @@ const useSmartSuggestions = (email: string, locationData: any) => {
   return suggestions;
 };
 
-const useLiveStats = () => {
+const useCommunityStats = () => {
   const [stats, setStats] = useState({
-    totalUsers: 47,
-    recentSignup: '',
-    userCount: 47,
-    loading: false
+    communityBuilding: true
   });
-
-  useEffect(() => {
-    // Simulate live stats updates
-    const names = ['Sarah', 'Mike', 'Emma', 'James', 'Lisa', 'David', 'Anna', 'Chris'];
-    const cities = ['Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa', 'London', 'Sydney', 'Melbourne'];
-    
-    const updateStats = () => {
-      const randomName = names[Math.floor(Math.random() * names.length)];
-      const randomCity = cities[Math.floor(Math.random() * cities.length)];
-      
-      setStats(prev => ({
-        ...prev,
-        recentSignup: `${randomName} from ${randomCity}`,
-        userCount: prev.userCount + Math.floor(Math.random() * 2)
-      }));
-    };
-
-    // Update stats every 30 seconds for demo effect
-    const interval = setInterval(updateStats, 30000);
-    
-    // Initial update after 3 seconds
-    setTimeout(updateStats, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   return stats;
 };
@@ -208,7 +181,7 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
   const behaviorData = useInvisibleDataCollection();
   const locationData = useLocationDetection();
   const smartSuggestions = useSmartSuggestions(formData.email, locationData);
-  const liveStats = useLiveStats();
+  const communityStats = useCommunityStats();
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -323,19 +296,49 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
           }
         };
 
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-verification-email', {
-          body: {
-            ...enhancedUserData,
-            skipEmailSending: true,
-            autoVerify: true
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        // Use the UnifiedEmailVerificationService which properly handles RLS policies
+        try {
+          console.log('📝 Creating user via service with instant verification...');
+          
+          const registrationResult = await UnifiedEmailVerificationService.registerUser({
+            name: formData.name,
+            email: formData.email,
+            userType: smartSuggestions.userType || 'cat-parent'
+          });
 
-        if (emailError) {
-          console.error('Edge Function failed:', emailError);
+          console.log('✅ User created successfully via service:', registrationResult);
+          
+          // Show instant gratification
+          setShowRewards(true);
+          
+          // Update app state with real database user
+          setWaitlistUser(registrationResult.user);
+          setVerificationToken(registrationResult.verificationToken);
+          
+          // CRITICAL: Store real user ID in localStorage for quiz submission
+          localStorage.setItem('purrfect_waitlist_user_id', registrationResult.user.id);
+          console.log('💾 Stored real waitlist user ID:', registrationResult.user.id);
+          
+          setUser({
+            id: registrationResult.user.id,
+            name: formData.name,
+            email: formData.email,
+            userType: smartSuggestions.userType || 'cat-parent',
+            isVerified: true,
+            quizCompleted: false,
+            waitlistPosition: registrationResult.user.waitlist_position
+          });
+
+          // Delayed transition to quiz for reward display
+          setTimeout(() => {
+            setCurrentStep('quiz');
+          }, 3000);
+          
+          setIsSubmitting(false);
+          return;
+          
+        } catch (serviceError) {
+          console.error('❌ Service registration failed:', serviceError);
           
           // Enhanced fallback with collected data
           const dummyUser = {
@@ -345,7 +348,7 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
             user_type: smartSuggestions.userType || 'cat-parent',
             is_verified: true,
             quiz_completed: false,
-            waitlist_position: liveStats.userCount + 1,
+            waitlist_position: Math.floor(Math.random() * 100) + 1,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             // Store enhanced data
@@ -362,6 +365,11 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
           // Update app state with enhanced data
           setWaitlistUser(dummyUser);
           setVerificationToken(dummyVerificationToken);
+          
+          // CRITICAL: Store dummy user ID in localStorage for quiz submission
+          localStorage.setItem('purrfect_waitlist_user_id', dummyUser.id);
+          console.log('💾 Stored dummy waitlist user ID:', dummyUser.id);
+          
           setUser({
             id: dummyUser.id,
             name: formData.name,
@@ -381,28 +389,7 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
           return;
         }
 
-        const { user, verificationToken } = emailData;
-        
-        // Show instant gratification
-        setShowRewards(true);
-        
-        // Update app state with enhanced user data
-        setWaitlistUser(user);
-        setVerificationToken(verificationToken);
-        setUser({
-          id: user.id,
-          name: formData.name,
-          email: formData.email,
-          userType: smartSuggestions.userType || 'cat-parent',
-          isVerified: true,
-          quizCompleted: false,
-          waitlistPosition: user.waitlist_position
-        });
-
-        // Delayed transition for reward display
-        setTimeout(() => {
-          setCurrentStep('quiz');
-        }, 3000);
+        // All registration paths handled above
         
       } catch (error: any) {
         console.error('Registration error:', error);
@@ -415,7 +402,7 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
         setFormState('verification');
       }
     }
-  }, [formState, formData, captchaQuestion.answer, generateCaptcha, setCurrentStep, setUser, setWaitlistUser, setVerificationToken, smartSuggestions, behaviorData, locationData, liveStats]);
+  }, [formState, formData, captchaQuestion.answer, generateCaptcha, setCurrentStep, setUser, setWaitlistUser, setVerificationToken, smartSuggestions, behaviorData, locationData]);
 
   // Instant gratification display
   const renderInstantGratification = () => {
@@ -425,7 +412,7 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
       <div className="text-center space-y-4 animate-fadeInUp">
         <div className="text-6xl mb-4">🎉</div>
         <h3 className="text-2xl font-bold text-white mb-2">
-          Welcome {formData.name}! You're member #{liveStats.userCount + 1}
+          Welcome {formData.name}! Thank you for joining our founding community!
         </h3>
         <div className="space-y-2 text-green-100">
           {locationData.city && (
@@ -498,14 +485,12 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
               </div>
             )}
             
-            {/* Live stats */}
-            {liveStats.recentSignup && (
-              <div className="text-center">
-                <p className="text-green-100 text-sm">
-                  🎉 {liveStats.userCount} cat parents joined • {liveStats.recentSignup} just signed up!
-                </p>
-              </div>
-            )}
+            {/* Building community message */}
+            <div className="text-center">
+              <p className="text-green-100 text-sm">
+                🚀 Building founding community together
+              </p>
+            </div>
           </div>
         );
 
@@ -594,6 +579,7 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
     <div 
       id="register"
       data-registration-form
+      data-hero-registration
       className="bg-green-600/80 backdrop-blur-sm rounded-2xl p-8 border-2 border-green-400 shadow-2xl shadow-green-400/20 mobile-optimized prevent-cls"
     >
       <div className="space-y-5">
@@ -603,7 +589,7 @@ const InlineRegistrationFormEnhanced: React.FC = () => {
           </h3>
           {!showRewards && (
             <p className="text-green-100 text-center text-sm">
-              {formState === 'email' && `Join ${liveStats.userCount}+ cat parents shaping our platform`}
+              {formState === 'email' && 'Join our founding community shaping the platform'}
               {formState === 'name' && 'Tell us your name'}
               {formState === 'verification' && 'Quick verification step'}
               {formState === 'processing' && 'Almost done!'}

@@ -77,12 +77,7 @@ const HomeHandler: React.FC = () => {
             <RegistrationForm />
           </Suspense>
         );
-      case 'verification':
-        return (
-          <Suspense fallback={<LoadingComponent />}>
-            <EmailVerification />
-          </Suspense>
-        );
+      // Verification step removed - users are auto-verified during registration
       case 'quiz':
         return (
           <Suspense fallback={<LoadingComponent />}>
@@ -172,7 +167,6 @@ const AppContent: React.FC = () => {
     const pageNames = {
       landing: 'Landing Page',
       registration: 'Registration Form',
-      verification: 'Email Verification',
       quiz: 'Qualification Quiz',
       success: 'Success Page',
       'explore-catteries': 'Explore Catteries',

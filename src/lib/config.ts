@@ -8,7 +8,6 @@ export interface AppConfig {
   supabase: {
     url: string;
     anonKey: string;
-    serviceRoleKey?: string;
   };
   app: {
     url: string;
@@ -40,7 +39,6 @@ export function loadConfig(): AppConfig {
     supabase: {
       url: import.meta.env.VITE_SUPABASE_URL || '',
       anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-      serviceRoleKey: import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
     },
     app: {
       url: import.meta.env.VITE_APP_URL || DEFAULT_CONFIG.app!.url!,

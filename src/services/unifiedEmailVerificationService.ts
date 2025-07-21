@@ -69,6 +69,16 @@ class UnifiedEmailVerificationError extends Error {
 const isAbortError = (error: unknown): boolean => {
   if (!error) return false;
   
+  // Check for DOMException with name 'AbortError'
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    return true;
+  }
+  
+  // Check for Error with name 'AbortError'
+  if (error instanceof Error && error.name === 'AbortError') {
+    return true;
+  }
+  
   // Convert to string for comprehensive checking
   const errorString = String(error).toLowerCase();
   const errorMessage = error instanceof Error ? (error.message || '').toLowerCase() : '';
@@ -93,7 +103,11 @@ const isAbortError = (error: unknown): boolean => {
     'the operation was aborted',
     'request aborted',
     'abortcontroller',
-    'signal aborted'
+    'signal aborted',
+    'abort signal',
+    'cancelled',
+    'operation cancelled',
+    'the user aborted a request'
   ];
   
   return abortPatterns.some(pattern => 
@@ -108,12 +122,22 @@ const safeApiCall = async <T>(apiCall: () => Promise<T>, fallbackValue: T, opera
   try {
     return await apiCall();
   } catch (error: unknown) {
-    // Silently handle ALL abort-related errors
+    // Comprehensive abort error detection
     if (isAbortError(error)) {
+      // Silently return fallback for abort errors - no logging
       return fallbackValue;
     }
     
-    // Log and handle other errors normally
+    // Double-check for AbortError patterns in error messages/names that might be missed
+    const errorString = String(error);
+    const isAbortPattern = /abort|signal.*abort|cancelled|operation.*abort/i.test(errorString);
+    
+    if (isAbortPattern) {
+      // Also silently handle pattern-matched abort errors
+      return fallbackValue;
+    }
+    
+    // Only log non-abort errors
     console.warn(`${operation} failed:`, error);
     return fallbackValue;
   }
@@ -690,6 +714,19 @@ export class UnifiedEmailVerificationService {
             
             if (emailError) {
               console.error(`❌ Welcome email attempt ${emailAttempts} failed:`, emailError);
+              
+              // Architect's Diagnostic System
+              if (emailError.message?.includes('401') || emailError.message?.includes('Unauthorized')) {
+                console.error('🏗️ ARCHITECTURE DIAGNOSIS: 401 Unauthorized Error');
+                console.error('🔧 SOLUTION REQUIRED: Configure RESEND_API_KEY in Supabase');
+                console.error('📋 STEPS:');
+                console.error('   1. Go to: https://supabase.com/dashboard/project/fahqkxrakcizftopskki/settings/environment-variables');
+                console.error('   2. Add Secret: RESEND_API_KEY');
+                console.error('   3. Value: Your Resend API key (starts with "re_")');
+                console.error('   4. Redeploy Edge Function');
+                console.error('💡 TEMP WORKAROUND: Welcome email will be skipped but user flow continues');
+              }
+              
               if (emailAttempts >= maxEmailAttempts) {
                 console.error('❌ All welcome email attempts failed, but continuing with success response');
               }
@@ -700,6 +737,15 @@ export class UnifiedEmailVerificationService {
             }
           } catch (emailException) {
             console.error(`❌ Welcome email attempt ${emailAttempts} exception:`, emailException);
+            
+            // Enhanced exception analysis
+            const exceptionStr = String(emailException);
+            if (exceptionStr.includes('401') || exceptionStr.includes('Unauthorized')) {
+              console.error('🏗️ INFRASTRUCTURE ISSUE: Edge Function Authentication Failed');
+              console.error('🔧 ROOT CAUSE: Missing RESEND_API_KEY environment variable');
+              console.error('📊 SYSTEM STATUS: User registration successful, email delivery skipped');
+            }
+            
             if (emailAttempts >= maxEmailAttempts) {
               console.error('❌ All welcome email attempts failed with exceptions, but continuing');
             }

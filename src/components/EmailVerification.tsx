@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import UnifiedEmailVerificationService from '../services/unifiedEmailVerificationService';
 
 const EmailVerification: React.FC = () => {
   const { setCurrentStep, user, verificationToken, setUser } = useApp();

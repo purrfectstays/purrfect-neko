@@ -17,7 +17,9 @@
       "Bash(npm audit:*)",
       "Bash(ls:*)",
       "Bash(rg:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": []
   }

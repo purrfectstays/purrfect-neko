@@ -338,12 +338,12 @@ export class WaitlistService {
             .order('created_at', { ascending: false })
             .limit(3);
           
-          // Debug information available in development only
+          // Debug information available in development only (emails masked for security)
           if (import.meta.env.DEV && allTokens) {
-            console.log('Recent tokens:', allTokens.map(t => ({
-              email: t.email,
+            console.log('Recent verification attempts:', allTokens.map(t => ({
+              email: t.email.replace(/(.{2}).*(@.*)/, '$1***$2'), // Mask email for security
               created: t.created_at,
-              length: t.verification_token?.length || 0
+              hasToken: !!t.verification_token
             })));
           }
         } catch (debugError) {
@@ -499,52 +499,123 @@ export class WaitlistService {
     }
 
     try {
-      // Insert quiz responses
-      const { error: quizError } = await supabase
-        .from('quiz_responses')
-        .insert(
-          responses.map(response => ({
-            user_id: userId,
-            question_id: response.question_id,
-            answer: response.answer.toString(),
-          }))
-        );
-
-      if (quizError) {
-        throw handleServiceError(quizError, 'Quiz submission');
+      // Reduced logging for production
+      if (import.meta.env.DEV) {
+        console.log('🎯 Starting quiz submission for user:', userId);
+        console.log('📋 Responses to submit:', responses);
       }
 
-      // Mark quiz as completed (this will trigger waitlist position assignment)
-      const { data, error } = await supabase
+      // First, verify the user exists and is verified
+      const { data: userData, error: userError } = await supabase
         .from('waitlist_users')
-        .update({ quiz_completed: true })
+        .select('id, email, name, user_type, is_verified, quiz_completed, waitlist_position')
         .eq('id', userId)
-        .select()
         .single();
 
-      if (error || !data) {
-        throw handleServiceError(error || new Error('No data returned'), 'Quiz completion');
+      if (userError || !userData) {
+        if (import.meta.env.DEV) {
+          console.error('❌ User not found:', userError);
+        }
+        
+        // Check if this is a UUID format issue
+        const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
+        if (!isValidUUID) {
+          throw new Error('Invalid user session. Please refresh the page and try again.');
+        }
+        
+        throw new Error('User session not found. Please refresh the page and try again.');
       }
+
+      if (!userData.is_verified) {
+        if (import.meta.env.DEV) {
+          console.error('❌ User not verified:', userData);
+        }
+        throw new Error('Please verify your email before submitting the quiz.');
+      }
+
+      if (userData.quiz_completed) {
+        if (import.meta.env.DEV) {
+          console.log('ℹ️ Quiz already completed for user:', userData.email);
+        }
+        return { user: userData, waitlistPosition: userData.waitlist_position || 0 };
+      }
+
+      if (import.meta.env.DEV) {
+        console.log('✅ User verified, proceeding with quiz submission');
+      }
+
+      // Use the secure database function with retry logic for API overload
+      const functionResult = await safeApiCall(
+        async () => {
+          const { data, error } = await supabase
+            .rpc('submit_quiz_responses', {
+              p_user_id: userId,
+              p_responses: responses
+            });
+          
+          if (error) {
+            throw error;
+          }
+          
+          return data;
+        },
+        null,
+        'submit_quiz_responses'
+      );
+      
+      const functionError = functionResult === null ? new Error('Quiz submission failed') : null;
+
+      if (functionError) {
+        if (import.meta.env.DEV) {
+          console.error('❌ Quiz submission function failed:', functionError);
+        }
+        
+        // Handle specific foreign key constraint error
+        if (functionError.message?.includes('foreign key constraint') || 
+            functionError.message?.includes('quiz_responses_user_id_fkey')) {
+          throw new Error('User session expired. Please refresh the page and try again.');
+        }
+        
+        throw handleServiceError(functionError, 'Quiz submission function');
+      }
+
+      if (!functionResult || !functionResult.success) {
+        if (import.meta.env.DEV) {
+          console.error('❌ Quiz submission failed:', functionResult);
+        }
+        throw new Error(functionResult?.error || 'Quiz submission failed');
+      }
+
+      if (import.meta.env.DEV) {
+        console.log('✅ Quiz submission successful:', functionResult);
+      }
+      
+      const updatedUser = functionResult.user;
+      const waitlistPosition = functionResult.waitlist_position || 0;
 
       // Send welcome email
       try {
         const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
           body: {
-            email: data.email,
-            name: data.name,
-            waitlistPosition: data.waitlist_position,
-            userType: data.user_type,
+            email: updatedUser.email,
+            name: updatedUser.name,
+            waitlistPosition: waitlistPosition,
+            userType: updatedUser.user_type,
           }
         });
 
         if (emailError) {
           console.error('Failed to send welcome email:', emailError);
+          // Don't throw error - quiz is already completed, just log it
+          // The user will still see success but won't receive the email
         }
       } catch (emailError) {
-        console.warn('Welcome email sending failed:', emailError);
+        console.error('Welcome email sending failed:', emailError);
+        // Don't throw error - quiz is already completed
+        // Consider showing a notification to the user that email failed
       }
 
-      return { user: data, waitlistPosition: data.waitlist_position || 0 };
+      return { user: updatedUser, waitlistPosition: waitlistPosition };
     } catch (error) {
       throw handleServiceError(error, 'submitQuizResponses');
     }
@@ -612,9 +683,13 @@ export class WaitlistService {
 
         if (emailError) {
           console.error('Failed to send welcome email:', emailError);
+          // Don't throw error - quiz is already completed, just log it
+          // The user will still see success but won't receive the email
         }
       } catch (emailError) {
-        console.warn('Welcome email sending failed:', emailError);
+        console.error('Welcome email sending failed:', emailError);
+        // Don't throw error - quiz is already completed
+        // Consider showing a notification to the user that email failed
       }
 
       return { 

@@ -129,14 +129,14 @@ const SuccessPage: React.FC = () => {
 
           <div className="grid md:grid-cols-3 gap-4 mb-6">
             <div className="bg-zinc-800/50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-400 mb-1">#1,247</div>
-              <div className="text-sm text-slate-400">Global Position</div>
-              <div className="text-xs text-green-400 mt-1">Top 5% early adopters</div>
+              <div className="text-2xl font-bold text-yellow-400 mb-1">✓</div>
+              <div className="text-sm text-slate-400">Registration Complete</div>
+              <div className="text-xs text-green-400 mt-1">Welcome to the journey</div>
             </div>
             <div className="bg-zinc-800/50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-purple-400 mb-1">#34</div>
-              <div className="text-sm text-slate-400">Regional Rank</div>
-              <div className="text-xs text-purple-400 mt-1">London area</div>
+              <div className="text-2xl font-bold text-purple-400 mb-1">🏠</div>
+              <div className="text-sm text-slate-400">Your Location</div>
+              <div className="text-xs text-purple-400 mt-1">Global community</div>
             </div>
             <div className="bg-zinc-800/50 rounded-lg p-4 text-center">
               <div className="text-lg font-bold text-green-400 mb-1">FOUNDING</div>
@@ -147,13 +147,13 @@ const SuccessPage: React.FC = () => {
 
           <div className="bg-zinc-800/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-300">Market Readiness Progress</span>
-              <span className="text-sm text-indigo-400">89% to launch</span>
+              <span className="text-sm text-slate-300">Development Phase</span>
+              <span className="text-sm text-indigo-400">Community Building</span>
             </div>
             <div className="w-full bg-zinc-700 rounded-full h-2">
-              <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" style={{width: '89%'}}></div>
+              <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" style={{width: '25%'}}></div>
             </div>
-            <div className="text-xs text-slate-400 mt-2">2,247 of 2,500 founding members secured</div>
+            <div className="text-xs text-slate-400 mt-2">Phase 1: Market research & community feedback • Q4 2025 target launch</div>
           </div>
         </div>
 
@@ -258,34 +258,34 @@ const SuccessPage: React.FC = () => {
               <h4 className="text-lg font-semibold text-white">🌍 Regional Impact</h4>
               <div className="bg-zinc-800/50 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-slate-300">London Market Progress</span>
-                  <span className="text-sm text-purple-400">847 / 1,000</span>
+                  <span className="text-sm text-slate-300">Regional Development</span>
+                  <span className="text-sm text-purple-400">Community Building</span>
                 </div>
                 <div className="w-full bg-zinc-700 rounded-full h-2 mb-2">
-                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{width: '84.7%'}}></div>
+                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{width: '20%'}}></div>
                 </div>
-                <div className="text-xs text-slate-400">153 more members = Launch priority for London!</div>
+                <div className="text-xs text-slate-400">Early stage: Gathering community insights and feedback</div>
               </div>
               
               <div className="text-sm text-slate-300 space-y-1">
                 <div className="flex items-center">
                   <Star className="h-4 w-4 text-yellow-400 mr-2" />
-                  <span>500 members → Local cattery partnerships</span>
+                  <span>Phase 1: Market research & community building</span>
                 </div>
                 <div className="flex items-center">
                   <Star className="h-4 w-4 text-purple-400 mr-2" />
-                  <span>1,000 members → Beta launch in your area</span>
+                  <span>Phase 2: Platform development & cattery partnerships</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="bg-zinc-800/30 rounded-lg p-4 text-center">
-            <h4 className="text-lg font-semibold text-white mb-2">Your Unique Referral Link</h4>
+            <h4 className="text-lg font-semibold text-white mb-2">Share with Fellow Cat Lovers</h4>
             <div className="bg-zinc-900 rounded p-3 mb-3">
-              <code className="text-green-400 text-sm">purrfectstays.com/join/alex-1247</code>
+              <code className="text-green-400 text-sm">purrfectstays.com</code>
             </div>
-            <p className="text-xs text-slate-400">Each friend who joins moves you up 10 positions and helps London reach launch readiness!</p>
+            <p className="text-xs text-slate-400">Help grow our community by sharing with other cat parents and cattery owners!</p>
           </div>
         </div>
 
@@ -300,62 +300,62 @@ const SuccessPage: React.FC = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h4 className="text-lg font-semibold text-white mb-3">🏆 Top Regions by Members</h4>
+              <h4 className="text-lg font-semibold text-white mb-3">🌍 Global Reach</h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between bg-zinc-800/50 rounded p-3">
                   <div className="flex items-center">
-                    <span className="text-yellow-400 font-bold mr-3">🥇</span>
-                    <span className="text-slate-300">United States</span>
+                    <span className="text-yellow-400 font-bold mr-3">🌎</span>
+                    <span className="text-slate-300">North America</span>
                   </div>
-                  <span className="text-green-400 font-semibold">2,847</span>
+                  <span className="text-green-400 font-semibold">Building</span>
                 </div>
                 <div className="flex items-center justify-between bg-zinc-800/50 rounded p-3 border-l-4 border-purple-500">
                   <div className="flex items-center">
-                    <span className="text-gray-400 font-bold mr-3">🥈</span>
-                    <span className="text-slate-300">United Kingdom</span>
+                    <span className="text-gray-400 font-bold mr-3">🌍</span>
+                    <span className="text-slate-300">Europe</span>
                   </div>
-                  <span className="text-purple-400 font-semibold">1,456</span>
+                  <span className="text-purple-400 font-semibold">Growing</span>
                 </div>
                 <div className="flex items-center justify-between bg-zinc-800/50 rounded p-3">
                   <div className="flex items-center">
-                    <span className="text-orange-400 font-bold mr-3">🥉</span>
-                    <span className="text-slate-300">Australia</span>
+                    <span className="text-orange-400 font-bold mr-3">🌏</span>
+                    <span className="text-slate-300">Asia Pacific</span>
                   </div>
-                  <span className="text-orange-400 font-semibold">892</span>
+                  <span className="text-orange-400 font-semibold">Starting</span>
                 </div>
               </div>
               <div className="mt-3 text-center">
-                <p className="text-sm text-purple-400">Help UK reach #1! Need 392 more members</p>
+                <p className="text-sm text-purple-400">Expanding globally with founding community input</p>
               </div>
             </div>
 
             <div>
-              <h4 className="text-lg font-semibold text-white mb-3">📊 Your Region Impact</h4>
+              <h4 className="text-lg font-semibold text-white mb-3">📊 Your Community Role</h4>
               <div className="bg-zinc-800/50 rounded-lg p-4 mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-slate-300">London Community</span>
-                  <span className="text-sm text-purple-400">847 members</span>
+                  <span className="text-sm text-slate-300">Founding Member</span>
+                  <span className="text-sm text-purple-400">Confirmed</span>
                 </div>
-                <div className="text-xs text-slate-400 mb-3">Your rank: #34 in the area</div>
+                <div className="text-xs text-slate-400 mb-3">Thank you for joining our early community!</div>
                 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Manchester</span>
-                    <span className="text-slate-400">623</span>
+                    <span className="text-slate-300">Phase 1</span>
+                    <span className="text-green-400">Community Building</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Birmingham</span>
-                    <span className="text-slate-400">581</span>
+                    <span className="text-slate-300">Phase 2</span>
+                    <span className="text-slate-400">Market Research</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Edinburgh</span>
-                    <span className="text-slate-400">447</span>
+                    <span className="text-slate-300">Phase 3</span>
+                    <span className="text-slate-400">Platform Development</span>
                   </div>
                 </div>
               </div>
               
               <div className="text-center">
-                <p className="text-sm text-green-400">🎯 London leads UK cities!</p>
+                <p className="text-sm text-green-400">🎯 Building together globally!</p>
               </div>
             </div>
           </div>

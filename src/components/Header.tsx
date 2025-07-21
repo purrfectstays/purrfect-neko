@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CurrencySelector from './CurrencySelector';
+import Logo from './Logo';
 
 interface HeaderProps {
   showLogo?: boolean;
@@ -14,12 +15,8 @@ const Header: React.FC<HeaderProps> = ({ showLogo = true, className = '' }) => {
         <div className="flex items-center justify-between py-3 sm:py-4">
           {/* Logo/Brand */}
           {showLogo && (
-            <Link to="/" className="flex items-center gap-2 group">
-              <span className="text-xl sm:text-2xl">🐱</span>
-              <span className="text-lg sm:text-xl font-bold text-white group-hover:text-indigo-400 transition-colors">
-                <span className="hidden sm:inline">Purrfect Stays</span>
-                <span className="sm:hidden">Purrfect</span>
-              </span>
+            <Link to="/" className="group">
+              <Logo size="sm" className="group-hover:opacity-80 transition-opacity" />
             </Link>
           )}
           

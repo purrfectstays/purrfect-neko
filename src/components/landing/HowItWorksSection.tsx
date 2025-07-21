@@ -1,4 +1,5 @@
 import React from 'react';
+import PerformanceOptimizedImage from '../PerformanceOptimizedImage';
 
 const HowItWorksSection: React.FC = () => {
   const scrollToRegistration = () => {
@@ -16,7 +17,7 @@ const HowItWorksSection: React.FC = () => {
     {
       number: "1",
       title: "Search Near You",
-      description: "Enter your location and dates to see verified catteries with real availability"
+      description: "Enter your location and dates to see verified catteries with real-time availability"
     },
     {
       number: "2", 
@@ -35,10 +36,10 @@ const HowItWorksSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4">
         <header className="text-center mb-12">
           <h2 className="text-3xl font-bold text-white mb-4 font-loading">
-            How Purrfect Stays Works for You
+            How Purrfect Stays Will Work for You
           </h2>
           <p className="text-zinc-300-accessible max-w-2xl mx-auto">
-            Finding quality cat care should be simple, transparent, and stress-free
+            Our platform will make finding quality cat care simple, transparent, and stress-free
           </p>
         </header>
         
@@ -52,6 +53,25 @@ const HowItWorksSection: React.FC = () => {
               <p className="text-zinc-300-accessible">{step.description}</p>
             </div>
           ))}
+        </div>
+        
+        {/* Process Showcase Image */}
+        <div className="mt-16 mb-12 max-w-4xl mx-auto">
+          <div className="relative">
+            <PerformanceOptimizedImage
+              src="/landingpageimage2.jpg"
+              alt="Modern cattery facilities showcasing the booking process and premium care environment"
+              width={600}
+              height={350}
+              className="w-full h-[350px] object-cover rounded-2xl shadow-xl border-3 border-green-500/20 prevent-cls"
+              sizes="(max-width: 768px) 100vw, 70vw"
+            />
+            
+            {/* Overlay badge */}
+            <div className="absolute top-6 left-6 bg-green-500 text-white px-6 py-3 rounded-full font-bold shadow-lg mobile-optimized">
+              🏢 Premium facilities
+            </div>
+          </div>
         </div>
         
         <div className="text-center mt-12">

@@ -21,17 +21,31 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
       'https://www.purrfectstays.org',
       'http://localhost:5173',
       'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://localhost:5177',
       'http://localhost:3000'
     ];
   }
   
   // For development, be more permissive with localhost
   const isDevelopment = origin && origin.includes('localhost');
-  const allowedOrigin = isDevelopment && allowedOrigins.includes(origin) 
-    ? origin 
-    : origin && allowedOrigins.includes(origin) 
-      ? origin 
-      : 'https://purrfectstays.org';
+  
+  let allowedOrigin: string;
+  
+  if (isDevelopment) {
+    // Always allow localhost origins in development
+    allowedOrigin = origin;
+    console.log('🔧 Development mode - allowing origin:', origin);
+  } else if (origin && allowedOrigins.includes(origin)) {
+    // Allow explicitly listed origins
+    allowedOrigin = origin;
+    console.log('✅ Production mode - allowing listed origin:', origin);
+  } else {
+    // Default fallback
+    allowedOrigin = 'https://purrfectstays.org';
+    console.log('⚠️ Using default origin. Requested:', origin, 'Allowed:', allowedOrigins);
+  }
   
   return {
     'Access-Control-Allow-Origin': allowedOrigin,

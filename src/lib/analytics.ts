@@ -58,23 +58,37 @@ export const trackEvent = (
   label?: string,
   value?: number
 ) => {
-  if (!GA_MEASUREMENT_ID || !window.gtag) return;
+  try {
+    if (!GA_MEASUREMENT_ID || !window.gtag) {
+      console.warn('Google Analytics not available for trackEvent');
+      return;
+    }
 
-  window.gtag('event', action, {
-    event_category: category,
-    event_label: label,
-    value: value,
-  });
+    window.gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+    });
+  } catch (error) {
+    console.warn('Track event error:', error);
+  }
 };
 
 // Track conversion events
 export const trackConversion = (event_name: string, parameters?: Record<string, any>) => {
-  if (!GA_MEASUREMENT_ID || !window.gtag) return;
+  try {
+    if (!GA_MEASUREMENT_ID || !window.gtag) {
+      console.warn('Google Analytics not available for trackConversion');
+      return;
+    }
 
-  window.gtag('event', event_name, {
-    ...parameters,
-    send_to: GA_MEASUREMENT_ID,
-  });
+    window.gtag('event', event_name, {
+      ...parameters,
+      send_to: GA_MEASUREMENT_ID,
+    });
+  } catch (error) {
+    console.warn('Track conversion error:', error);
+  }
 };
 
 // Enhanced conversion tracking for waitlist funnel
@@ -370,11 +384,41 @@ export const analytics = {
 
   // Basic event tracking method (required by useBehaviorTracking)
   trackEvent: (action: string, category: string, label?: string, value?: number) => {
-    trackEvent(action, category, label, value);
+    try {
+      trackEvent(action, category, label, value);
+    } catch (error) {
+      console.warn('Analytics trackEvent error:', error);
+    }
   },
 
   // Basic conversion tracking method (required by useBehaviorTracking)
   trackConversion: (event_name: string, parameters?: Record<string, unknown>) => {
-    trackConversion(event_name, parameters);
+    try {
+      trackConversion(event_name, parameters);
+    } catch (error) {
+      console.warn('Analytics trackConversion error:', error);
+    }
+  },
+
+  // User action tracking method (used by quiz components)
+  trackUserAction: (action: string, parameters?: Record<string, any>) => {
+    try {
+      // Safety check for GA availability
+      if (!GA_MEASUREMENT_ID || !window.gtag) {
+        console.warn('Google Analytics not available for trackUserAction');
+        return;
+      }
+
+      trackEvent(action, 'user_interaction', parameters?.userType, parameters?.questionIndex);
+      
+      // Also track as conversion for better analytics
+      trackConversion(action, {
+        ...parameters,
+        action_type: 'user_interaction'
+      });
+    } catch (error) {
+      console.warn('Analytics tracking error:', error);
+      // Silently fail - don't break the user experience
+    }
   }
 };

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MapPin, Star, Clock, Wifi, Car, Heart, ArrowRight, Filter, Search, Crown, AlertCircle } from 'lucide-react';
+import { MapPin, Star, Clock, Wifi, Car, Heart, ArrowRight, Filter, Search, Crown, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import Header from './Header';
 import CurrencyDisplay from './CurrencyDisplay';
@@ -164,6 +164,15 @@ const ExploreCatteries: React.FC = () => {
     <div className="min-h-screen bg-zinc-900">
       <Header />
       <div className="max-w-7xl mx-auto px-4 pt-20">
+        {/* Back to Landing Page Button */}
+        <button
+          onClick={() => setCurrentStep('landing')}
+          className="inline-flex items-center space-x-2 text-indigo-400 hover:text-indigo-300 transition-colors mb-6"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="font-manrope">Back to Landing Page</span>
+        </button>
+
         {/* Header with Demo Notice */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">Explore Premium Catteries</h1>

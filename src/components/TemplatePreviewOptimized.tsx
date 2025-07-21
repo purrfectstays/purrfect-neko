@@ -3,6 +3,7 @@ import { ArrowRight, Shield, Clock, Users, Search, Calendar, BarChart3, Zap, Map
 import Header from './Header';
 import SocialProof from './SocialProof';
 import RegionalUrgency from './RegionalUrgency';
+import PerformanceOptimizedImage from './PerformanceOptimizedImage';
 import { useApp } from '../context/AppContext';
 import { useProgressiveEnhancement } from '../hooks/useProgressiveEnhancement';
 
@@ -11,6 +12,7 @@ import HeroSection from './landing/HeroSection';
 import PainPointSection from './landing/PainPointSection';
 import CommunityEngagementSection from './landing/CommunityEngagementSection';
 import HowItWorksSection from './landing/HowItWorksSection';
+import MobileStickyCTA from './template-preview/MobileStickyCTA';
 
 
 // Cattery Owner CTA Component - optimized
@@ -135,19 +137,18 @@ const TemplatePreviewOptimized: React.FC = () => {
               </button>
             </div>
             <div className="relative image-contain">
-              <img 
-                src="/landingpageimage2.jpg" 
-                alt="Premium cattery facilities and services showcasing comfortable and modern amenities"
-                className="w-full h-[500px] object-cover rounded-2xl shadow-2xl border-4 border-green-500/20 prevent-cls"
-                loading="lazy"
-                decoding="async"
-                width="600"
-                height="500"
+              <PerformanceOptimizedImage
+                src="/landingpageimage3.jpg"
+                alt="Beautiful cat with striking eyes showcasing the quality of care and attention cats receive"
+                width={600}
+                height={400}
+                className="w-full h-[400px] object-cover rounded-2xl shadow-2xl border-4 border-green-500/20 prevent-cls"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
               
               {/* Overlay badge */}
               <div className="absolute top-6 right-6 bg-green-500 text-white px-6 py-3 rounded-full font-bold shadow-lg mobile-optimized">
-                🏆 Premium cattery facilities
+                💎 Premium quality care
               </div>
             </div>
           </div>
@@ -242,6 +243,9 @@ const TemplatePreviewOptimized: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <SocialProof />
       </div>
+
+      {/* Mobile Sticky CTA */}
+      <MobileStickyCTA />
     </div>
   );
 };

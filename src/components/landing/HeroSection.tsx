@@ -1,13 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import InlineRegistrationFormEnhanced from './InlineRegistrationFormEnhanced';
-import MobileFirstImage from '../MobileFirstImage';
+import PerformanceOptimizedImage from '../PerformanceOptimizedImage';
 
-// High-performance CSS-only animated text (zero JavaScript overhead)
+// Animated text with cycling words
 const AnimatedPerfect: React.FC = () => {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const words = ['Perfect', 'Premium', 'Trusted', 'Quality', 'Caring', 'Expert'];
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentWordIndex((prev) => (prev + 1) % words.length);
+    }, 2500); // Change word every 2.5 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
-    <span className="animated-perfect-css">
-      Perfect
+    <span 
+      className="animated-perfect-css" 
+      aria-label="Perfect"
+      style={{ minWidth: '120px', display: 'inline-block' }} // Ensure space is reserved
+    >
+      <span className="animated-text-content">
+        {words[currentWordIndex]}
+      </span>
     </span>
   );
 };
@@ -54,11 +71,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ waitlistStats }) => {
             {/* Pain Point and Solution - Cat Parent Focused */}
             <div className="space-y-4">
               <p className="text-xl lg:text-2xl text-green-400 font-semibold">
-                Stop settling for "just okay" catteries • No more last-minute scrambling • Peace of mind guaranteed
+                Stop settling for "just okay" catteries • No more last-minute scrambling • Building peace of mind together
               </p>
               <p className="text-lg text-zinc-300-accessible">
-                Connect with premium, verified catteries in your area. See real-time availability, 
-                transparent pricing, and trusted reviews from local cat parents just like you.
+                Join our founding community to help shape a platform that will connect you with premium, verified catteries. 
+                Together we're building real-time availability, transparent pricing, and trusted reviews.
               </p>
             </div>
 
@@ -80,7 +97,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ waitlistStats }) => {
                   <span className="text-xs text-zinc-900">✓</span>
                 </div>
                 <span className="text-zinc-300-accessible">
-                  <strong className="text-white">Instant access</strong> to premium cat travel checklist ($47 value)
+                  <strong className="text-white">Instant access</strong> to comprehensive cat travel checklist
                 </span>
               </div>
               <div className="flex items-start space-x-3">
@@ -96,12 +113,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ waitlistStats }) => {
 
           {/* Right Content - Hero Image */}
           <div className="relative">
-            <MobileFirstImage
-              mobileSrc="/landingpageimage1.jpg"
-              desktopSrc="/landingpageimage1.jpg"
-              alt="Premium cattery environment showcasing comfortable spaces for cats with modern amenities"
-              className="rounded-2xl shadow-2xl prevent-cls"
+            <PerformanceOptimizedImage
+              src="/landingpageimage4.jpg"
+              alt="Individual cat receiving premium care in comfortable cattery environment"
+              width={600}
+              height={450}
+              className="w-full h-[450px] object-cover rounded-2xl shadow-xl prevent-cls"
               priority={true}
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             
             {/* Overlay elements with optimized animations */}
@@ -117,7 +136,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ waitlistStats }) => {
                   <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-xs">🐱</div>
                 </div>
                 <span className="text-sm">
-                  {waitlistStats ? `${waitlistStats.totalUsers} cat parents joined` : '1,247 cat parents joined'}
+                  {waitlistStats ? `${waitlistStats.totalUsers} cat parents joined` : 'Building founding community'}
                 </span>
               </div>
             </div>

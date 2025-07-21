@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon, CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import React, { useState, useRef, useEffect, memo } from 'react';
+import { ChevronDown, Check, Search } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { CurrencyInfo } from '../services/currencyService';
 
@@ -23,7 +23,7 @@ interface CurrencySelectorProps {
   showExchangeRate?: boolean;
 }
 
-const CurrencySelector: React.FC<CurrencySelectorProps> = ({ 
+const CurrencySelector: React.FC<CurrencySelectorProps> = memo(({ 
   className = '', 
   showExchangeRate = false 
 }) => {
@@ -104,7 +104,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         <span className="font-medium text-white hidden sm:inline">
           {selectedCurrency.code}
         </span>
-        <ChevronDownIcon 
+        <ChevronDown 
           className={`w-3 h-3 sm:w-4 sm:h-4 text-slate-400 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`} 
@@ -117,7 +117,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
           {/* Search Input */}
           <div className="p-3 border-b border-slate-700">
             <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 ref={searchInputRef}
                 type="text"
@@ -173,7 +173,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
                           </span>
                         )}
                         {isSelected && (
-                          <CheckIcon className="w-5 h-5 text-indigo-400" aria-hidden="true" />
+                          <Check className="w-5 h-5 text-indigo-400" aria-hidden="true" />
                         )}
                       </div>
                     </button>
@@ -204,6 +204,8 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       )}
     </div>
   );
-};
+});
+
+CurrencySelector.displayName = 'CurrencySelector';
 
 export default CurrencySelector;

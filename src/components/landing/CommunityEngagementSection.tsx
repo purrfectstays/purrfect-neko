@@ -45,17 +45,17 @@ const CommunityEngagementSection: React.FC = () => {
 
           <div className="relative">
             <PerformanceOptimizedImage
-              src="/landingpageimage3.jpg"
-              alt="Multiple cats relaxing together in a premium cattery environment showing social and comfortable spaces"
-              width={600}
-              height={400}
-              className="w-full h-[400px] object-cover rounded-2xl shadow-2xl border-4 border-purple-500/20 prevent-cls"
+              src="/landingpageimage1.jpg"
+              alt="Multiple cats enjoying community spaces together in premium cattery environment"
+              width={500}
+              height={300}
+              className="w-full h-[300px] object-cover rounded-2xl shadow-xl border-2 border-purple-500/20 prevent-cls"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             
             {/* Overlay badge */}
             <div className="absolute bottom-6 left-6 bg-purple-500 text-white px-6 py-3 rounded-full font-bold shadow-lg mobile-optimized">
-              🐱 Social & comfortable spaces
+              👥 Community together
             </div>
           </div>
         </div>
