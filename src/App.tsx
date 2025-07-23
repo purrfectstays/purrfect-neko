@@ -11,7 +11,7 @@ import { useMobileOptimization } from './hooks/useMobileOptimization';
 import './lib/performanceMonitor'; // Initialize performance monitoring
 
 // Eager load CRITICAL PATH components only
-import LandingPage from './components/LandingPage'; // CRITICAL: Make eager for first paint
+import SmartLandingRouter from './components/SmartLandingRouter'; // PERFORMANCE: Device-aware routing
 import LoadingSpinner from './components/LoadingSpinner';
 import Footer from './components/Footer';
 
@@ -64,7 +64,7 @@ const HomeHandler: React.FC = () => {
       case 'landing':
         return (
           <>
-            <TemplatePreviewOptimized />
+            <SmartLandingRouter />
             <Footer />
           </>
         );
@@ -117,16 +117,10 @@ const HomeHandler: React.FC = () => {
             <QRCodePage />
           </Suspense>
         );
-      case 'launch-test':
-        return (
-          <Suspense fallback={<LoadingComponent />}>
-            <LaunchReadinessTest />
-          </Suspense>
-        );
       default:
         return (
           <>
-            <TemplatePreviewOptimized />
+            <SmartLandingRouter />
             <Footer />
           </>
         );
@@ -200,7 +194,6 @@ const AppContent: React.FC = () => {
       terms: 'Terms of Service',
       cookies: 'Cookie Policy',
       qr: 'QR Code Page',
-      'launch-test': 'Launch Readiness Test',
     };
 
     trackPageView(pageNames[currentStep as keyof typeof pageNames] || 'Unknown Page');
