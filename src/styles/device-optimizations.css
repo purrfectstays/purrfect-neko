@@ -1,0 +1,249 @@
+/* Device-specific Performance Optimizations */
+
+/* Mobile-specific optimizations */
+body.is-mobile {
+  /* Optimize touch interactions */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  
+  /* Reduce visual complexity on mobile */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+/* Tablet-specific optimizations */
+body.is-tablet {
+  /* Balanced optimizations for tablets */
+  --max-content-width: 768px;
+}
+
+/* Desktop-specific enhancements */
+body.is-desktop {
+  /* Enable advanced features on desktop */
+  --enable-parallax: 1;
+  --enable-hover-effects: 1;
+}
+
+/* Slow device optimizations */
+body.slow-device {
+  /* Disable expensive effects */
+  * {
+    animation-duration: 0s !important;
+    transition-duration: 0.1s !important;
+  }
+  
+  /* Simplify shadows */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  /* Disable filters */
+  * {
+    filter: none !important;
+    backdrop-filter: none !important;
+  }
+  
+  /* Reduce visual complexity */
+  .blur-backdrop {
+    backdrop-filter: none !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
+  }
+}
+
+/* Reduced motion preferences */
+body.reduce-motion {
+  /* Disable all animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Disable parallax effects */
+  .parallax {
+    transform: none !important;
+  }
+}
+
+/* Connection-specific optimizations */
+body[data-connection-type="slow-2g"],
+body[data-connection-type="2g"] {
+  /* Ultra-low bandwidth mode */
+  
+  /* Hide decorative images */
+  .decorative-image {
+    display: none !important;
+  }
+  
+  /* Simplify backgrounds */
+  .gradient-background {
+    background: #18181b !important;
+  }
+  
+  /* Reduce font weights */
+  * {
+    font-weight: 400 !important;
+  }
+  
+  /* Disable custom fonts */
+  * {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif !important;
+  }
+}
+
+body[data-connection-type="3g"] {
+  /* Low bandwidth optimizations */
+  
+  /* Reduce image quality hints */
+  img {
+    image-rendering: auto;
+  }
+  
+  /* Simplify gradients */
+  .complex-gradient {
+    background: linear-gradient(to bottom, #18181b, #27272a) !important;
+  }
+}
+
+/* Device memory optimizations */
+body[data-device-memory="1"],
+body[data-device-memory="2"] {
+  /* Low memory device optimizations */
+  
+  /* Disable parallax scrolling */
+  .parallax {
+    position: relative !important;
+    transform: none !important;
+  }
+  
+  /* Reduce concurrent animations */
+  .stagger-animation > * {
+    animation-delay: 0s !important;
+  }
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  body.is-mobile {
+    /* Optimize font sizes for mobile */
+    font-size: 16px; /* Prevent zoom on iOS */
+    
+    /* Optimize tap targets */
+    button,
+    a,
+    input,
+    select,
+    textarea {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Optimize scrolling performance */
+    .scroll-container {
+      -webkit-overflow-scrolling: touch;
+      will-change: transform;
+    }
+    
+    /* Reduce padding on mobile */
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+}
+
+/* Hardware acceleration for smooth scrolling */
+.scroll-smooth {
+  -webkit-overflow-scrolling: touch;
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+/* Optimize images based on connection */
+body.slow-connection img:not(.critical-image) {
+  filter: blur(5px);
+  transition: filter 0.3s;
+}
+
+body.slow-connection img:not(.critical-image).loaded {
+  filter: blur(0);
+}
+
+/* Progressive enhancement for interactions */
+body:not(.slow-device) .interactive-element {
+  transition: transform 0.2s ease-out;
+}
+
+body:not(.slow-device) .interactive-element:active {
+  transform: scale(0.98);
+}
+
+/* Font loading optimization */
+body.slow-connection {
+  font-display: block; /* Ensure text remains visible */
+}
+
+/* Critical CSS for above-the-fold content */
+.hero-section {
+  contain: layout style paint;
+}
+
+/* Optimize form inputs on mobile */
+@media (max-width: 640px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+  
+  /* Optimize virtual keyboard behavior */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Performance hints for browsers */
+.will-animate {
+  will-change: transform, opacity;
+}
+
+.hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Lazy loading placeholders */
+.lazy-load-placeholder {
+  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Disable animation for slow devices */
+body.slow-device .lazy-load-placeholder {
+  animation: none;
+  background: #27272a;
+}

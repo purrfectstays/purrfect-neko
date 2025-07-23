@@ -7,6 +7,7 @@ import { useScrollTracking } from './hooks/useScrollTracking';
 import { monitoring } from './lib/monitoring';
 import { env } from './lib/environment';
 import { setupGlobalErrorHandler } from './lib/errorHandler';
+import { useMobileOptimization } from './hooks/useMobileOptimization';
 import './lib/performanceMonitor'; // Initialize performance monitoring
 
 // Eager load critical components
@@ -41,6 +42,8 @@ const CurrencyDemo = lazy(() => import('./components/CurrencyDemo'));
 const EarlyAccessResources = lazy(() => import('./components/EarlyAccessResources'));
 const FreeCatTravelChecklist = lazy(() => import('./components/FreeCatTravelChecklist'));
 const CatteryEvaluationGuide = lazy(() => import('./components/CatteryEvaluationGuide'));
+const MobileOptimizationDemo = lazy(() => import('./components/MobileOptimizationDemo'));
+const UserAgentTestSuite = lazy(() => import('./components/UserAgentTestSuite'));
 
 // Guide pages
 const GuidesLanding = lazy(() => import('./components/guides/GuidesLanding'));
@@ -161,6 +164,35 @@ const AppContent: React.FC = () => {
 
   // Initialize scroll tracking
   useScrollTracking();
+
+  // Initialize mobile optimization
+  const { 
+    deviceInfo, 
+    shouldReduceMotion, 
+    shouldLazyLoad,
+    preloadCriticalAssets 
+  } = useMobileOptimization();
+
+  // Preload critical assets based on device
+  useEffect(() => {
+    preloadCriticalAssets();
+  }, [preloadCriticalAssets]);
+
+  // Apply global optimizations based on device
+  useEffect(() => {
+    // Add device-specific classes to body
+    document.body.classList.toggle('is-mobile', deviceInfo.isMobile);
+    document.body.classList.toggle('is-tablet', deviceInfo.isTablet);
+    document.body.classList.toggle('is-desktop', deviceInfo.isDesktop);
+    document.body.classList.toggle('reduce-motion', shouldReduceMotion);
+    document.body.classList.toggle('slow-device', deviceInfo.isSlowDevice);
+    document.body.classList.toggle('slow-connection', 
+      ['slow-2g', '2g', '3g'].includes(deviceInfo.connectionType));
+
+    // Add connection type as data attribute for CSS optimizations
+    document.body.dataset.connectionType = deviceInfo.connectionType;
+    document.body.dataset.deviceMemory = deviceInfo.deviceMemory?.toString() || 'unknown';
+  }, [deviceInfo, shouldReduceMotion]);
 
   // Track page views when step changes
   useEffect(() => {
@@ -294,6 +326,20 @@ const AppContent: React.FC = () => {
           {/* Analytics & Demo routes */}
           <Route path="/analytics" element={<AnalyticsDashboard />} />
           <Route path="/currency-demo" element={<CurrencyDemo />} />
+          <Route path="/mobile-optimization-demo" element={
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <MobileOptimizationDemo />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/user-agent-test" element={
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <UserAgentTestSuite />
+              </Suspense>
+            </ErrorBoundary>
+          } />
           
           {/* Template Preview route */}
           <Route path="/template-preview" element={<TemplatePreview />} />

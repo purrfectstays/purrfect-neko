@@ -593,26 +593,39 @@ export class WaitlistService {
       const updatedUser = functionResult.user;
       const waitlistPosition = functionResult.waitlist_position || 0;
 
-      // Send welcome email
+      // Send welcome email using direct HTTP call (bypasses Supabase client auth issues)
       try {
-        const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
-          body: {
+        console.log('📧 Sending welcome email for user:', updatedUser.email);
+        
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        const response = await fetch(`${supabaseUrl}/functions/v1/send-welcome-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'Origin': window.location.origin
+          },
+          body: JSON.stringify({
             email: updatedUser.email,
             name: updatedUser.name,
             waitlistPosition: waitlistPosition,
             userType: updatedUser.user_type,
-          }
+          })
         });
 
-        if (emailError) {
-          console.error('Failed to send welcome email:', emailError);
-          // Don't throw error - quiz is already completed, just log it
-          // The user will still see success but won't receive the email
+        if (response.ok) {
+          const emailResult = await response.json();
+          console.log('✅ Welcome email sent successfully:', emailResult.messageId);
+        } else {
+          console.error('❌ Welcome email failed with status:', response.status);
+          const errorData = await response.text();
+          console.error('❌ Error details:', errorData);
         }
       } catch (emailError) {
-        console.error('Welcome email sending failed:', emailError);
-        // Don't throw error - quiz is already completed
-        // Consider showing a notification to the user that email failed
+        console.error('❌ Welcome email sending failed:', emailError);
+        // Don't throw error - quiz is already completed, just log it
       }
 
       return { user: updatedUser, waitlistPosition: waitlistPosition };
