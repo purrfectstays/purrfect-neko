@@ -54,9 +54,14 @@ export default defineConfig({
             return 'heavy-features';
           }
           
-          // Icons and UI libraries
+          // Icons and UI libraries - split into smaller chunks
           if (id.includes('lucide-react')) {
             return 'ui-icons';
+          }
+          
+          // Charts and heavy UI components
+          if (id.includes('recharts') || id.includes('chart')) {
+            return 'charts';
           }
           
           // Default vendor chunk for other node_modules
@@ -88,8 +93,8 @@ export default defineConfig({
     },
     // Enable source maps for production debugging
     sourcemap: true,
-    // Optimize chunk size
-    chunkSizeWarningLimit: 1000,
+    // Optimize chunk size for mobile performance
+    chunkSizeWarningLimit: 500, // Reduced from 1000kb for better mobile performance
     reportCompressedSize: true,
     // CSS code splitting
     cssCodeSplit: true,

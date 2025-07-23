@@ -14,7 +14,10 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
     "test:service-role": "node scripts/test-service-role-access.js",
-    "test:edge-functions": "node scripts/test-edge-functions.js"
+    "test:edge-functions": "node scripts/test-edge-functions.js",
+    "optimize:images": "node scripts/optimize-images.js",
+    "analyze:bundle": "npm run build && open dist/bundle-analysis.html",
+    "perf:audit": "npm run build && npm run optimize:images && echo '🚀 Performance optimization complete!'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -51,6 +54,7 @@
     "gh-pages": "^6.3.0",
     "globals": "^15.9.0",
     "jsdom": "^26.1.0",
+    "sharp": "^0.34.3",
     "terser": "^5.43.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",

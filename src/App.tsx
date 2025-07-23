@@ -10,17 +10,17 @@ import { setupGlobalErrorHandler } from './lib/errorHandler';
 import { useMobileOptimization } from './hooks/useMobileOptimization';
 import './lib/performanceMonitor'; // Initialize performance monitoring
 
-// Eager load critical components
-import MainSite from './components/MainSite';
-import TemplatePreview from './components/TemplatePreview';
-import TemplatePreviewOptimized from './components/TemplatePreviewOptimized';
-import Footer from './components/Footer';
-import ChatbotSupport from './components/ChatbotSupport';
-import ResourceAccessButton from './components/ResourceAccessButton';
+// Eager load CRITICAL PATH components only
+import LandingPage from './components/LandingPage'; // CRITICAL: Make eager for first paint
 import LoadingSpinner from './components/LoadingSpinner';
+import Footer from './components/Footer';
 
-// Lazy load heavy components
-const LandingPage = lazy(() => import('./components/LandingPage'));
+// Lazy load non-critical components  
+const MainSite = lazy(() => import('./components/MainSite'));
+const TemplatePreview = lazy(() => import('./components/TemplatePreview'));
+const TemplatePreviewOptimized = lazy(() => import('./components/TemplatePreviewOptimized'));
+const ChatbotSupport = lazy(() => import('./components/ChatbotSupport'));
+const ResourceAccessButton = lazy(() => import('./components/ResourceAccessButton'));
 const RegistrationForm = lazy(() => import('./components/RegistrationForm'));
 const EmailVerification = lazy(() => import('./components/EmailVerification'));
 const QualificationQuizEnhanced = lazy(() => import('./components/QualificationQuizEnhanced'));
@@ -35,15 +35,9 @@ const PrivacyPolicy = lazy(() => import('./components/legal/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./components/legal/TermsOfService'));
 const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
 const QRCodePage = lazy(() => import('./components/QRCodePage'));
-const LaunchReadinessTest = lazy(() => import('./components/LaunchReadinessTest'));
-const DiagnosticTool = lazy(() => import('./components/DiagnosticTool'));
-const AnalyticsDashboard = lazy(() => import('./components/AnalyticsDashboard'));
-const CurrencyDemo = lazy(() => import('./components/CurrencyDemo'));
 const EarlyAccessResources = lazy(() => import('./components/EarlyAccessResources'));
 const FreeCatTravelChecklist = lazy(() => import('./components/FreeCatTravelChecklist'));
 const CatteryEvaluationGuide = lazy(() => import('./components/CatteryEvaluationGuide'));
-const MobileOptimizationDemo = lazy(() => import('./components/MobileOptimizationDemo'));
-const UserAgentTestSuite = lazy(() => import('./components/UserAgentTestSuite'));
 
 // Guide pages
 const GuidesLanding = lazy(() => import('./components/guides/GuidesLanding'));
@@ -319,27 +313,7 @@ const AppContent: React.FC = () => {
           {/* QR Code page */}
           <Route path="/qr" element={<QRCodePage />} />
           
-          {/* Testing routes */}
-          <Route path="/launch-test" element={<LaunchReadinessTest />} />
-          <Route path="/diagnostic" element={<DiagnosticTool />} />
-          
-          {/* Analytics & Demo routes */}
-          <Route path="/analytics" element={<AnalyticsDashboard />} />
-          <Route path="/currency-demo" element={<CurrencyDemo />} />
-          <Route path="/mobile-optimization-demo" element={
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingComponent />}>
-                <MobileOptimizationDemo />
-              </Suspense>
-            </ErrorBoundary>
-          } />
-          <Route path="/user-agent-test" element={
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingComponent />}>
-                <UserAgentTestSuite />
-              </Suspense>
-            </ErrorBoundary>
-          } />
+          {/* Demo and testing routes removed for production */}
           
           {/* Template Preview route */}
           <Route path="/template-preview" element={<TemplatePreview />} />

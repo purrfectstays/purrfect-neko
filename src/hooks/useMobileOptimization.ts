@@ -75,12 +75,7 @@ export function useMobileOptimization(
       document.head.appendChild(link);
     }
 
-    // Preload hero image in appropriate format
-    const heroImage = document.createElement('link');
-    heroImage.rel = 'preload';
-    heroImage.as = 'image';
-    heroImage.href = optimizeImage('/images/hero-cat.jpg');
-    document.head.appendChild(heroImage);
+    // Hero image preload removed - image doesn't exist
   }, [shouldPrefetch, deviceInfo, optimizeImage]);
 
   return {

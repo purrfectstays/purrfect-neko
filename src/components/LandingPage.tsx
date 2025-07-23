@@ -3,6 +3,7 @@ import { ArrowRight, Star, Users, Clock, Shield, TrendingUp, Search, Calendar, B
 import Header from './Header';
 import SocialProof from './SocialProof';
 import RegionalUrgency from './RegionalUrgency';
+import OptimizedImage from './OptimizedImage';
 import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { useApp } from '../context/AppContext';
 
@@ -175,10 +176,13 @@ const MobileOptimizedHeroSection: React.FC = () => {
           {/* Hero Image Section - Mobile Optimized */}
           <div className="flex justify-center order-1 lg:order-2">
             <div className="relative w-full max-w-sm lg:max-w-md">
-              <img 
+              <OptimizedImage 
                 src="/landingpageimage1.jpg" 
                 alt="Two beautiful cats relaxing together in a premium cattery environment"
-                className="w-full h-64 sm:h-80 lg:h-96 object-cover object-center rounded-2xl shadow-2xl border-4 border-indigo-500/20"
+                className="w-full h-64 sm:h-80 lg:h-96 rounded-2xl shadow-2xl border-4 border-indigo-500/20"
+                priority={true}
+                aspectRatio="4:3"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               <div className="absolute -bottom-4 -left-4 lg:-bottom-6 lg:-left-6 bg-zinc-800/95 backdrop-blur-sm rounded-xl p-3 lg:p-4 border border-indigo-500/30 shadow-xl">
                 <p className="text-sm lg:text-base font-semibold text-white">

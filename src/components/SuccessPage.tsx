@@ -283,7 +283,7 @@ const SuccessPage: React.FC = () => {
           <div className="bg-zinc-800/30 rounded-lg p-4 text-center">
             <h4 className="text-lg font-semibold text-white mb-2">Share with Fellow Cat Lovers</h4>
             <div className="bg-zinc-900 rounded p-3 mb-3">
-              <code className="text-green-400 text-sm">purrfectstays.com</code>
+              <code className="text-green-400 text-sm">purrfectstays.org</code>
             </div>
             <p className="text-xs text-slate-400">Help grow our community by sharing with other cat parents and cattery owners!</p>
           </div>

@@ -243,7 +243,7 @@ const QualificationQuizSecure: React.FC = () => {
     try {
       console.log('📊 Calculating quiz score...');
       // Calculate score
-      calculateQuizScore(answers, user.userType);
+      const scoreResult = calculateQuizScore(answers, user.userType);
       
       // Convert answers to the format expected by the API
       const quizResponses = Object.entries(answers).map(([questionId, answerIndex]) => ({
@@ -271,9 +271,9 @@ const QualificationQuizSecure: React.FC = () => {
           waitlistPosition: randomPosition
         };
       } else {
-        // Submit quiz responses using WaitlistService for production
+        // Submit quiz responses using enhanced method that sends welcome email
         try {
-          result = await WaitlistService.submitQuizResponses(user.id, quizResponses);
+          result = await WaitlistService.submitEnhancedQuizResponses(user.id, quizResponses, scoreResult);
         } catch (error) {
           // Handle foreign key constraint errors by attempting user synchronization
           if (error instanceof Error && 
@@ -302,8 +302,8 @@ const QualificationQuizSecure: React.FC = () => {
                 
                 setUser(correctedUser);
                 
-                // Retry quiz submission with correct user ID
-                result = await WaitlistService.submitQuizResponses(foundUser.id, quizResponses);
+                // Retry quiz submission with correct user ID using enhanced method
+                result = await WaitlistService.submitEnhancedQuizResponses(foundUser.id, quizResponses, scoreResult);
                 console.log('✅ Quiz submission successful after user ID correction');
               } else {
                 throw new Error('Unable to find verified user account. Please refresh the page and try again.');
