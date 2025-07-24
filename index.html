@@ -58,56 +58,19 @@
     <link rel="dns-prefetch" href="https://api.exchangerate-api.com">
     <link rel="dns-prefetch" href="https://ipapi.co">
     
-    <!-- Mobile-first font loading strategy -->
-    <script>
-      // Progressive font loading based on device capability
-      (function() {
-        const isMobile = window.innerWidth < 768;
-        const isSlowConnection = navigator.connection && (navigator.connection.effectiveType === '2g' || navigator.connection.effectiveType === '3g');
-        
-        // Only load custom fonts on desktop or fast connections
-        if (!isMobile && !isSlowConnection) {
-          // Desktop: Load full font family
-          const fontLink = document.createElement('link');
-          fontLink.rel = 'stylesheet';
-          fontLink.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';
-          document.head.appendChild(fontLink);
-          
-          // Mark when fonts are loaded
-          fontLink.onload = function() {
-            document.body.classList.add('font-loaded');
-          };
-        } else if (!isSlowConnection) {
-          // Mobile with good connection: Load essential weights only
-          const fontLink = document.createElement('link');
-          fontLink.rel = 'stylesheet';
-          fontLink.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap';
-          document.head.appendChild(fontLink);
-          
-          fontLink.onload = function() {
-            document.body.classList.add('font-loaded');
-          };
-        }
-        // Slow connections: Stick with system fonts
-        
-        // Decorative font only for desktop with good connection
-        if (!isMobile && !isSlowConnection) {
-          setTimeout(() => {
-            const decorativeFont = document.createElement('link');
-            decorativeFont.rel = 'stylesheet';
-            decorativeFont.href = 'https://fonts.googleapis.com/css2?family=Sacramento:wght@400&display=swap';
-            decorativeFont.media = 'print';
-            decorativeFont.onload = function() { this.media = 'all'; };
-            document.head.appendChild(decorativeFont);
-          }, 2000);
-        }
-      })();
-    </script>
+    <!-- Optimized font loading with preload + display:swap -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap"></noscript>
     
-    <!-- Fallback for no-JS -->
-    <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap">
-    </noscript>
+    <!-- Non-critical decorative font loaded asynchronously -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" media="print">
+    
+    <script>
+      // Mark fonts as loaded for progressive enhancement
+      document.fonts.ready.then(() => {
+        document.body.classList.add('font-loaded');
+      });
+    </script>
     
     <!-- Critical CSS for above-the-fold mobile-first content -->
     <style>
@@ -335,19 +298,28 @@
     }
     </script>
 
-    <!-- Google Analytics 4 - Production Ready -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-697M9S24V1"></script>
+    <!-- Google Analytics 4 - Deferred for Performance -->
     <script>
+      // Initialize dataLayer immediately for early events
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      
-      // Initialize with your measurement ID
-      gtag('config', 'G-697M9S24V1', {
-        anonymize_ip: true,
-        allow_google_signals: false,
-        cookie_flags: 'SameSite=None;Secure'
-      });
+
+      // Defer GA script AND configuration until after critical rendering
+      setTimeout(() => {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-697M9S24V1';
+        script.onload = function() {
+          // Configure GA after script loads
+          gtag('js', new Date());
+          gtag('config', 'G-697M9S24V1', {
+            anonymize_ip: true,
+            allow_google_signals: false,
+            cookie_flags: 'SameSite=None;Secure'
+          });
+        };
+        document.head.appendChild(script);
+      }, 3000);
     </script>
   </head>
   <body>
