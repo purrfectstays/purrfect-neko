@@ -130,6 +130,63 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // SECURITY: Validate API key (allow anon key for public access)
+    const authHeader = req.headers.get('authorization');
+    const apiKeyHeader = req.headers.get('apikey');
+    
+    if (!authHeader && !apiKeyHeader) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Missing authorization header',
+          code: 401,
+          message: 'Missing authorization header'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      )
+    }
+    
+    // Extract token from Authorization header or apikey header
+    const token = authHeader?.replace('Bearer ', '') || apiKeyHeader;
+    const expectedAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    
+    if (!token || !expectedAnonKey) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid authentication configuration',
+          code: 401
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      )
+    }
+    
+    // Validate token - accept either anon key or valid JWT
+    const isValidAnonKey = token === expectedAnonKey;
+    const isJWT = token.includes('.') && token.split('.').length === 3;
+    
+    if (!isValidAnonKey && !isJWT) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid authorization token',
+          code: 401
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      )
+    }
+    
+    console.log('🔐 Authentication successful:', { 
+      isAnonKey: isValidAnonKey, 
+      isJWT: isJWT && !isValidAnonKey 
+    });
+
     // SECURITY: Add basic request validation and rate limiting
     const contentLength = req.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > 10000) {

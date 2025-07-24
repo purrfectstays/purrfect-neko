@@ -593,23 +593,36 @@ export class WaitlistService {
       const updatedUser = functionResult.user;
       const waitlistPosition = functionResult.waitlist_position || 0;
 
-      // Send welcome email using Supabase SDK (consistent with enhanced method)
+      // Send welcome email using anon key with public Edge Function access
       try {
         console.log('📧 Sending welcome email for user:', updatedUser.email);
         
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
-          body: {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        // Use anon key - Edge Function should be configured to allow public access
+        const response = await fetch(`${supabaseUrl}/functions/v1/send-welcome-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'apikey': supabaseAnonKey,
+            'Origin': window.location.origin
+          },
+          body: JSON.stringify({
             email: updatedUser.email,
             name: updatedUser.name,
             waitlistPosition: waitlistPosition,
             userType: updatedUser.user_type,
-          }
+          })
         });
 
-        if (emailError) {
-          console.error('❌ Welcome email failed:', emailError);
+        if (response.ok) {
+          const emailResult = await response.json();
+          console.log('✅ Welcome email sent successfully:', emailResult.messageId);
         } else {
-          console.log('✅ Welcome email sent successfully:', emailData?.messageId);
+          const errorData = await response.text();
+          console.error('❌ Welcome email failed with status:', response.status, errorData);
         }
       } catch (emailError) {
         console.error('❌ Welcome email sending failed:', emailError);
@@ -670,25 +683,37 @@ export class WaitlistService {
         throw handleServiceError(error || new Error('No data returned'), 'Enhanced quiz completion');
       }
 
-      // Send welcome email with enhanced data
+      // Send welcome email with enhanced data using anon key
       try {
-        const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
-          body: {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        const response = await fetch(`${supabaseUrl}/functions/v1/send-welcome-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'apikey': supabaseAnonKey,
+            'Origin': window.location.origin
+          },
+          body: JSON.stringify({
             email: data.email,
             name: data.name,
             waitlistPosition: data.waitlist_position,
             userType: data.user_type,
             scoreResult: scoreResult || null,
-          }
+          })
         });
 
-        if (emailError) {
-          console.error('Failed to send welcome email:', emailError);
-          // Don't throw error - quiz is already completed, just log it
-          // The user will still see success but won't receive the email
+        if (response.ok) {
+          const emailResult = await response.json();
+          console.log('✅ Enhanced welcome email sent successfully:', emailResult.messageId);
+        } else {
+          const errorData = await response.text();
+          console.error('❌ Enhanced welcome email failed with status:', response.status, errorData);
         }
       } catch (emailError) {
-        console.error('Welcome email sending failed:', emailError);
+        console.error('Enhanced welcome email sending failed:', emailError);
         // Don't throw error - quiz is already completed
         // Consider showing a notification to the user that email failed
       }
