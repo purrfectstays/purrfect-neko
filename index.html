@@ -63,7 +63,7 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap"></noscript>
     
     <!-- Non-critical decorative font loaded asynchronously -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" media="print">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet';this.media='all'" media="print">
     
     <script>
       // Mark fonts as loaded for progressive enhancement
@@ -298,28 +298,29 @@
     }
     </script>
 
-    <!-- Google Analytics 4 - Deferred for Performance -->
+    <!-- Google Analytics 4 - Optimized loading -->
     <script>
-      // Initialize dataLayer immediately for early events
+      // Initialize dataLayer for early events
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-
-      // Defer GA script AND configuration until after critical rendering
-      setTimeout(() => {
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-697M9S24V1';
-        script.onload = function() {
-          // Configure GA after script loads
-          gtag('js', new Date());
-          gtag('config', 'G-697M9S24V1', {
-            anonymize_ip: true,
-            allow_google_signals: false,
-            cookie_flags: 'SameSite=None;Secure'
-          });
-        };
-        document.head.appendChild(script);
-      }, 3000);
+      
+      // Load GA after page load to avoid blocking critical path
+      window.addEventListener('load', function() {
+        setTimeout(() => {
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-697M9S24V1';
+          script.onload = function() {
+            gtag('js', new Date());
+            gtag('config', 'G-697M9S24V1', {
+              anonymize_ip: true,
+              allow_google_signals: false,
+              cookie_flags: 'SameSite=None;Secure'
+            });
+          };
+          document.head.appendChild(script);
+        }, 1000);
+      });
     </script>
   </head>
   <body>
