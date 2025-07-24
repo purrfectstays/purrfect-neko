@@ -26,45 +26,68 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Keep React in main vendor bundle to ensure proper loading order
+          // CRITICAL PATH OPTIMIZATION: Keep only essential items in main bundle
+          
+          // Core React libs - separate from vendor for better caching
           if (id.includes('node_modules/react') || 
-              id.includes('node_modules/react-dom')) {
-            return 'vendor';
+              id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/scheduler')) {
+            return 'react-core';
           }
           
-          // Route related chunks
+          // Router - separate chunk for code splitting
           if (id.includes('react-router-dom')) {
             return 'routing';
           }
           
-          // Heavy external libraries
-          if (id.includes('@supabase/supabase-js')) {
+          // Supabase - heavy library, separate chunk
+          if (id.includes('@supabase/supabase-js') ||
+              id.includes('node_modules/@supabase')) {
             return 'supabase';
           }
           
-          // Guide pages (large components)
-          if (id.includes('/guides/')) {
-            return 'guides';
-          }
-          
-          // Quiz and other heavy features
-          if (id.includes('Quiz') || 
-              id.includes('EarlyAccess') ||
-              id.includes('Evaluation')) {
-            return 'heavy-features';
-          }
-          
-          // Icons and UI libraries - split into smaller chunks
+          // Lucide icons - heavy UI library
           if (id.includes('lucide-react')) {
             return 'ui-icons';
           }
           
-          // Charts and heavy UI components
-          if (id.includes('recharts') || id.includes('chart')) {
+          // Form validation and utilities
+          if (id.includes('node_modules/zod') ||
+              id.includes('node_modules/clsx') ||
+              id.includes('node_modules/class-variance-authority')) {
+            return 'utils';
+          }
+          
+          // Guide pages (330K chunk!)
+          if (id.includes('/guides/')) {
+            return 'guides';
+          }
+          
+          // Heavy features (Quiz, Success, etc)
+          if (id.includes('Quiz') || 
+              id.includes('Success') ||
+              id.includes('EarlyAccess') ||
+              id.includes('Evaluation') ||
+              id.includes('Support') ||
+              id.includes('Explore')) {
+            return 'heavy-features';
+          }
+          
+          // Analytics and tracking
+          if (id.includes('analytics') ||
+              id.includes('monitoring') ||
+              id.includes('tracking')) {
+            return 'analytics';
+          }
+          
+          // Charts and visualization
+          if (id.includes('recharts') || 
+              id.includes('chart') ||
+              id.includes('visualization')) {
             return 'charts';
           }
           
-          // Default vendor chunk for other node_modules
+          // Remaining vendor libraries
           if (id.includes('node_modules')) {
             return 'vendor';
           }
@@ -93,8 +116,8 @@ export default defineConfig({
     },
     // Enable source maps for production debugging
     sourcemap: true,
-    // Optimize chunk size for mobile performance
-    chunkSizeWarningLimit: 500, // Reduced from 1000kb for better mobile performance
+    // Ultra-aggressive chunk size limits for 90+ PageSpeed
+    chunkSizeWarningLimit: 250, // Target: No single chunk >250KB
     reportCompressedSize: true,
     // CSS code splitting
     cssCodeSplit: true,
