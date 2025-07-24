@@ -593,35 +593,23 @@ export class WaitlistService {
       const updatedUser = functionResult.user;
       const waitlistPosition = functionResult.waitlist_position || 0;
 
-      // Send welcome email using direct HTTP call (bypasses Supabase client auth issues)
+      // Send welcome email using Supabase SDK (consistent with enhanced method)
       try {
         console.log('📧 Sending welcome email for user:', updatedUser.email);
         
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-        
-        const response = await fetch(`${supabaseUrl}/functions/v1/send-welcome-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-            'Origin': window.location.origin
-          },
-          body: JSON.stringify({
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+          body: {
             email: updatedUser.email,
             name: updatedUser.name,
             waitlistPosition: waitlistPosition,
             userType: updatedUser.user_type,
-          })
+          }
         });
 
-        if (response.ok) {
-          const emailResult = await response.json();
-          console.log('✅ Welcome email sent successfully:', emailResult.messageId);
+        if (emailError) {
+          console.error('❌ Welcome email failed:', emailError);
         } else {
-          console.error('❌ Welcome email failed with status:', response.status);
-          const errorData = await response.text();
-          console.error('❌ Error details:', errorData);
+          console.log('✅ Welcome email sent successfully:', emailData?.messageId);
         }
       } catch (emailError) {
         console.error('❌ Welcome email sending failed:', emailError);
