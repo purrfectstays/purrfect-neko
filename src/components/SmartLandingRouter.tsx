@@ -2,6 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useMobileOptimization } from '../hooks/useMobileOptimization';
 import LoadingSpinner from './LoadingSpinner';
 
+// Extend window interface for gtag
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 // Lazy load versions for optimal performance
 const UltraLightMobileLanding = React.lazy(() => import('./UltraLightMobileLanding'));
 const LandingPage = React.lazy(() => import('./LandingPage'));
@@ -25,14 +32,15 @@ const SmartLandingRouter: React.FC = () => {
       // Ultra-light for slow mobile devices
       setSelectedVersion('ultra-light');
       
-      // Analytics tracking for optimization
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'landing_version', {
-          version: 'ultra-light',
-          device_type: 'mobile-slow',
-          custom_parameter: deviceInfo
-        });
-      }
+      // Analytics tracking for optimization (safe defer)
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('event', 'landing_version', {
+            version: 'ultra-light',
+            device_type: 'mobile-slow'
+          });
+        }
+      }, 2000);
     } else if (isMobile) {
       // Check screen size for mobile optimization
       if (window.innerWidth < 430) {
@@ -41,23 +49,26 @@ const SmartLandingRouter: React.FC = () => {
         setSelectedVersion('standard'); // Larger mobile devices get standard
       }
       
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'landing_version', {
-          version: window.innerWidth < 430 ? 'ultra-light' : 'standard',
-          device_type: 'mobile',
-          screen_width: window.innerWidth
-        });
-      }
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('event', 'landing_version', {
+            version: window.innerWidth < 430 ? 'ultra-light' : 'standard',
+            device_type: 'mobile'
+          });
+        }
+      }, 2000);
     } else {
       // Desktop gets full experience
       setSelectedVersion('standard');
       
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'landing_version', {
-          version: 'standard',
-          device_type: 'desktop'
-        });
-      }
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('event', 'landing_version', {
+            version: 'standard',
+            device_type: 'desktop'
+          });
+        }
+      }, 2000);
     }
   }, [deviceInfo, shouldUseLowQualityImages, shouldLazyLoad]);
 
