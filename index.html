@@ -298,28 +298,18 @@
     }
     </script>
 
-    <!-- Google Analytics 4 - Optimized loading -->
+    <!-- Google Analytics 4 - Production Ready -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-697M9S24V1"></script>
     <script>
-      // Initialize dataLayer for early events
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
       
-      // Load GA after page load to avoid blocking critical path
-      window.addEventListener('load', function() {
-        setTimeout(() => {
-          const script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-697M9S24V1';
-          script.onload = function() {
-            gtag('js', new Date());
-            gtag('config', 'G-697M9S24V1', {
-              anonymize_ip: true,
-              allow_google_signals: false,
-              cookie_flags: 'SameSite=None;Secure'
-            });
-          };
-          document.head.appendChild(script);
-        }, 1000);
+      // Initialize with your measurement ID
+      gtag('config', 'G-697M9S24V1', {
+        anonymize_ip: true,
+        allow_google_signals: false,
+        cookie_flags: 'SameSite=None;Secure'
       });
     </script>
   </head>
