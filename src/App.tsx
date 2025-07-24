@@ -11,7 +11,7 @@ import { useMobileOptimization } from './hooks/useMobileOptimization';
 import './lib/performanceMonitor'; // Initialize performance monitoring
 
 // Eager load CRITICAL PATH components only
-import SmartLandingRouter from './components/SmartLandingRouter'; // PERFORMANCE: Device-aware routing
+import LandingPage from './components/LandingPage'; // CRITICAL: Make eager for first paint
 import LoadingSpinner from './components/LoadingSpinner';
 import Footer from './components/Footer';
 
@@ -64,7 +64,7 @@ const HomeHandler: React.FC = () => {
       case 'landing':
         return (
           <>
-            <SmartLandingRouter />
+            <TemplatePreviewOptimized />
             <Footer />
           </>
         );
@@ -120,7 +120,7 @@ const HomeHandler: React.FC = () => {
       default:
         return (
           <>
-            <SmartLandingRouter />
+            <TemplatePreviewOptimized />
             <Footer />
           </>
         );
