@@ -41,7 +41,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [waitlistUser, setWaitlistUser] = useState<WaitlistUser | null>(null);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
-  const [waitlistCount, setWaitlistCount] = useState(47); // Will be updated from Supabase
+  const [waitlistCount, setWaitlistCount] = useState(0); // Will be updated from Supabase
   const [verificationToken, setVerificationToken] = useState<string | null>(null);
   
   // Initialize currency from localStorage or default
