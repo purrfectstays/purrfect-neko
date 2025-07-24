@@ -6,6 +6,7 @@ import RegionalUrgency from './RegionalUrgency';
 import OptimizedImage from './OptimizedImage';
 import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { useApp } from '../context/AppContext';
+import MobileStickyCTAEnhanced from './template-preview/MobileStickyCTAEnhanced';
 
 // Animated text cycling component
 const AnimatedPerfect: React.FC = () => {
@@ -418,60 +419,6 @@ const MobileValueProposition: React.FC = () => {
   );
 };
 
-// TEST: Simple fixed positioned element
-const MobileStickyCTA: React.FC = () => {
-  const { setCurrentStep } = useApp();
-  
-  console.log('MobileStickyCTA rendering!');
-  
-  return (
-    <div 
-      id="test-mobile-cta"
-      style={{
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        zIndex: 999999,
-        backgroundColor: 'red',
-        color: 'white',
-        padding: '10px',
-        borderRadius: '10px',
-        width: '200px',
-        height: '100px'
-      }}
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div>TEST COMPONENT</div>
-        <button
-          onClick={() => alert('Test button 1')}
-          style={{
-            backgroundColor: 'green',
-            color: 'white',
-            border: 'none',
-            padding: '8px 12px',
-            borderRadius: '20px',
-            fontSize: '12px'
-          }}
-        >
-          Test Button 1
-        </button>
-        <button
-          onClick={() => alert('Test button 2')}
-          style={{
-            backgroundColor: 'blue',
-            color: 'white',
-            border: 'none',
-            padding: '8px 12px',
-            borderRadius: '20px',
-            fontSize: '12px'
-          }}
-        >
-          Test Button 2
-        </button>
-      </div>
-    </div>
-  );
-};
 
 // Final CTA Section with Urgency
 const FinalCTA: React.FC = () => {
@@ -550,7 +497,7 @@ const LandingPage: React.FC = () => {
         <SocialProof />
       </main>
       {/* Mobile Sticky CTA */}
-      <MobileStickyCTA />
+      <MobileStickyCTAEnhanced />
       {/* Add bottom padding to prevent overlap */}
       <div className="h-20 lg:h-24"></div>
     </div>
