@@ -139,15 +139,15 @@ export const catParentQuestionsEnhanced: QuizQuestion[] = [
     progressText: 'Designing your ideal booking experience'
   },
 
-  // 🎖️ TIER SELECTION (Q8) - Platform investment after showing value
+  // 🎖️ PRICING PREFERENCE (Q8) - Market research without specific pricing
   {
-    id: 'pricing-tier-preference',
+    id: 'pricing-preference',
     question: 'Which service tier interests you most?',
     type: 'multiple-choice',
     options: [
-      '🌱 Truffle Tier: Essential features (Free Forever)',
-      '🌶️ Pepper Tier: Premium features ($3.99/month)', 
-      '🍗 Chicken Tier: All features + concierge ($7.99/month)',
+      '🌱 Free tier with basic features',
+      '🌶️ Low monthly fee for premium features', 
+      '🍗 Higher monthly fee for all features + concierge',
       '💳 Pay-per-use (no monthly commitment)',
       '🎁 Only free services for me'
     ],
@@ -157,17 +157,17 @@ export const catParentQuestionsEnhanced: QuizQuestion[] = [
     progressText: 'Selecting your perfect service level'
   },
 
-  // 💎 COMMITMENT (Q9) - Final commitment after full value demonstration
+  // 💎 BILLING PREFERENCE (Q9) - Market research without specific commitments
   {
-    id: 'annual-billing-preference',
-    question: 'Payment preference for better rates?',
+    id: 'billing-preference',
+    question: 'What billing frequency would work best for you?',
     type: 'multiple-choice',
     options: [
-      '💰 Annual savings (15% discount, pay yearly)',
-      '📅 Monthly flexibility (standard rates, pay monthly)',
-      '🆓 Only the free Truffle tier for me',
+      '💰 Annual billing for potential savings',
+      '📅 Monthly billing for flexibility',
+      '🆓 Only free tier options for me',
       '💳 Pay-per-use when I need it',
-      '🤔 Depends on the exact savings amount'
+      '🤔 Depends on the value provided'
     ],
     required: true,
     emoji: '💎',
