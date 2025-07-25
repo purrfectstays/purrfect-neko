@@ -307,9 +307,9 @@ Deno.serve(async (req) => {
       html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email, logoBase64DataUrl),
     };
 
-    // Try custom domain first, fallback to Resend's default domain
+    // TEMPORARILY force Resend default domain for testing
     let emailResult;
-    let fromAddress = 'Purrfect Stays <hello@purrfectstays.org>';
+    let fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
     
     console.log('📧 Attempting to send welcome email with payload:', {
       to: emailPayload.to,
@@ -317,42 +317,17 @@ Deno.serve(async (req) => {
       from: fromAddress
     });
     
-    try {
-      console.log('📧 Trying custom domain: hello@purrfectstays.org');
-      emailResult = await resend.emails.send({
-        ...emailPayload,
-        from: fromAddress,
-      });
-      
-      console.log('📧 Custom domain result:', emailResult);
-      
-      if (emailResult.error) {
-        console.error('❌ Custom domain error:', emailResult.error);
-        throw new Error(`Custom domain failed: ${emailResult.error.message}`);
-      }
-    } catch (customDomainError) {
-      console.error('❌ Custom domain failed with details:', {
-        error: customDomainError,
-        message: customDomainError.message,
-        stack: customDomainError.stack,
-        name: customDomainError.name
-      });
-      console.log('🔄 Trying Resend default domain: onboarding@resend.dev');
-      
-      // Fallback to Resend's default domain (always works)
-      fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
-      
-      emailResult = await resend.emails.send({
-        ...emailPayload,
-        from: fromAddress,
-      });
-      
-      console.log('📧 Resend default domain result:', emailResult);
-      
-      if (emailResult.error) {
-        console.error('❌ Resend default domain error:', emailResult.error);
-        throw new Error(`Email sending failed with Resend default: ${emailResult.error.message}`);
-      }
+    console.log('📧 Using Resend default domain for guaranteed delivery: onboarding@resend.dev');
+    emailResult = await resend.emails.send({
+      ...emailPayload,
+      from: fromAddress,
+    });
+    
+    console.log('📧 Resend default domain result:', emailResult);
+    
+    if (emailResult.error) {
+      console.error('❌ Resend default domain error:', emailResult.error);
+      throw new Error(`Email sending failed with Resend default: ${emailResult.error.message}`);
     }
 
     const { data, error } = emailResult;
