@@ -216,7 +216,7 @@ const MobileRapidFlow: React.FC = () => {
     <div className="space-y-6 text-center">
       <div className="space-y-2">
         <h1 className="text-3xl md:text-4xl font-bold text-white">
-          Join <span className="text-transparent bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text">1,247</span> cat parents
+          Join Our <span className="text-transparent bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text">Early Access</span> Community
         </h1>
         <p className="text-lg text-slate-300">Get early access to premium catteries</p>
       </div>

@@ -63,13 +63,9 @@ const TemplatePreviewOptimized: React.FC = () => {
     completedQuizzes: number;
   } | null>(null);
 
-  // Optimized stats loading
+  // Use honest community building messaging
   useEffect(() => {
-    setWaitlistStats({
-      totalUsers: 47,
-      verifiedUsers: 35,
-      completedQuizzes: 28
-    });
+    setWaitlistStats(null); // Don't show fake numbers
   }, []);
 
   // Cleanup on unmount

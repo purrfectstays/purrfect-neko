@@ -59,12 +59,8 @@ const TemplatePreview: React.FC = () => {
 
 
   useEffect(() => {
-    // Use static stats to prevent API errors from breaking CTAs
-    setWaitlistStats({
-      totalUsers: 47,
-      verifiedUsers: 35,
-      completedQuizzes: 28
-    });
+    // Use honest community building messaging
+    setWaitlistStats(null); // Don't show fake numbers
   }, []);
 
   return (

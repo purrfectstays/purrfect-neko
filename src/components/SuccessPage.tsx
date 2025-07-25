@@ -197,24 +197,24 @@ const SuccessPage: React.FC = () => {
         {/* Early Access Benefits Reminder */}
         <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl p-6 mb-8">
           <h3 className="text-lg font-semibold text-green-400 mb-3 text-center">
-            🎯 Your Early Access Benefits Are Now Active!
+            🎯 What You Get as a Founding Member:
           </h3>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="flex items-center space-x-3">
               <FileText className="h-5 w-5 text-green-400 flex-shrink-0" />
-              <span className="text-slate-300 text-sm">Premium cat care guides (instant access)</span>
+              <span className="text-slate-300 text-sm">Free cat care guides (available now)</span>
             </div>
             <div className="flex items-center space-x-3">
               <Shield className="h-5 w-5 text-green-400 flex-shrink-0" />
-              <span className="text-slate-300 text-sm">Professional cattery evaluation tools</span>
+              <span className="text-slate-300 text-sm">Cattery evaluation resources</span>
             </div>
             <div className="flex items-center space-x-3">
               <Calendar className="h-5 w-5 text-green-400 flex-shrink-0" />
-              <span className="text-slate-300 text-sm">Priority platform beta access</span>
+              <span className="text-slate-300 text-sm">First platform access (Q4 2025)</span>
             </div>
             <div className="flex items-center space-x-3">
               <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-              <span className="text-slate-300 text-sm">Direct founder communication</span>
+              <span className="text-slate-300 text-sm">Direct input on development</span>
             </div>
           </div>
         </div>

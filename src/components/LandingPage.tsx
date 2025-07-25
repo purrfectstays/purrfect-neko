@@ -120,6 +120,14 @@ const MobileOptimizedHeroSection: React.FC = () => {
               </div>
             </div>
 
+            {/* Development Status Notice */}
+            <div className="bg-zinc-800/50 border border-zinc-600 rounded-lg p-3 mb-4 text-center lg:text-left">
+              <p className="text-xs text-zinc-400">
+                <strong className="text-white">Note:</strong> We're currently gathering feedback to build the perfect platform. 
+                The booking platform launches Q4 2025. Join now for free resources and to shape development!
+              </p>
+            </div>
+
             {/* Primary CTAs - Desktop Aligned */}
             <div className="space-y-4">
               {/* CTA Buttons Row - Aligned on Desktop */}
@@ -150,23 +158,23 @@ const MobileOptimizedHeroSection: React.FC = () => {
                 
                 {/* Toolkit Value Stack */}
                 <div className="bg-zinc-800/30 border border-indigo-500/30 rounded-lg p-4 space-y-2">
-                  <h4 className="text-sm font-semibold text-indigo-400">Your Premium Cattery Evaluation Toolkit Includes:</h4>
+                  <h4 className="text-sm font-semibold text-indigo-400">Your Free Community Resources Include:</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-zinc-300">
                     <div className="flex items-center space-x-2">
                       <span className="text-green-400">✓</span>
-                      <span>50-page Premium Cat Travel Guide</span>
+                      <span>Interactive Cat Travel Checklist</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-green-400">✓</span>
-                      <span>Cattery Safety Checklist (scored)</span>
+                      <span>Cattery Evaluation Guide</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-green-400">✓</span>
-                      <span>Regional Pricing Database</span>
+                      <span>Community Forum Access</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-green-400">✓</span>
-                      <span>Emergency Contact Templates</span>
+                      <span>Development Updates & Input</span>
                     </div>
                   </div>
                 </div>
@@ -268,6 +276,14 @@ const MobileValueProposition: React.FC = () => {
             Transparency is key. Here's exactly where we are in building your perfect cattery platform.
           </p>
           
+          {/* Platform Status Warning */}
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 max-w-2xl mx-auto">
+            <p className="text-yellow-300 text-sm font-medium">
+              ⚠️ <strong>Platform in Development:</strong> All features shown below are planned for our Q4 2025 launch. 
+              Join now to help shape what we build based on YOUR needs!
+            </p>
+          </div>
+          
           {/* Development Progress Section */}
           <div className="bg-zinc-800/50 rounded-xl p-6 lg:p-8 border border-zinc-700 max-w-4xl mx-auto mb-12">
             <h3 className="text-xl lg:text-2xl font-bold text-white mb-6 flex items-center justify-center space-x-2">
@@ -339,6 +355,7 @@ const MobileValueProposition: React.FC = () => {
               <p className="text-base lg:text-lg text-zinc-300">
                 Find quality cattery care with confidence and ease
               </p>
+              <p className="text-sm text-zinc-400 mt-2">Planned features for Q4 2025 launch:</p>
             </div>
 
             {/* Mobile-optimized feature list */}
@@ -385,6 +402,7 @@ const MobileValueProposition: React.FC = () => {
               <p className="text-base lg:text-lg text-zinc-300">
                 Grow your cattery business with modern tools
               </p>
+              <p className="text-sm text-zinc-400 mt-2">Planned features for Q4 2025 launch:</p>
             </div>
 
             {/* Mobile-optimized feature list */}

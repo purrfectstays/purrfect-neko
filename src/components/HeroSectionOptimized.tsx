@@ -209,7 +209,7 @@ const HeroSectionOptimized: React.FC = () => {
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-xs">🐱</div>
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-xs">🐱</div>
                   </div>
-                  <span className="text-sm">1,247 cat parents joined</span>
+                  <span className="text-sm">Early Access Community</span>
                 </div>
               </div>
             </div>

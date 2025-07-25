@@ -45,15 +45,15 @@ export const catParentQuestions: QuizQuestion[] = [
     required: true
   },
   {
-    id: 'pricing-tier-preference',
-    question: 'Which pricing tier would you be most interested in for a cattery booking platform?',
+    id: 'pricing-preference',
+    question: 'What pricing model would work best for you?',
     type: 'multiple-choice',
     options: [
-      '🐾 Truffle (Starter): FREE Forever - basic search & booking',
-      '🐾 Pepper (Growth): $3.99/month or $38/year (save $10) - advanced filters & priority',
-      '🐾 Chicken (Premium): $7.99/month or $77/year (save $19) - concierge service & premium features',
-      'I prefer pay-per-use instead of subscriptions',
-      'I only want completely free services'
+      'Free with basic features',
+      'Low monthly fee ($5-10) for premium features',
+      'Higher monthly fee ($10-20) for all features',
+      'One-time payment for lifetime access',
+      'Pay per booking/transaction'
     ],
     required: true
   },
@@ -81,15 +81,15 @@ export const catParentQuestions: QuizQuestion[] = [
     required: true
   },
   {
-    id: 'annual-billing-preference',
-    question: 'Would you prefer annual billing to save money on premium features?',
+    id: 'billing-preference',
+    question: 'What billing frequency would you prefer?',
     type: 'multiple-choice',
     options: [
-      'Yes, annual billing for savings (Pepper: save $10/year, Chicken: save $19/year)',
-      'No, I prefer monthly billing for flexibility',
-      'I only want the free Truffle tier',
-      'I prefer pay-per-use instead',
-      'Depends on the exact savings amount'
+      'Monthly billing for flexibility',
+      'Annual billing for potential savings',
+      'One-time payment preferred',
+      'Pay per use/transaction only',
+      'Free tier only'
     ],
     required: true
   },
