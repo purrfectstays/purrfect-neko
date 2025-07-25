@@ -291,9 +291,9 @@ export const catteryOwnerQuestionsEnhanced: QuizQuestion[] = [
     question: 'Which pricing tier would work best for your cattery business?',
     type: 'multiple-choice',
     options: [
-      '🌱 Truffle Starter: Essential tools ($15/month)',
-      '🌶️ Pepper Growth: Advanced features ($29/month)',
-      '🍗 Chicken Premium: Full marketing suite ($59/month)',
+      '🌱 Low monthly fee for essential tools',
+      '🌶️ Mid-tier monthly fee for advanced features',
+      '🍗 Higher monthly fee for full marketing suite',
       '💼 Commission-based model (pay per booking)',
       '🏢 Custom enterprise pricing needed'
     ],
@@ -323,7 +323,7 @@ export const catteryOwnerQuestionsEnhanced: QuizQuestion[] = [
     question: 'Would annual billing with significant savings appeal to you?',
     type: 'multiple-choice',
     options: [
-      '💰 Yes, annual billing saves money (up to $142/year savings)',
+      '💰 Yes, annual billing with potential savings',
       '📅 No, monthly billing for cash flow management',
       '💼 Commission-based pricing preferred',
       '🤔 Depends on exact savings amount',
