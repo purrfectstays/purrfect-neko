@@ -26,26 +26,18 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // ULTRA-AGGRESSIVE CHUNKING: Target <250KB per chunk
+          // SAFE CHUNKING: Keep React core together to avoid runtime issues
           
-          // Core React runtime only (minimal)
-          if (id.includes('node_modules/react/index') || 
-              id.includes('node_modules/react-dom/client') ||
+          // Core React libs - keep together for compatibility
+          if (id.includes('node_modules/react') || 
+              id.includes('node_modules/react-dom') ||
               id.includes('node_modules/scheduler')) {
-            return 'react-runtime';
+            return 'react-core';
           }
           
-          // React Router - separate from other React libs
-          if (id.includes('node_modules/react-router') || 
-              id.includes('node_modules/@remix-run')) {
-            return 'react-router';
-          }
-          
-          // React DevTools and development utilities
-          if (id.includes('react-dom/server') || 
-              id.includes('react-dom/test-utils') ||
-              id.includes('react/jsx-dev-runtime')) {
-            return 'react-dev-tools';
+          // Router - separate chunk for code splitting
+          if (id.includes('react-router-dom')) {
+            return 'routing';
           }
           
           // React DOM core (separate from runtime)
