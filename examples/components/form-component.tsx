@@ -32,8 +32,8 @@ export const ExampleForm: React.FC<ExampleFormProps> = ({
   const [errors, setErrors] = useState<FormErrors>({} as FormErrors);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Pattern: Context usage
-  const { userEmail } = useApp();
+  // Pattern: Context usage (available if needed)
+  // const { userEmail } = useApp();
 
   // Pattern: Form validation
   const validateForm = (): boolean => {

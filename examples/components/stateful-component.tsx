@@ -32,7 +32,7 @@ export const CountdownExample: React.FC<CountdownExampleProps> = ({
   const [retryCount, setRetryCount] = useState(0);
   
   // Pattern: Context usage
-  const { userEmail, currentStep } = useApp();
+  const { userEmail } = useApp();
 
   // Pattern: Calculate time remaining
   const calculateTimeRemaining = useCallback((): TimeRemaining => {
@@ -70,7 +70,7 @@ export const CountdownExample: React.FC<CountdownExampleProps> = ({
       
       setConnectionStatus('connected');
       setRetryCount(0);
-    } catch (error) {
+    } catch {
       setConnectionStatus('error');
       setRetryCount(prev => prev + 1);
       
@@ -104,7 +104,7 @@ export const CountdownExample: React.FC<CountdownExampleProps> = ({
   // Pattern: Connection check effect
   useEffect(() => {
     checkConnection();
-  }, []);
+  }, [checkConnection]);
 
   // Pattern: Format number with leading zero
   const formatNumber = (num: number): string => {

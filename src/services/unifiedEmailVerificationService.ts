@@ -58,7 +58,7 @@ class UnifiedEmailVerificationError extends Error {
   constructor(
     message: string,
     public code: string,
-    public details?: any
+    public details?: unknown
   ) {
     super(message);
     this.name = 'UnifiedEmailVerificationError';
@@ -201,7 +201,8 @@ const handleServiceError = (error: unknown, operation: string): UnifiedEmailVeri
   );
 };
 
-// Network connectivity test
+// Network connectivity test function (unused - kept for future use)
+/*
 const testNetworkConnectivity = async (): Promise<{ connected: boolean; corsError: boolean }> => {
   if (!isSupabaseConfigured()) {
     return { connected: false, corsError: false };
@@ -239,6 +240,7 @@ const testNetworkConnectivity = async (): Promise<{ connected: boolean; corsErro
     return { connected: false, corsError: isCorsError };
   }
 };
+*/
 
 export class UnifiedEmailVerificationService {
   /**
@@ -565,7 +567,7 @@ export class UnifiedEmailVerificationService {
         answer: response.answer.toString(),
       }));
 
-      let data: any = null;
+      let data: unknown = null;
       let submissionSuccess = false;
 
       // APPROACH 1: Try secure database function first (preferred)
@@ -590,7 +592,7 @@ export class UnifiedEmailVerificationService {
           console.log('⚠️ Function returned error:', functionResult?.error);
           throw new Error(functionResult?.error || 'Function returned failure');
         }
-      } catch (functionAttemptError) {
+      } catch {
         console.log('⚠️ Secure function approach failed, trying fallback...');
         
         // APPROACH 2: Fallback to direct database operations

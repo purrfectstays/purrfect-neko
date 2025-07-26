@@ -1,6 +1,32 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { WaitlistService } from '../waitlistService';
-import { mockSupabaseClient, createMockWaitlistUser } from '../../test/utils';
+
+// Mock dependencies first before any imports
+const { mockSupabaseClient, createMockWaitlistUser } = vi.hoisted(() => {
+  const mockSupabaseClient = {
+    from: vi.fn(() => ({
+      insert: vi.fn().mockResolvedValue({ data: [], error: null }),
+      select: vi.fn().mockResolvedValue({ data: [], error: null }),
+      update: vi.fn().mockResolvedValue({ data: [], error: null }),
+      delete: vi.fn().mockResolvedValue({ data: [], error: null }),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+    })),
+  };
+
+  const createMockWaitlistUser = (overrides = {}) => ({
+    id: 'test-user-id',
+    email: 'test@example.com',
+    name: 'Test User',
+    is_verified: true,
+    quiz_completed: false,
+    waitlist_position: 1,
+    created_at: new Date().toISOString(),
+    ...overrides,
+  });
+
+  return { mockSupabaseClient, createMockWaitlistUser };
+});
 
 // Mock the supabase client
 vi.mock('../../lib/supabase', () => ({
@@ -22,6 +48,8 @@ vi.mock('../geolocationService', () => ({
     }),
   },
 }));
+
+import { WaitlistService } from '../waitlistService';
 
 describe('WaitlistService', () => {
   beforeEach(() => {

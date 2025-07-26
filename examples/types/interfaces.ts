@@ -13,7 +13,7 @@ export interface WaitlistUser {
   updated_at: string;
   quiz_completed: boolean;
   verification_token?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Pattern: Form data interfaces (input types)
@@ -65,7 +65,7 @@ export interface ListResponse<T> {
 }
 
 // Pattern: API response wrappers
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -79,10 +79,10 @@ export interface ComponentProps {
 }
 
 export interface FormComponentProps extends ComponentProps {
-  onSubmit?: (data: any) => void;
+  onSubmit?: (data: unknown) => void;
   onError?: (error: string) => void;
   disabled?: boolean;
-  initialValues?: Record<string, any>;
+  initialValues?: Record<string, unknown>;
 }
 
 export interface ModalProps extends ComponentProps {
@@ -126,7 +126,7 @@ export interface FieldValidation {
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
-  custom?: (value: any) => string | null;
+  custom?: (value: unknown) => string | null;
 }
 
 export interface FormValidationRules {
@@ -196,7 +196,7 @@ export interface EmailSendResult {
 // Pattern: Analytics interfaces
 export interface AnalyticsEvent {
   event: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
   timestamp?: string;
   userId?: string;
   sessionId?: string;
@@ -243,9 +243,9 @@ export interface UseFormReturn<T> {
   errors: Record<keyof T, string>;
   touched: Record<keyof T, boolean>;
   isSubmitting: boolean;
-  handleChange: (field: keyof T) => (e: React.ChangeEvent<any>) => void;
+  handleChange: (field: keyof T) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
-  setFieldValue: (field: keyof T, value: any) => void;
+  setFieldValue: (field: keyof T, value: unknown) => void;
   setFieldError: (field: keyof T, error: string) => void;
   reset: () => void;
 }
@@ -258,7 +258,7 @@ export type ApiCallback<T> = (data: T) => void;
 export type ErrorCallback = (error: Error) => void;
 
 // Pattern: Event handler types
-export type FormSubmitHandler<T = any> = (data: T) => void | Promise<void>;
+export type FormSubmitHandler<T = unknown> = (data: T) => void | Promise<void>;
 export type ClickHandler = () => void;
 export type ChangeHandler<T = string> = (value: T) => void;
 export type KeyboardHandler = (e: React.KeyboardEvent) => void;

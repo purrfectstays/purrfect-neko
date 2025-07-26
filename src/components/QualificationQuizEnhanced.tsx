@@ -110,6 +110,13 @@ const QualificationQuizEnhanced: React.FC = () => {
     }
   }, [currentQuestionIndex, milestones, completedMilestones]);
 
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+
   const handleAnswer = (answerIndex: number) => {
     setAnswers({
       ...answers,
@@ -429,23 +436,38 @@ const QualificationQuizEnhanced: React.FC = () => {
         )}
 
         {/* Enhanced Question Card */}
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 mb-8 shadow-2xl section-contain">
-          <h2 className="text-2xl font-semibold text-white mb-6">
+        <div 
+          className="bg-slate-800 border border-slate-700 rounded-2xl p-8 mb-8 shadow-2xl section-contain"
+          role="group"
+          aria-labelledby="current-question"
+        >
+          <h2 
+            id="current-question"
+            className="text-2xl font-semibold text-white mb-6"
+          >
             {currentQuestion.question}
           </h2>
           
-          <div className="space-y-4">
+          <div 
+            className="space-y-4"
+            role={currentQuestion.type === 'multiple-choice' ? 'radiogroup' : 'group'}
+            aria-labelledby="current-question"
+          >
             {currentQuestion.type === 'multiple-choice' && currentQuestion.options && currentQuestion.options.map((option, index) => {
               const isSelected = answers[currentQuestion.id] === index;
               return (
                 <button
                   key={index}
                   onClick={() => handleAnswer(index)}
-                  className={`w-full p-5 text-left rounded-xl border-2 transition-all duration-300 touch-target-optimized ${
+                  onKeyDown={(e) => handleKeyDown(e, () => handleAnswer(index))}
+                  className={`w-full p-5 text-left rounded-xl border-2 transition-all duration-300 touch-target-optimized focus:outline-none focus:ring-4 focus:ring-indigo-500/50 ${
                     isSelected
                       ? 'border-indigo-500 bg-indigo-500/20 text-white animate-pulse-glow'
                       : 'border-slate-600 bg-slate-700 text-slate-300 hover:border-indigo-400 hover:bg-slate-600'
                   }`}
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={`Option ${index + 1}: ${option}`}
                 >
                   <div className="flex items-center">
                     <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center ${
@@ -502,43 +524,65 @@ const QualificationQuizEnhanced: React.FC = () => {
         </div>
 
         {/* Enhanced Navigation */}
-        <div className="flex justify-between items-center">
+        <nav 
+          className="flex justify-between items-center"
+          aria-label="Quiz navigation"
+        >
           <button
             onClick={previousQuestion}
+            onKeyDown={(e) => handleKeyDown(e, previousQuestion)}
             disabled={currentQuestionIndex === 0}
-            className="px-6 py-3 bg-slate-700 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600 transition-colors touch-target-optimized"
+            className="px-6 py-3 bg-slate-700 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600 transition-colors touch-target-optimized focus:outline-none focus:ring-4 focus:ring-slate-500/50"
+            aria-label={`Go to previous question. Currently on question ${currentQuestionIndex + 1} of ${questions.length}`}
           >
-            ← Previous
+            <span aria-hidden="true">←</span> Previous
           </button>
           
           <div className="text-center">
             {currentQuestionIndex === questions.length - 1 ? (
               <button
                 onClick={handleSubmit}
+                onKeyDown={(e) => handleKeyDown(e, handleSubmit)}
                 disabled={answers[currentQuestion.id] === undefined || isSubmitting}
-                className="critical-button px-8 py-4 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed touch-target-optimized"
+                className="critical-button px-8 py-4 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed touch-target-optimized focus:outline-none focus:ring-4 focus:ring-green-500/50"
+                aria-label={isSubmitting ? "Submitting quiz responses" : "Complete and submit quiz"}
+                aria-describedby="quiz-completion-status"
               >
                 {isSubmitting ? (
                   <div className="flex items-center space-x-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
                     <span>Submitting...</span>
                   </div>
                 ) : (
-                  '🎉 Complete Quiz'
+                  <><span aria-hidden="true">🎉</span> Complete Quiz</>
                 )}
               </button>
             ) : (
               <button
                 onClick={nextQuestion}
+                onKeyDown={(e) => handleKeyDown(e, nextQuestion)}
                 disabled={answers[currentQuestion.id] === undefined}
-                className="critical-button px-6 py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed touch-target-optimized"
+                className="critical-button px-6 py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed touch-target-optimized focus:outline-none focus:ring-4 focus:ring-indigo-500/50"
+                aria-label={`Go to next question. Currently on question ${currentQuestionIndex + 1} of ${questions.length}`}
+                aria-describedby="next-button-status"
               >
-                Next →
+                Next <span aria-hidden="true">→</span>
               </button>
             )}
           </div>
           
-          <div className="w-24"></div> {/* Spacer for symmetry */}
+          <div className="w-24" aria-hidden="true"></div> {/* Spacer for symmetry */}
+        </nav>
+        
+        {/* Status announcements for screen readers */}
+        <div id="quiz-completion-status" className="sr-only" aria-live="polite">
+          {currentQuestionIndex === questions.length - 1 && isSubmitting ? "Quiz is being submitted, please wait" : ""}
+        </div>
+        <div id="next-button-status" className="sr-only" aria-live="polite">
+          {currentQuestionIndex < questions.length - 1 && answers[currentQuestion.id] === undefined 
+            ? "Please select an answer to continue to the next question" 
+            : ""
+          }
         </div>
 
         {/* Progress encouragement */}

@@ -72,9 +72,9 @@ export function createErrorResponse(
   error: string, 
   status: number = 500, 
   corsHeaders: Record<string, string> = {},
-  details?: any
+  details?: unknown
 ): Response {
-  const body: any = { error };
+  const body: Record<string, unknown> = { error };
   if (details) {
     body.details = details;
   }
@@ -90,7 +90,7 @@ export function createErrorResponse(
 
 // Create standardized success response
 export function createSuccessResponse(
-  data: any,
+  data: unknown,
   corsHeaders: Record<string, string> = {}
 ): Response {
   return new Response(

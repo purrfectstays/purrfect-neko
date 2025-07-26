@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { GeolocationService, LocationData } from './geolocationService';
+import { GeolocationService } from './geolocationService';
 
 export interface WaitlistUser {
   id: string;
@@ -82,7 +82,7 @@ const safeApiCall = async <T>(apiCall: () => Promise<T>, fallbackValue: T, opera
 };
 
 // Enhanced error handling helper with CORS detection
-const handleServiceError = (error: any, operation: string): Error => {
+const handleServiceError = (error: unknown, operation: string): Error => {
   // SILENTLY HANDLE ALL ABORT ERRORS
   if (isAbortError(error)) {
     return new Error('Request was cancelled');
@@ -116,45 +116,6 @@ const handleServiceError = (error: any, operation: string): Error => {
   return new Error(`${operation} failed: An unexpected error occurred`);
 };
 
-// Enhanced network connectivity test with CORS detection
-const testNetworkConnectivity = async (): Promise<{ connected: boolean; corsError: boolean }> => {
-  if (!isSupabaseConfigured) {
-    return { connected: false, corsError: false };
-  }
-
-  try {
-    // Simple connectivity test with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/`, {
-      method: 'HEAD',
-      headers: {
-        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-      },
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-    return { connected: response.ok, corsError: false };
-  } catch (error: any) {
-    // SILENTLY HANDLE ABORT ERRORS
-    if (isAbortError(error)) {
-      return { connected: false, corsError: false };
-    }
-    
-    console.warn('Network connectivity test failed:', error);
-    
-    // Detect CORS errors
-    const isCorsError = error.name === 'TypeError' && 
-                       (error.message.includes('Failed to fetch') || 
-                        error.message.includes('CORS') ||
-                        error.message.includes('cross-origin'));
-    
-    return { connected: false, corsError: isCorsError };
-  }
-};
 
 export class WaitlistService {
   static async registerUser(userData: {
@@ -184,9 +145,8 @@ export class WaitlistService {
       const verificationToken = crypto.randomUUID();
 
       // Get user location for regional tracking
-      let locationData: LocationData | null = null;
       try {
-        locationData = await GeolocationService.getUserLocation();
+        await GeolocationService.getUserLocation();
       } catch (error) {
         console.warn('Failed to get user location:', error);
         // Continue with registration even if geolocation fails
@@ -215,7 +175,7 @@ export class WaitlistService {
       try {
         // Calling Edge Function: send-verification-email
         
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-verification-email', {
+        const { error: emailError } = await supabase.functions.invoke('send-verification-email', {
           body: {
             email: userData.email,
             name: userData.name,
@@ -235,18 +195,13 @@ export class WaitlistService {
             throw new Error('Email service configuration error. Please contact support at support@purrfectstays.org');
           }
           
-          // Provide more detailed error information
-          let errorMessage = 'Failed to send verification email. ';
-          
-          if (emailError.message) {
-            errorMessage += emailError.message;
-          } else {
-            errorMessage += 'Please check your configuration and try again.';
-          }
+          // Provide more detailed error information for debugging
+          const errorDetails = emailError.message || 'Please check your configuration and try again.';
           
           // Log additional details for debugging
           console.error('Email error details:', {
             error: emailError,
+            errorDetails,
             userData: { email: userData.email, name: userData.name },
             verificationToken
           });
@@ -256,7 +211,7 @@ export class WaitlistService {
         }
 
         // Email sent successfully
-      } catch (emailError: any) {
+      } catch (emailError: unknown) {
         // If email sending fails due to network issues, still return the user
         console.error('Email sending failed, but user was registered:', emailError);
         
@@ -299,7 +254,7 @@ export class WaitlistService {
     try {
       // 3. TEST DATABASE CONNECTION FIRST
       console.log('🔄 Testing database connection...');
-      const { data: testData, error: testError } = await supabase
+      const { error: testError } = await supabase
         .from('waitlist_users')
         .select('count')
         .limit(1);
@@ -388,7 +343,7 @@ export class WaitlistService {
   }
 
   // Database connection test function
-  static async testDatabaseConnection(): Promise<{ success: boolean; message: string; details?: any }> {
+  static async testDatabaseConnection(): Promise<{ success: boolean; message: string; details?: Record<string, unknown> }> {
     console.log('🔧 Testing database connection...');
     
     return await safeApiCall(
@@ -402,7 +357,7 @@ export class WaitlistService {
         }
 
         // Test basic connection
-        const { data: testData, error: testError } = await supabase
+        const { error: testError } = await supabase
           .from('waitlist_users')
           .select('count')
           .limit(1);
@@ -650,7 +605,7 @@ export class WaitlistService {
       qualified: boolean;
       benefits?: Array<{ key: string; value: string; }>;
     }
-  ): Promise<{ user: WaitlistUser; waitlistPosition: number; scoreResult?: any }> {
+  ): Promise<{ user: WaitlistUser; waitlistPosition: number; scoreResult?: Record<string, unknown> }> {
     if (!isSupabaseConfigured) {
       throw new Error('Service unavailable: Database configuration is invalid');
     }

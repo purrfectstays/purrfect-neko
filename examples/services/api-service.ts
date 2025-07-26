@@ -29,7 +29,7 @@ export class ExampleApiService {
   };
 
   // Pattern: In-memory cache
-  private static cache = new Map<string, { data: any; timestamp: number }>();
+  private static cache = new Map<string, { data: unknown; timestamp: number }>();
   private static readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // Pattern: API key management
@@ -55,7 +55,7 @@ export class ExampleApiService {
     return cached.data as T;
   }
 
-  private static setCache(key: string, data: any): void {
+  private static setCache(key: string, data: unknown): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now()
@@ -102,7 +102,7 @@ export class ExampleApiService {
         this.setCache(cacheKey, browserLocation);
         return browserLocation;
       }
-    } catch (error) {
+    } catch {
       console.log('Browser geolocation failed, trying IP-based');
     }
 

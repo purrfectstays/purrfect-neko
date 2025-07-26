@@ -1,4 +1,4 @@
-/// <reference path="../types.ts" />
+import '../types.ts';
 import { Resend } from 'npm:resend@3.2.0'
 import { getWelcomeEmailTemplate } from './email-template.ts'
 
@@ -79,28 +79,29 @@ function isValidEmail(email: string): boolean {
 }
 
 // Input validation function
-function validateInput(data: any): { isValid: boolean; errors: string[] } {
+function validateInput(data: unknown): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
+  const inputData = data as Record<string, unknown>;
   
-  if (!data.email || typeof data.email !== 'string') {
+  if (!inputData.email || typeof inputData.email !== 'string') {
     errors.push('Email is required and must be a string');
-  } else if (!isValidEmail(data.email)) {
+  } else if (!isValidEmail(inputData.email)) {
     errors.push('Invalid email format');
   }
   
-  if (!data.name || typeof data.name !== 'string') {
+  if (!inputData.name || typeof inputData.name !== 'string') {
     errors.push('Name is required and must be a string');
-  } else if (data.name.length > 100) {
+  } else if (inputData.name.length > 100) {
     errors.push('Name must be less than 100 characters');
   }
   
-  if (!data.waitlistPosition || typeof data.waitlistPosition !== 'number') {
+  if (!inputData.waitlistPosition || typeof inputData.waitlistPosition !== 'number') {
     errors.push('Waitlist position is required and must be a number');
   }
   
-  if (!data.userType || typeof data.userType !== 'string') {
+  if (!inputData.userType || typeof inputData.userType !== 'string') {
     errors.push('User type is required and must be a string');
-  } else if (!['cat-parent', 'cattery-owner'].includes(data.userType)) {
+  } else if (!['cat-parent', 'cattery-owner'].includes(inputData.userType)) {
     errors.push('User type must be either "cat-parent" or "cattery-owner"');
   }
   
@@ -256,7 +257,7 @@ Deno.serve(async (req) => {
     let requestBody;
     try {
       requestBody = await req.json();
-    } catch (e) {
+    } catch {
       return new Response(
         JSON.stringify({ error: 'Invalid JSON in request body' }),
         {
@@ -301,15 +302,18 @@ Deno.serve(async (req) => {
     console.log('📷 Using actual Purrfect Stays logo from public folder');
 
     // Prepare email payload
-    const emailPayload: any = {
+    const emailPayload: {
+      to: string[];
+      subject: string;
+      html: string;
+    } = {
       to: [email],
       subject: `🎉 Welcome to Purrfect Stays! You're #${waitlistPosition} in Line`,
       html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email, logoBase64DataUrl),
     };
 
     // TEMPORARILY force Resend default domain for testing
-    let emailResult;
-    let fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
+    const fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
     
     console.log('📧 Attempting to send welcome email with payload:', {
       to: emailPayload.to,
@@ -318,7 +322,7 @@ Deno.serve(async (req) => {
     });
     
     console.log('📧 Using Resend default domain for guaranteed delivery: onboarding@resend.dev');
-    emailResult = await resend.emails.send({
+    const emailResult = await resend.emails.send({
       ...emailPayload,
       from: fromAddress,
     });

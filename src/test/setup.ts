@@ -38,7 +38,7 @@ global.console = {
 };
 
 // Mock window.location
-delete (window as any).location;
+delete (window as unknown as { location?: unknown }).location;
 window.location = {
   ...window.location,
   href: 'http://localhost:3000',

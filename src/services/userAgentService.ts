@@ -127,7 +127,7 @@ class UserAgentService {
   private detectTouch(): boolean {
     return 'ontouchstart' in window || 
            navigator.maxTouchPoints > 0 || 
-           (navigator as any).msMaxTouchPoints > 0;
+           (navigator as unknown as { msMaxTouchPoints?: number }).msMaxTouchPoints || 0 > 0;
   }
 
   private detectScreenSize(): 'small' | 'medium' | 'large' {
@@ -138,14 +138,19 @@ class UserAgentService {
   }
 
   private detectConnectionType(): 'slow-2g' | '2g' | '3g' | '4g' | 'unknown' {
-    const connection = (navigator as any).connection || 
-                      (navigator as any).mozConnection || 
-                      (navigator as any).webkitConnection;
+    const navWithConnection = navigator as unknown as {
+      connection?: { effectiveType?: string; downlink?: number };
+      mozConnection?: { effectiveType?: string; downlink?: number };
+      webkitConnection?: { effectiveType?: string; downlink?: number };
+    };
+    const connection = navWithConnection.connection || 
+                      navWithConnection.mozConnection || 
+                      navWithConnection.webkitConnection;
     
     if (!connection) return 'unknown';
     
     const effectiveType = connection.effectiveType;
-    if (effectiveType) return effectiveType as any;
+    if (effectiveType) return effectiveType as 'slow-2g' | '2g' | '3g' | '4g' | 'unknown';
     
     // Fallback to checking downlink speed
     if (connection.downlink) {
@@ -159,7 +164,7 @@ class UserAgentService {
   }
 
   private detectDeviceMemory(): number | null {
-    return (navigator as any).deviceMemory || null;
+    return (navigator as unknown as { deviceMemory?: number }).deviceMemory || null;
   }
 
   private detectHardwareConcurrency(): number {

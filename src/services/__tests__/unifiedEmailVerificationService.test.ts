@@ -1,8 +1,39 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import UnifiedEmailVerificationService from '../unifiedEmailVerificationService';
-import { mockSupabaseClient, createMockWaitlistUser } from '../../test/utils';
 
-// Mock dependencies
+// Mock dependencies first before any imports
+const { mockSupabaseClient, createMockWaitlistUser } = vi.hoisted(() => {
+  const mockSupabaseClient = {
+    from: vi.fn(() => ({
+      insert: vi.fn(() => ({
+        select: vi.fn().mockResolvedValue({ data: [], error: null }),
+      })),
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn().mockResolvedValue({ data: null, error: null }),
+        })),
+      })),
+      update: vi.fn().mockResolvedValue({ data: [], error: null }),
+      delete: vi.fn().mockResolvedValue({ data: [], error: null }),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+    })),
+  };
+
+  const createMockWaitlistUser = (overrides = {}) => ({
+    id: 'test-user-id',
+    email: 'test@example.com',
+    name: 'Test User',
+    is_verified: true,
+    quiz_completed: false,
+    waitlist_position: 1,
+    created_at: new Date().toISOString(),
+    ...overrides,
+  });
+
+  return { mockSupabaseClient, createMockWaitlistUser };
+});
+
 vi.mock('../../lib/supabase', () => ({
   supabase: mockSupabaseClient,
   isSupabaseConfigured: vi.fn(() => true),
@@ -31,6 +62,8 @@ vi.mock('../geolocationService', () => ({
     }),
   },
 }));
+
+import UnifiedEmailVerificationService from '../unifiedEmailVerificationService';
 
 describe('UnifiedEmailVerificationService', () => {
   beforeEach(() => {

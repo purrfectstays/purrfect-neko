@@ -10,6 +10,45 @@ import { setupGlobalErrorHandler } from './lib/errorHandler';
 import { useMobileOptimization } from './hooks/useMobileOptimization';
 import './lib/performanceMonitor'; // Initialize performance monitoring
 
+// Preloading hook for intelligent chunk loading
+const useRoutePreloading = () => {
+  useEffect(() => {
+    // Preload critical chunks on user interaction
+    const preloadNextLikelyChunks = () => {
+      // Preload registration form when user hovers over CTA buttons
+      const ctaButtons = document.querySelectorAll('[class*="critical-button"], [class*="cta-"]');
+      ctaButtons.forEach(button => {
+        button.addEventListener('mouseenter', () => {
+          import('./components/RegistrationForm');
+          import('./components/QualificationQuizEnhanced');
+        }, { once: true });
+      });
+
+      // Preload success page when user starts registration
+      const emailInputs = document.querySelectorAll('input[type="email"]');
+      emailInputs.forEach(input => {
+        input.addEventListener('focus', () => {
+          import('./components/SuccessPage');
+        }, { once: true });
+      });
+    };
+
+    // Preload on interaction
+    preloadNextLikelyChunks();
+    
+    // Preload on idle
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => {
+        import('./components/RegistrationForm');
+      });
+    } else {
+      setTimeout(() => {
+        import('./components/RegistrationForm');
+      }, 2000);
+    }
+  }, []);
+};
+
 // Eager load CRITICAL PATH components only
 import LandingPage from './components/LandingPage'; // CRITICAL: Make eager for first paint
 import LoadingSpinner from './components/LoadingSpinner';
@@ -22,7 +61,6 @@ const TemplatePreviewOptimized = lazy(() => import('./components/TemplatePreview
 const ChatbotSupport = lazy(() => import('./components/ChatbotSupport'));
 const ResourceAccessButton = lazy(() => import('./components/ResourceAccessButton'));
 const RegistrationForm = lazy(() => import('./components/RegistrationForm'));
-const EmailVerification = lazy(() => import('./components/EmailVerification'));
 const QualificationQuizEnhanced = lazy(() => import('./components/QualificationQuizEnhanced'));
 const SuccessPage = lazy(() => import('./components/SuccessPage'));
 const MobileRapidFlow = lazy(() => import('./components/MobileRapidFlow'));
@@ -153,11 +191,13 @@ const AppContent: React.FC = () => {
   // Initialize scroll tracking
   useScrollTracking();
 
+  // Initialize intelligent preloading
+  useRoutePreloading();
+
   // Initialize mobile optimization
   const { 
     deviceInfo, 
     shouldReduceMotion, 
-    shouldLazyLoad,
     preloadCriticalAssets 
   } = useMobileOptimization();
 

@@ -1,4 +1,4 @@
-/// <reference path="../types.ts" />
+import '../types.ts';
 import { Resend } from 'npm:resend@3.2.0'
 import { getVerificationEmailTemplate } from './email-template.ts'
 
@@ -68,30 +68,31 @@ function isValidEmail(email: string): boolean {
 }
 
 // Input validation function
-function validateInput(data: any): { isValid: boolean; errors: string[] } {
+function validateInput(data: unknown): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
+  const inputData = data as Record<string, unknown>;
   
-  if (!data.email || typeof data.email !== 'string') {
+  if (!inputData.email || typeof inputData.email !== 'string') {
     errors.push('Email is required and must be a string');
-  } else if (!isValidEmail(data.email)) {
+  } else if (!isValidEmail(inputData.email)) {
     errors.push('Invalid email format');
   }
   
-  if (!data.name || typeof data.name !== 'string') {
+  if (!inputData.name || typeof inputData.name !== 'string') {
     errors.push('Name is required and must be a string');
-  } else if (data.name.length > 100) {
+  } else if (inputData.name.length > 100) {
     errors.push('Name must be less than 100 characters');
   }
   
-  if (!data.verificationToken || typeof data.verificationToken !== 'string') {
+  if (!inputData.verificationToken || typeof inputData.verificationToken !== 'string') {
     errors.push('Verification token is required and must be a string');
-  } else if (data.verificationToken.length > 200) {
+  } else if (inputData.verificationToken.length > 200) {
     errors.push('Verification token is invalid');
   }
 
-  if (!data.userType || typeof data.userType !== 'string') {
+  if (!inputData.userType || typeof inputData.userType !== 'string') {
     errors.push('User type is required and must be a string');
-  } else if (!['cat-parent', 'cattery-owner'].includes(data.userType)) {
+  } else if (!['cat-parent', 'cattery-owner'].includes(inputData.userType)) {
     errors.push('User type must be either "cat-parent" or "cattery-owner"');
   }
   
@@ -99,24 +100,25 @@ function validateInput(data: any): { isValid: boolean; errors: string[] } {
 }
 
 // Input validation for CAPTCHA registration (no token required)
-function validateInputForCaptcha(data: any): { isValid: boolean; errors: string[] } {
+function validateInputForCaptcha(data: unknown): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
+  const inputData = data as Record<string, unknown>;
   
-  if (!data.email || typeof data.email !== 'string') {
+  if (!inputData.email || typeof inputData.email !== 'string') {
     errors.push('Email is required and must be a string');
-  } else if (!isValidEmail(data.email)) {
+  } else if (!isValidEmail(inputData.email)) {
     errors.push('Invalid email format');
   }
   
-  if (!data.name || typeof data.name !== 'string') {
+  if (!inputData.name || typeof inputData.name !== 'string') {
     errors.push('Name is required and must be a string');
-  } else if (data.name.length > 100) {
+  } else if (inputData.name.length > 100) {
     errors.push('Name must be less than 100 characters');
   }
 
-  if (!data.userType || typeof data.userType !== 'string') {
+  if (!inputData.userType || typeof inputData.userType !== 'string') {
     errors.push('User type is required and must be a string');
-  } else if (!['cat-parent', 'cattery-owner'].includes(data.userType)) {
+  } else if (!['cat-parent', 'cattery-owner'].includes(inputData.userType)) {
     errors.push('User type must be either "cat-parent" or "cattery-owner"');
   }
   
@@ -394,7 +396,12 @@ Deno.serve(async (req) => {
 
     // Send email using verified custom domain
     const fromAddress = 'Purrfect Stays <noreply@purrfectstays.org>';
-    const emailPayload: any = {
+    const emailPayload: {
+      from: string;
+      to: string[];
+      subject: string;
+      html: string;
+    } = {
       from: fromAddress,
       to: [email],
       subject: '🚀 Verify Your Email - Purrfect Stays Early Access',

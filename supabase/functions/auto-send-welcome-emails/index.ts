@@ -1,4 +1,4 @@
-/// <reference path="../types.ts" />
+import '../types.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0'
 import { Resend } from 'npm:resend@3.2.0'
 import { getWelcomeEmailTemplate } from '../send-welcome-email/email-template.ts'
@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
             html: emailHtml,
             from: 'Purrfect Stays <hello@purrfectstays.org>'
           })
-        } catch (customDomainError) {
+        } catch {
           console.log(`Custom domain failed for ${user.email}, trying resend.dev`)
           // Fallback to resend.dev domain
           emailResult = await resend.emails.send({

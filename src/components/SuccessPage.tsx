@@ -15,6 +15,13 @@ const SuccessPage: React.FC = () => {
     };
   }, []);
 
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+
   const handleShare = async () => {
     const shareData = {
       title: 'Purrfect Stays - The Ultimate Cattery Booking Platform',
@@ -59,14 +66,21 @@ const SuccessPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
-        <div className="text-center mb-8">
-          <div className="w-24 h-24 mx-auto mb-6 bg-green-500/20 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-12 h-12 text-green-400" />
-          </div>
-          
-          <h1 className="text-4xl font-bold text-white mb-4">
-            Welcome to Our Founding Community! 🎉
-          </h1>
+        <main role="main" aria-labelledby="success-heading">
+          <div className="text-center mb-8">
+            <div 
+              className="w-24 h-24 mx-auto mb-6 bg-green-500/20 rounded-full flex items-center justify-center"
+              aria-hidden="true"
+            >
+              <CheckCircle className="w-12 h-12 text-green-400" />
+            </div>
+            
+            <h1 
+              id="success-heading"
+              className="text-4xl font-bold text-white mb-4"
+            >
+              Welcome to Our Founding Community! <span aria-hidden="true">🎉</span>
+            </h1>
           
           <p className="text-xl text-slate-300 mb-4">
             Thank you for helping us build the cattery platform the world needs!
@@ -90,9 +104,11 @@ const SuccessPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => window.location.href = '/early-access-resources'}
-                className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-800 transition-all inline-flex items-center justify-center space-x-2"
+                onKeyDown={(e) => handleKeyDown(e, () => window.location.href = '/early-access-resources')}
+                className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-800 transition-all inline-flex items-center justify-center space-x-2 focus:outline-none focus:ring-4 focus:ring-purple-500/50"
+                aria-label="Access your free community guides and resources"
               >
-                <FileText className="h-4 w-4" />
+                <FileText className="h-4 w-4" aria-hidden="true" />
                 <span>Access Your Free Guides Now</span>
               </button>
               <button
@@ -387,6 +403,7 @@ const SuccessPage: React.FC = () => {
             </button>
           </div>
         </div>
+        </main>
       </div>
     </div>
   );

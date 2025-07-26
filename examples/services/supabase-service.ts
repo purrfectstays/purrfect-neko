@@ -7,13 +7,13 @@ interface ExampleUser {
   name: string;
   created_at: string;
   is_verified: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface CreateUserData {
   email: string;
   name: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface ServiceResponse<T> {
@@ -32,7 +32,7 @@ export class ExampleSupabaseService {
   }
 
   // Pattern: Error handling helper
-  private static handleError(error: any, operation: string): string {
+  private static handleError(error: unknown, operation: string): string {
     console.error(`${operation} error:`, error);
 
     // Pattern: CORS error detection

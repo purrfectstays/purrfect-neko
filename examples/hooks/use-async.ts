@@ -8,16 +8,16 @@ interface AsyncState<T> {
 }
 
 // Pattern: Hook options interface
-interface UseAsyncOptions {
+interface UseAsyncOptions<T = unknown> {
   immediate?: boolean;
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: T) => void;
   onError?: (error: Error) => void;
 }
 
 // Pattern: Generic async hook with proper typing
-export function useAsync<T = any>(
+export function useAsync<T = unknown>(
   asyncFunction: () => Promise<T>,
-  options: UseAsyncOptions = {}
+  options: UseAsyncOptions<T> = {}
 ): AsyncState<T> & { execute: () => Promise<void>; reset: () => void } {
   const { immediate = true, onSuccess, onError } = options;
   
@@ -66,7 +66,7 @@ export function useAsync<T = any>(
     if (immediate) {
       execute();
     }
-  }, [immediate]);
+  }, [immediate, execute]);
 
   // Pattern: Cleanup on unmount
   useEffect(() => {
@@ -79,18 +79,18 @@ export function useAsync<T = any>(
 }
 
 // Pattern: Specialized hook for API calls
-interface ApiCallOptions<T> extends UseAsyncOptions {
-  params?: Record<string, any>;
+interface ApiCallOptions<T> extends UseAsyncOptions<T> {
+  params?: Record<string, unknown>;
   headers?: Record<string, string>;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  body?: any;
+  body?: unknown;
 }
 
-export function useApiCall<T = any>(
+export function useApiCall<T = unknown>(
   url: string,
   options: ApiCallOptions<T> = {}
 ): AsyncState<T> & { 
-  execute: (overrideParams?: Record<string, any>) => Promise<void>;
+  execute: (overrideParams?: Record<string, unknown>) => Promise<void>;
   reset: () => void;
 } {
   const { 
@@ -102,7 +102,7 @@ export function useApiCall<T = any>(
   } = options;
 
   // Pattern: Build URL with query params
-  const buildUrl = useCallback((baseUrl: string, queryParams: Record<string, any>) => {
+  const buildUrl = useCallback((baseUrl: string, queryParams: Record<string, unknown>) => {
     const url = new URL(baseUrl, window.location.origin);
     Object.entries(queryParams).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -113,7 +113,7 @@ export function useApiCall<T = any>(
   }, []);
 
   // Pattern: Fetch wrapper
-  const fetchData = useCallback(async (overrideParams?: Record<string, any>) => {
+  const fetchData = useCallback(async (overrideParams?: Record<string, unknown>) => {
     const finalParams = { ...params, ...overrideParams };
     const finalUrl = buildUrl(url, method === 'GET' ? finalParams : {});
     
@@ -137,38 +137,23 @@ export function useApiCall<T = any>(
   const asyncState = useAsync(() => fetchData(), asyncOptions);
 
   // Pattern: Override execute to accept params
-  const execute = useCallback(
-    async (overrideParams?: Record<string, any>) => {
-      const newAsyncFunction = () => fetchData(overrideParams);
-      setState({ data: null, loading: true, error: null });
-
-      try {
-        const result = await newAsyncFunction();
-        setState({ data: result, loading: false, error: null });
-        options.onSuccess?.(result);
-      } catch (error) {
-        const errorObj = error instanceof Error ? error : new Error(String(error));
-        setState({ data: null, loading: false, error: errorObj });
-        options.onError?.(errorObj);
-      }
+  const executeWithParams = useCallback(
+    (overrideParams?: Record<string, unknown>) => {
+      // Create new function with override params and execute it
+      const newFetchFunction = () => fetchData(overrideParams);
+      return useAsync(newFetchFunction, { immediate: true }).execute();
     },
-    [fetchData, options]
+    [fetchData]
   );
 
-  const [state, setState] = useState<AsyncState<T>>({
-    data: null,
-    loading: options.immediate !== false,
-    error: null
-  });
-
-  return { ...state, execute, reset: asyncState.reset };
+  return { ...asyncState, execute: executeWithParams };
 }
 
 // Pattern: Debounced async hook
-export function useDebouncedAsync<T = any>(
+export function useDebouncedAsync<T = unknown>(
   asyncFunction: () => Promise<T>,
   delay: number = 500,
-  options: UseAsyncOptions = {}
+  options: UseAsyncOptions<T> = {}
 ): AsyncState<T> & { 
   execute: () => void;
   cancel: () => void;
@@ -239,16 +224,16 @@ export function useDebouncedAsync<T = any>(
 }
 
 // Pattern: Polling hook
-export function usePolling<T = any>(
+export function usePolling<T = unknown>(
   asyncFunction: () => Promise<T>,
   interval: number = 5000,
-  options: UseAsyncOptions & { enabled?: boolean } = {}
+  options: UseAsyncOptions<T> & { enabled?: boolean } = {}
 ): AsyncState<T> & { 
   start: () => void;
   stop: () => void;
   reset: () => void;
 } {
-  const { enabled = true, ...asyncOptions } = options;
+  const { enabled = true } = options;
   const [state, setState] = useState<AsyncState<T>>({
     data: null,
     loading: false,

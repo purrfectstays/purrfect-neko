@@ -75,6 +75,13 @@ const RegistrationForm: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, action?: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (action) action();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -200,20 +207,36 @@ const RegistrationForm: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-indigo-900/20 flex items-center justify-center p-4">
+      {/* Skip Navigation Link */}
+      <a 
+        href="#registration-form" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-indigo-600 text-white px-4 py-2 rounded-md z-50 focus:outline-none focus:ring-2 focus:ring-white"
+        aria-label="Skip to registration form"
+      >
+        Skip to registration form
+      </a>
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <button
             onClick={() => setCurrentStep('landing')}
-            className="inline-flex items-center space-x-2 text-indigo-400 hover:text-indigo-300 transition-colors mb-6"
+            onKeyDown={(e) => handleKeyDown(e, () => setCurrentStep('landing'))}
+            className="inline-flex items-center space-x-2 text-indigo-400 hover:text-indigo-300 transition-colors mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md p-2"
+            aria-label="Return to landing page"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             <span className="font-manrope">Back to Landing Page</span>
           </button>
 
-          <h1 className="font-manrope font-bold text-3xl text-white mb-4">
+          <h1 
+            className="font-manrope font-bold text-3xl text-white mb-4"
+            id="registration-heading"
+          >
             Cattery Registration
           </h1>
-          <p className="font-manrope text-zinc-300 mb-6">
+          <p 
+            className="font-manrope text-zinc-300 mb-6"
+            id="registration-description"
+          >
             Join as a founding cattery partner and help shape the future of cattery bookings
           </p>
 
@@ -223,10 +246,13 @@ const RegistrationForm: React.FC = () => {
 
         <div className="bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-8 border border-indigo-800/30 shadow-2xl">
           <form
+            id="registration-form"
             onSubmit={handleSubmit}
             className="space-y-6"
-            aria-label="Early access registration form"
+            aria-labelledby="registration-heading"
+            aria-describedby="registration-description"
             role="form"
+            noValidate
           >
             {/* Honeypot field - hidden from users but visible to bots */}
             <input
@@ -374,20 +400,20 @@ const RegistrationForm: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-manrope font-bold py-3 px-6 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-manrope font-bold py-3 px-6 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 focus:outline-none focus:ring-4 focus:ring-indigo-500/50"
               onClick={() => analytics.trackCTAClick('secure_position', 'registration_form')}
               aria-label={isSubmitting ? "Submitting registration form" : "Submit registration form"}
               aria-describedby={errors.submit ? "submit-error" : undefined}
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" aria-hidden="true"></div>
                   <span>Securing Your Spot...</span>
                 </>
               ) : (
                 <>
                   <span>Register My Cattery</span>
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
                 </>
               )}
             </button>

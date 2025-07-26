@@ -26,18 +26,57 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // CRITICAL PATH OPTIMIZATION: Keep only essential items in main bundle
+          // ULTRA-AGGRESSIVE CHUNKING: Target <250KB per chunk
           
-          // Core React libs - separate from vendor for better caching
-          if (id.includes('node_modules/react') || 
-              id.includes('node_modules/react-dom') ||
+          // Core React runtime only (minimal)
+          if (id.includes('node_modules/react/index') || 
+              id.includes('node_modules/react-dom/client') ||
               id.includes('node_modules/scheduler')) {
-            return 'react-core';
+            return 'react-runtime';
           }
           
-          // Router - separate chunk for code splitting
-          if (id.includes('react-router-dom')) {
-            return 'routing';
+          // React Router - separate from other React libs
+          if (id.includes('node_modules/react-router') || 
+              id.includes('node_modules/@remix-run')) {
+            return 'react-router';
+          }
+          
+          // React DevTools and development utilities
+          if (id.includes('react-dom/server') || 
+              id.includes('react-dom/test-utils') ||
+              id.includes('react/jsx-dev-runtime')) {
+            return 'react-dev-tools';
+          }
+          
+          // React DOM core (separate from runtime)
+          if (id.includes('node_modules/react-dom')) {
+            return 'react-dom-core';
+          }
+          
+          // Remaining React internals (smaller now)
+          if (id.includes('node_modules/react')) {
+            return 'react-internals';
+          }
+          
+          // QR Code libraries - heavy image processing
+          if (id.includes('node_modules/qrcode') || 
+              id.includes('node_modules/canvas') ||
+              id.includes('node_modules/pngjs')) {
+            return 'qr-libs';
+          }
+          
+          // Chart libraries - heavy visualization
+          if (id.includes('node_modules/recharts') || 
+              id.includes('node_modules/d3') ||
+              id.includes('node_modules/@types/d3')) {
+            return 'chart-libs';
+          }
+          
+          // Form and validation libraries
+          if (id.includes('node_modules/zod') ||
+              id.includes('node_modules/react-hook-form') ||
+              id.includes('node_modules/@hookform')) {
+            return 'form-libs';
           }
           
           // Supabase - heavy library, separate chunk
@@ -51,40 +90,92 @@ export default defineConfig({
             return 'ui-icons';
           }
           
-          // Form validation and utilities
-          if (id.includes('node_modules/zod') ||
-              id.includes('node_modules/clsx') ||
-              id.includes('node_modules/class-variance-authority')) {
-            return 'utils';
+          // CSS and styling utilities
+          if (id.includes('node_modules/clsx') ||
+              id.includes('node_modules/class-variance-authority') ||
+              id.includes('node_modules/tailwind-merge')) {
+            return 'css-utils';
           }
           
-          // Guide pages (330K chunk!)
-          if (id.includes('/guides/')) {
-            return 'guides';
+          // GUIDES: Split into business vs user guides
+          if (id.includes('/guides/StartingCatteryBusinessGuide') ||
+              id.includes('/guides/MarketingStrategiesGuide') ||
+              id.includes('/guides/PremiumServiceExcellenceGuide')) {
+            return 'business-guides';
           }
           
-          // Heavy features (Quiz, Success, etc)
-          if (id.includes('Quiz') || 
-              id.includes('Success') ||
+          if (id.includes('/guides/ChoosingCatteryGuide') ||
+              id.includes('/guides/BudgetPlanningGuide') ||
+              id.includes('/guides/PreparationChecklistGuide') ||
+              id.includes('/guides/GuidesLanding')) {
+            return 'user-guides';
+          }
+          
+          // QUIZ COMPONENTS: Separate large quiz components
+          if (id.includes('QualificationQuiz') || 
+              id.includes('Quiz')) {
+            return 'quiz-components';
+          }
+          
+          // SUCCESS & ONBOARDING: Success page and related flows
+          if (id.includes('SuccessPage') ||
               id.includes('EarlyAccess') ||
-              id.includes('Evaluation') ||
-              id.includes('Support') ||
-              id.includes('Explore')) {
-            return 'heavy-features';
+              id.includes('ResourceAccess')) {
+            return 'success-components';
           }
           
-          // Analytics and tracking
+          // MOBILE FLOWS: Large mobile components (800+ lines each)
+          if (id.includes('MobileRapidFlow') ||
+              id.includes('MobileSticky') ||
+              id.includes('UltraLightMobile')) {
+            return 'mobile-flows';
+          }
+          
+          // TEMPLATE & PREVIEW: Large template components
+          if (id.includes('TemplatePreview') ||
+              id.includes('InlineRegistrationForm')) {
+            return 'template-components';
+          }
+          
+          // ANALYTICS & DASHBOARD: Heavy analytics components
+          if (id.includes('AnalyticsDashboard') ||
+              id.includes('LaunchReadinessTest') ||
+              id.includes('DiagnosticTool')) {
+            return 'analytics-dashboard';
+          }
+          
+          // SUPPORT & CHAT: Heavy interactive components
+          if (id.includes('ChatbotSupport') ||
+              id.includes('SupportPage') ||
+              id.includes('ExploreCatteries')) {
+            return 'support-components';
+          }
+          
+          // LEGAL PAGES: Large legal content
+          if (id.includes('PrivacyPolicy') ||
+              id.includes('TermsOfService') ||
+              id.includes('CookiePolicy')) {
+            return 'legal-pages';
+          }
+          
+          // EVALUATION & CHECKLISTS: Feature-heavy components
+          if (id.includes('CatteryEvaluation') ||
+              id.includes('FreeCatTravelChecklist')) {
+            return 'evaluation-tools';
+          }
+          
+          // Analytics and tracking libraries
           if (id.includes('analytics') ||
               id.includes('monitoring') ||
               id.includes('tracking')) {
-            return 'analytics';
+            return 'analytics-libs';
           }
           
-          // Charts and visualization
+          // Charts and visualization libraries
           if (id.includes('recharts') || 
               id.includes('chart') ||
               id.includes('visualization')) {
-            return 'charts';
+            return 'chart-libs';
           }
           
           // Remaining vendor libraries
@@ -119,8 +210,12 @@ export default defineConfig({
     // Ultra-aggressive chunk size limits for 90+ PageSpeed
     chunkSizeWarningLimit: 250, // Target: No single chunk >250KB
     reportCompressedSize: true,
-    // CSS code splitting
+    // Advanced CSS code splitting
     cssCodeSplit: true,
+    // CSS minification for better compression
+    cssMinify: true,
+    // Experimental: Better tree shaking
+    experimentalMinChunkSize: 1000,
   },
   // Performance optimizations
   server: {

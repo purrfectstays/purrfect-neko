@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { v4 as uuidv4 } from 'uuid';
+// UUID import removed - not currently used in this service
 
 export interface ReferralData {
   id: string;
@@ -56,7 +56,7 @@ class ReferralService {
       }
 
       // Check if email already referred by this user
-      const { data: existing, error: existingError } = await supabase
+      const { data: existing } = await supabase
         .from('referrals')
         .select('id')
         .eq('referrer_id', referrer.id)
@@ -198,7 +198,7 @@ class ReferralService {
   static async initializeReferralCode(userId: string): Promise<string> {
     try {
       // Check if user already has referral code
-      const { data: user, error: userError } = await supabase
+      const { data: user } = await supabase
         .from('waitlist_users')
         .select('referral_code')
         .eq('id', userId)

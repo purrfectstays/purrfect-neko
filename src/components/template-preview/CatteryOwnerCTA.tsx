@@ -9,11 +9,17 @@ import { useApp } from '../../context/AppContext';
 const CatteryOwnerCTA: React.FC = memo(() => {
   const { setCurrentStep } = useApp();
 
-  const handleCatteryRegistration = (e: React.MouseEvent) => {
+  const handleCatteryRegistration = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault();
     e.stopPropagation();
     // Navigate to cattery registration page
     setCurrentStep('registration');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleCatteryRegistration(e);
+    }
   };
 
   return (
@@ -28,7 +34,9 @@ const CatteryOwnerCTA: React.FC = memo(() => {
         </p>
         
         <button
+          type="button"
           onClick={handleCatteryRegistration}
+          onKeyDown={handleKeyDown}
           className="w-full bg-gradient-to-r from-purple-400 to-purple-500 text-white text-xl font-bold py-5 rounded-full hover:from-purple-500 hover:to-purple-600 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-purple-400/30 flex items-center justify-center space-x-3"
         >
           <span>BECOME A PARTNER</span>

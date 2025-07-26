@@ -31,6 +31,8 @@ const AnimatedPerfect: React.FC = () => {
       className={`transition-all duration-300 bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent font-bold ${
         isVisible ? 'opacity-100 transform scale-100' : 'opacity-0 transform scale-95'
       }`}
+      aria-live="polite"
+      aria-label={`${words[currentWordIndex]} cattery platform`}
     >
       {words[currentWordIndex]}
     </span>
@@ -42,7 +44,11 @@ const MobileOptimizedHeroSection: React.FC = () => {
   const { setCurrentStep } = useApp();
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-indigo-900/20">
+    <section 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-indigo-900/20"
+      aria-labelledby="hero-heading"
+      role="banner"
+    >
       {/* Animated background elements */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl animate-pulse-slow" />
@@ -55,7 +61,10 @@ const MobileOptimizedHeroSection: React.FC = () => {
           <div className="space-y-6 lg:space-y-8 text-center lg:text-left order-2 lg:order-1">
             {/* Main headline - Honest positioning */}
             <div className="space-y-3 lg:space-y-4">
-              <h1 className="font-bold text-3xl sm:text-4xl lg:text-5xl xl:text-6xl text-white leading-tight">
+              <h1 
+                id="hero-heading"
+                className="font-bold text-3xl sm:text-4xl lg:text-5xl xl:text-6xl text-white leading-tight"
+              >
                 We're Building the{' '}
                 <span className="block mt-1 lg:mt-2">
                   <AnimatedPerfect />
@@ -82,17 +91,30 @@ const MobileOptimizedHeroSection: React.FC = () => {
             </div>
 
             {/* Development Status Indicators */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 py-4 lg:py-6">
-              <div className="flex items-center justify-center space-x-2 text-zinc-300 bg-zinc-800/30 rounded-lg p-3">
-                <Users className="h-4 w-4 lg:h-5 lg:w-5 text-green-400" />
+            <div 
+              className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 py-4 lg:py-6"
+              role="list"
+              aria-label="Platform development status"
+            >
+              <div 
+                className="flex items-center justify-center space-x-2 text-zinc-300 bg-zinc-800/30 rounded-lg p-3"
+                role="listitem"
+              >
+                <Users className="h-4 w-4 lg:h-5 lg:w-5 text-green-400" aria-hidden="true" />
                 <span className="text-sm lg:text-base font-medium">Community Building</span>
               </div>
-              <div className="flex items-center justify-center space-x-2 text-zinc-300 bg-zinc-800/30 rounded-lg p-3">
-                <Star className="h-4 w-4 lg:h-5 lg:w-5 text-yellow-400" />
+              <div 
+                className="flex items-center justify-center space-x-2 text-zinc-300 bg-zinc-800/30 rounded-lg p-3"
+                role="listitem"
+              >
+                <Star className="h-4 w-4 lg:h-5 lg:w-5 text-yellow-400" aria-hidden="true" />
                 <span className="text-sm lg:text-base font-medium">Market Research</span>
               </div>
-              <div className="flex items-center justify-center space-x-2 text-zinc-300 bg-zinc-800/30 rounded-lg p-3">
-                <Clock className="h-4 w-4 lg:h-5 lg:w-5 text-indigo-400" />
+              <div 
+                className="flex items-center justify-center space-x-2 text-zinc-300 bg-zinc-800/30 rounded-lg p-3"
+                role="listitem"
+              >
+                <Clock className="h-4 w-4 lg:h-5 lg:w-5 text-indigo-400" aria-hidden="true" />
                 <span className="text-sm lg:text-base font-medium">Q4 2025 Launch</span>
               </div>
             </div>
@@ -136,15 +158,18 @@ const MobileOptimizedHeroSection: React.FC = () => {
                 <button
                   onClick={() => setCurrentStep('registration')}
                   className="w-full sm:w-auto group bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-lg lg:text-xl px-8 lg:px-12 py-4 lg:py-5 rounded-full hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 inline-flex items-center justify-center space-x-3"
+                  aria-label="Get free resource toolkit and founding member access to Purrfect Stays"
+                  aria-describedby="cta-benefits"
                 >
                   <span>Get My Resource Toolkit + Founding Access</span>
-                  <ArrowRight className="h-5 w-5 lg:h-6 lg:w-6 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="h-5 w-5 lg:h-6 lg:w-6 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </button>
 
                 {/* Enhanced Secondary CTA */}
                 <button
                   onClick={() => setCurrentStep('registration')}
                   className="w-full sm:w-auto bg-purple-600/80 border border-purple-500 text-white font-semibold text-lg lg:text-xl px-8 lg:px-12 py-4 lg:py-5 rounded-full hover:bg-purple-700/80 transition-all duration-300"
+                  aria-label="Join community and get free cattery resources"
                 >
                   Join Community + Free Resources
                 </button>
@@ -152,31 +177,38 @@ const MobileOptimizedHeroSection: React.FC = () => {
 
               {/* Enhanced Benefits with Toolkit Details */}
               <div className="text-center lg:text-left space-y-3">
-                <p className="text-xs lg:text-sm text-zinc-400">
+                <p 
+                  id="cta-benefits"
+                  className="text-xs lg:text-sm text-zinc-400"
+                >
                   🎁 Instant download + community access • 🔒 No commitment • 🚀 Help shape the platform
                 </p>
                 
                 {/* Toolkit Value Stack */}
                 <div className="bg-zinc-800/30 border border-indigo-500/30 rounded-lg p-4 space-y-2">
                   <h4 className="text-sm font-semibold text-indigo-400">Your Free Community Resources Include:</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-zinc-300">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-green-400">✓</span>
+                  <ul 
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-zinc-300"
+                    role="list"
+                    aria-label="Free community resources included"
+                  >
+                    <li className="flex items-center space-x-2">
+                      <span className="text-green-400" aria-hidden="true">✓</span>
                       <span>Interactive Cat Travel Checklist</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-green-400">✓</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <span className="text-green-400" aria-hidden="true">✓</span>
                       <span>Cattery Evaluation Guide</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-green-400">✓</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <span className="text-green-400" aria-hidden="true">✓</span>
                       <span>Community Forum Access</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-green-400">✓</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <span className="text-green-400" aria-hidden="true">✓</span>
                       <span>Development Updates & Input</span>
-                    </div>
-                  </div>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -266,10 +298,16 @@ const MobileValueProposition: React.FC = () => {
   ];
 
   return (
-    <section className="py-12 lg:py-20 bg-zinc-900/50">
+    <section 
+      className="py-12 lg:py-20 bg-zinc-900/50"
+      aria-labelledby="value-proposition-heading"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 lg:mb-16">
-          <h2 className="font-bold text-2xl sm:text-3xl lg:text-4xl text-white mb-3 lg:mb-4">
+          <h2 
+            id="value-proposition-heading"
+            className="font-bold text-2xl sm:text-3xl lg:text-4xl text-white mb-3 lg:mb-4"
+          >
             Building Together: Where We Are
           </h2>
           <p className="text-lg lg:text-xl text-zinc-300 max-w-3xl mx-auto mb-8">
@@ -277,21 +315,32 @@ const MobileValueProposition: React.FC = () => {
           </p>
           
           {/* Platform Status Warning */}
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 max-w-2xl mx-auto">
+          <div 
+            className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 max-w-2xl mx-auto"
+            role="alert"
+            aria-live="polite"
+          >
             <p className="text-yellow-300 text-sm font-medium">
-              ⚠️ <strong>Platform in Development:</strong> All features shown below are planned for our Q4 2025 launch. 
+              <span aria-hidden="true">⚠️</span> <strong>Platform in Development:</strong> All features shown below are planned for our Q4 2025 launch. 
               Join now to help shape what we build based on YOUR needs!
             </p>
           </div>
           
           {/* Development Progress Section */}
           <div className="bg-zinc-800/50 rounded-xl p-6 lg:p-8 border border-zinc-700 max-w-4xl mx-auto mb-12">
-            <h3 className="text-xl lg:text-2xl font-bold text-white mb-6 flex items-center justify-center space-x-2">
-              <span className="text-2xl">🚀</span>
+            <h3 
+              className="text-xl lg:text-2xl font-bold text-white mb-6 flex items-center justify-center space-x-2"
+              id="development-status-heading"
+            >
+              <span className="text-2xl" aria-hidden="true">🚀</span>
               <span>Platform Development Status</span>
             </h3>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div 
+              className="grid md:grid-cols-2 gap-6"
+              role="list"
+              aria-labelledby="development-status-heading"
+            >
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
@@ -442,10 +491,23 @@ const MobileValueProposition: React.FC = () => {
 const FinalCTA: React.FC = () => {
   const { setCurrentStep } = useApp();
 
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+
   return (
-    <section className="py-16 lg:py-24 bg-gradient-to-b from-zinc-900 to-zinc-800">
+    <section 
+      className="py-16 lg:py-24 bg-gradient-to-b from-zinc-900 to-zinc-800"
+      aria-labelledby="final-cta-heading"
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 lg:mb-6">
+        <h2 
+          id="final-cta-heading"
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 lg:mb-6"
+        >
           Ready to Join Our Founding Community?
         </h2>
         <p className="text-lg lg:text-xl text-gray-300 mb-6 lg:mb-8">
@@ -453,35 +515,41 @@ const FinalCTA: React.FC = () => {
         </p>
         
         {/* Trust badges - Mobile optimized */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6 mb-6 lg:mb-8">
-          <div className="flex items-center justify-center text-gray-300 bg-zinc-800/30 rounded-lg p-3">
-            <svg className="w-4 h-4 lg:w-5 lg:h-5 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+        <ul 
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6 mb-6 lg:mb-8"
+          role="list"
+          aria-label="Community benefits"
+        >
+          <li className="flex items-center justify-center text-gray-300 bg-zinc-800/30 rounded-lg p-3">
+            <svg className="w-4 h-4 lg:w-5 lg:h-5 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             <span className="text-sm lg:text-base font-medium">Free to join</span>
-          </div>
-          <div className="flex items-center justify-center text-gray-300 bg-zinc-800/30 rounded-lg p-3">
-            <svg className="w-4 h-4 lg:w-5 lg:h-5 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+          </li>
+          <li className="flex items-center justify-center text-gray-300 bg-zinc-800/30 rounded-lg p-3">
+            <svg className="w-4 h-4 lg:w-5 lg:h-5 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             <span className="text-sm lg:text-base font-medium">No commitment</span>
-          </div>
-          <div className="flex items-center justify-center text-gray-300 bg-zinc-800/30 rounded-lg p-3">
-            <svg className="w-4 h-4 lg:w-5 lg:h-5 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+          </li>
+          <li className="flex items-center justify-center text-gray-300 bg-zinc-800/30 rounded-lg p-3">
+            <svg className="w-4 h-4 lg:w-5 lg:h-5 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             <span className="text-sm lg:text-base font-medium">Early access benefits</span>
-          </div>
-        </div>
+          </li>
+        </ul>
         
         {/* CTA Buttons - Mobile optimized */}
         <div className="space-y-4">
           <button 
             onClick={() => setCurrentStep('registration')}
-            className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white px-8 lg:px-12 py-4 lg:py-5 rounded-full text-lg lg:text-xl font-bold transition-all transform hover:scale-105 shadow-xl inline-flex items-center justify-center space-x-3"
+            onKeyDown={(e) => handleKeyDown(e, () => setCurrentStep('registration'))}
+            className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white px-8 lg:px-12 py-4 lg:py-5 rounded-full text-lg lg:text-xl font-bold transition-all transform hover:scale-105 shadow-xl inline-flex items-center justify-center space-x-3 focus:outline-none focus:ring-4 focus:ring-green-500/50"
+            aria-label="Join founding community and get free cattery guides"
           >
             <span>Join Founding Community + Get Free Guides</span>
-            <ArrowRight className="h-5 w-5 lg:h-6 lg:w-6" />
+            <ArrowRight className="h-5 w-5 lg:h-6 lg:w-6" aria-hidden="true" />
           </button>
           
           {/* Community indicator */}
@@ -505,14 +573,23 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-zinc-900">
+      {/* Skip Navigation Link */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-indigo-600 text-white px-4 py-2 rounded-md z-50 focus:outline-none focus:ring-2 focus:ring-white"
+        aria-label="Skip to main content"
+      >
+        Skip to main content
+      </a>
       <Header />
-      <main>
+      <main id="main-content" role="main">
         <MobileOptimizedHeroSection />
         <div className="max-w-6xl mx-auto px-4 py-4 lg:py-8">
           <RegionalUrgency variant="banner" showDetails={true} />
         </div>
         <MobileValueProposition />
         <SocialProof />
+        <FinalCTA />
       </main>
       {/* Mobile Sticky CTA */}
       <MobileStickyCTAEnhanced />

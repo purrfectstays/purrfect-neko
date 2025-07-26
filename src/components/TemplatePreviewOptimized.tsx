@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { ArrowRight, Shield, Clock, Users, Search, Calendar, BarChart3, Zap, MapPin, TrendingUp } from 'lucide-react';
 import Header from './Header';
 import SocialProof from './SocialProof';
@@ -7,12 +7,17 @@ import PerformanceOptimizedImage from './PerformanceOptimizedImage';
 import { useApp } from '../context/AppContext';
 import { useProgressiveEnhancement } from '../hooks/useProgressiveEnhancement';
 
-// Direct imports for stability (can optimize with lazy loading later)
-import HeroSection from './landing/HeroSection';
-import PainPointSection from './landing/PainPointSection';
-import CommunityEngagementSection from './landing/CommunityEngagementSection';
-import HowItWorksSection from './landing/HowItWorksSection';
-import MobileStickyCTA from './template-preview/MobileStickyCTA';
+// Lazy load landing page sections for better performance
+const HeroSection = React.lazy(() => import('./landing/HeroSection'));
+const PainPointSection = React.lazy(() => import('./landing/PainPointSection'));
+const CommunityEngagementSection = React.lazy(() => import('./landing/CommunityEngagementSection'));
+const HowItWorksSection = React.lazy(() => import('./landing/HowItWorksSection'));
+const MobileStickyCTA = React.lazy(() => import('./template-preview/MobileStickyCTA'));
+
+// Loading component for lazy sections
+const SectionLoader: React.FC = () => (
+  <div className="animate-pulse bg-zinc-800/50 rounded-lg h-32 mx-4"></div>
+);
 
 
 // Cattery Owner CTA Component - optimized
@@ -82,7 +87,9 @@ const TemplatePreviewOptimized: React.FC = () => {
       <Header />
 
       {/* Hero Section - Critical above-the-fold content */}
-      <HeroSection waitlistStats={waitlistStats} />
+      <Suspense fallback={<SectionLoader />}>
+        <HeroSection waitlistStats={waitlistStats} />
+      </Suspense>
 
       {/* Regional Urgency - High priority */}
       <div className="max-w-6xl mx-auto px-4 py-4 lg:py-8">
@@ -90,13 +97,19 @@ const TemplatePreviewOptimized: React.FC = () => {
       </div>
 
       {/* Pain Point Section - Core conversion element */}
-      <PainPointSection />
+      <Suspense fallback={<SectionLoader />}>
+        <PainPointSection />
+      </Suspense>
 
       {/* Community Engagement - Social proof */}
-      <CommunityEngagementSection />
+      <Suspense fallback={<SectionLoader />}>
+        <CommunityEngagementSection />
+      </Suspense>
 
       {/* How It Works - Value proposition */}
-      <HowItWorksSection />
+      <Suspense fallback={<SectionLoader />}>
+        <HowItWorksSection />
+      </Suspense>
 
       {/* Cat Parent Value Props Section - Enhanced */}
       <section className="py-16 bg-zinc-800/50 section-contain">
@@ -241,7 +254,9 @@ const TemplatePreviewOptimized: React.FC = () => {
       </div>
 
       {/* Mobile Sticky CTA */}
-      <MobileStickyCTA />
+      <Suspense fallback={null}>
+        <MobileStickyCTA />
+      </Suspense>
     </div>
   );
 };
