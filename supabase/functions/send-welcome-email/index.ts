@@ -151,7 +151,24 @@ Deno.serve(async (req) => {
     
     // Extract token from Authorization header or apikey header
     const token = authHeader?.replace('Bearer ', '') || apiKeyHeader;
+    // SECURITY: Only use ANON key, never SERVICE_ROLE_KEY
     const expectedAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    
+    // Explicitly check we're NOT using service role key
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (token === serviceRoleKey) {
+      console.error('🚨 SECURITY: Attempted to use service role key in Edge Function!');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid authorization token',
+          code: 401
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      )
+    }
     
     if (!token || !expectedAnonKey) {
       return new Response(
