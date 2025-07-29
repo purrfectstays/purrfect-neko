@@ -527,36 +527,8 @@ export class UnifiedEmailVerificationService {
       console.log('📝 User ID:', userId);
       console.log('📝 Responses:', responses);
       
-      // First, let's try the direct approach but with better error handling
-      // Check if user exists and is verified first
-      const { data: userData, error: userError } = await supabase
-        .from('waitlist_users')
-        .select('id, email, name, user_type, is_verified, quiz_completed, waitlist_position')
-        .eq('id', userId)
-        .single();
-
-      if (userError) {
-        console.error('❌ Failed to find user:', userError);
-        throw new UnifiedEmailVerificationError(
-          `User lookup failed: ${userError.message}`,
-          'USER_NOT_FOUND'
-        );
-      }
-
-      console.log('✅ Found user:', userData);
-
-      if (!userData.is_verified) {
-        console.error('❌ User not verified:', userData);
-        throw new UnifiedEmailVerificationError(
-          'User must be verified before submitting quiz responses',
-          'USER_NOT_VERIFIED'
-        );
-      }
-
-      if (userData.quiz_completed) {
-        console.log('ℹ️ Quiz already completed for user:', userData.email);
-        return { user: userData as WaitlistUser, waitlistPosition: userData.waitlist_position || 0 };
-      }
+      // Skip user lookup - let RPC function handle all validation with SECURITY DEFINER
+      console.log('🔒 Using RPC function for secure quiz submission (bypassing direct database lookup)...');
 
       // COMPREHENSIVE QUIZ SUBMISSION - Try secure function first, fallback to direct calls
       console.log('📝 Starting quiz submission process...');
@@ -569,6 +541,7 @@ export class UnifiedEmailVerificationService {
 
       let data: unknown = null;
       let submissionSuccess = false;
+      let userData: any = null; // Will be populated by RPC function
 
       // APPROACH 1: Try secure database function first (preferred)
       try {
@@ -587,6 +560,7 @@ export class UnifiedEmailVerificationService {
         if (functionResult && functionResult.success) {
           console.log('✅ Secure function approach successful');
           data = functionResult.user;
+          userData = functionResult.user; // Set userData from RPC function result
           submissionSuccess = true;
         } else {
           console.log('⚠️ Function returned error:', functionResult?.error);
