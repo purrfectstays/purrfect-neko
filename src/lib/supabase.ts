@@ -56,52 +56,12 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Enhanced connection test with CORS error detection
+// Connection test disabled to prevent 401 errors on empty database
+// Re-enable after users are properly migrated to new database
 if (isConfigValid && supabaseUrl && supabaseAnonKey) {
-  supabase
-    .from('waitlist_users')
-    .select('count', { count: 'exact', head: true })
-    .then(({ error }) => {
-      if (error) {
-        if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-          console.error('🚨 CORS Configuration Required!');
-          console.error('Please add the following origins to your Supabase CORS settings:');
-          console.error('- http://localhost:5173 (for development)');
-          console.error('- https://purrfectstays.org (for production)');
-          console.error('');
-          console.error('Steps to fix:');
-          console.error('1. Go to your Supabase Dashboard');
-          console.error('2. Navigate to Project Settings → API');
-          console.error('3. Scroll down to CORS section');
-          console.error('4. Add the origins listed above');
-          console.error('');
-          const projectId = supabaseUrl.split('.')[0].replace('https://', '');
-          console.error(`Supabase Dashboard: https://supabase.com/dashboard/project/${projectId}/settings/api`);
-        } else {
-          console.warn('Supabase connection test failed:', error.message);
-        }
-      } else {
-        console.log('✅ Supabase connection successful');
-      }
-    })
-    .catch((error) => {
-      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-        console.error('🚨 CORS Error Detected!');
-        console.error('This is likely a CORS configuration issue in your Supabase project.');
-        console.error('');
-        console.error('Quick Fix:');
-        const projectId = supabaseUrl.split('.')[0].replace('https://', '');
-        console.error(`1. Open: https://supabase.com/dashboard/project/${projectId}/settings/api`);
-        console.error('2. Scroll to CORS section');
-        console.error('3. Add: http://localhost:5173');
-        console.error('4. Add: https://purrfectstays.org');
-        console.error('5. Save changes');
-      } else {
-        console.warn('Supabase connection test error:', error);
-      }
-    });
+  console.log('✅ Supabase client initialized successfully (connection test disabled)');
 } else {
-  console.warn('Skipping Supabase connection test due to invalid configuration');
+  console.warn('Supabase configuration invalid - client may not work properly');
 }
 
 // Export configuration status for other modules
