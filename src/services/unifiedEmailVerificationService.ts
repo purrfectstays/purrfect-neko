@@ -553,8 +553,11 @@ export class UnifiedEmailVerificationService {
           });
 
         if (functionError) {
-          console.log('⚠️ Function approach failed:', functionError.message);
-          throw new Error('Function not available');
+          console.error('❌ RPC Function error:', functionError);
+          throw new UnifiedEmailVerificationError(
+            `Quiz submission failed: ${functionError.message}`,
+            'RPC_FUNCTION_ERROR'
+          );
         }
 
         if (functionResult && functionResult.success) {
@@ -563,62 +566,19 @@ export class UnifiedEmailVerificationService {
           userData = functionResult.user; // Set userData from RPC function result
           submissionSuccess = true;
         } else {
-          console.log('⚠️ Function returned error:', functionResult?.error);
-          throw new Error(functionResult?.error || 'Function returned failure');
+          console.error('❌ RPC Function returned error:', functionResult);
+          throw new UnifiedEmailVerificationError(
+            `Quiz submission failed: ${functionResult?.error || 'RPC function returned failure'}`,
+            'RPC_FUNCTION_FAILED'
+          );
         }
-      } catch {
-        console.log('⚠️ Secure function approach failed, trying fallback...');
-        
-        // APPROACH 2: Fallback to direct database operations
-        try {
-          console.log('🔄 Using fallback direct approach...');
-          
-          // Insert quiz responses directly
-          const quizInserts = responses.map(response => ({
-            user_id: userId,
-            question_id: response.question_id,
-            answer: response.answer.toString(),
-          }));
-
-          const { error: quizError } = await supabase
-            .from('quiz_responses')
-            .insert(quizInserts);
-
-          if (quizError) {
-            console.error('❌ Quiz responses insert failed:', quizError);
-            throw new UnifiedEmailVerificationError(
-              `Failed to save quiz responses: ${quizError.message}`,
-              'QUIZ_INSERT_FAILED'
-            );
-          }
-
-          console.log('✅ Quiz responses saved via fallback');
-
-          // Try to mark quiz as completed
-          const { data: updateData, error: updateError } = await supabase
-            .from('waitlist_users')
-            .update({ 
-              quiz_completed: true,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', userId)
-            .select('*')
-            .single();
-
-          if (updateError) {
-            console.log('⚠️ Update failed, using existing user data');
-            data = userData;
-          } else {
-            console.log('✅ Quiz completion updated via fallback');
-            data = updateData;
-            submissionSuccess = true;
-          }
-        } catch (fallbackError) {
-          console.error('❌ Fallback approach also failed:', fallbackError);
-          // Last resort - use existing user data and hope for the best
-          data = userData;
-          console.log('⚠️ Using original user data as last resort');
-        }
+      } catch (rpcError) {
+        console.error('❌ RPC function failed completely:', rpcError);
+        // No fallback - RPC function should handle all cases
+        throw new UnifiedEmailVerificationError(
+          'Quiz submission failed. Please try again or contact support.',
+          'RPC_SUBMISSION_FAILED'
+        );
       }
 
       // Ensure we have valid user data
