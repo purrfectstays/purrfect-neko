@@ -5,6 +5,7 @@ import { getEnhancedQuizQuestionsForUser, calculateQuizScoreEnhanced, QuizQuesti
 import { LocalizedQuizService } from '../services/localizedQuizService';
 import { GeolocationService, LocationData } from '../services/geolocationService';
 import { WaitlistService } from '../services/waitlistService';
+import { UnifiedEmailVerificationService } from '../services/unifiedEmailVerificationService';
 import CurrencyIndicator from './CurrencyIndicator';
 import { analytics } from '../lib/analytics';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
@@ -256,7 +257,7 @@ const QualificationQuizEnhanced: React.FC = () => {
           
           try {
             // Try database submission with enhanced error handling
-            result = await WaitlistService.submitEnhancedQuizResponses(userId, quizResponses, scoreResult);
+            result = await UnifiedEmailVerificationService.submitQuizResponses(userId, quizResponses);
             console.log('✅ Database quiz submission successful');
           } catch (dbError) {
             console.error('❌ Database quiz submission failed:', dbError);
