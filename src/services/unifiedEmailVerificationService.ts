@@ -234,16 +234,14 @@ export class UnifiedEmailVerificationService {
         console.warn('Failed to get user location:', error);
       }
 
-      // Insert user into database
+      // Insert user into database using RPC function (bypasses RLS)
       const { data, error } = await supabase
-        .from('waitlist_users')
-        .insert({
-          name: userData.name,
-          email: userData.email,
-          user_type: userData.userType,
-          verification_token: verificationToken,
-          // Include location data if available
-          ...(locationData && {
+        .rpc('register_waitlist_user', {
+          p_name: userData.name,
+          p_email: userData.email,
+          p_user_type: userData.userType,
+          p_verification_token: verificationToken,
+          p_location_data: locationData ? {
             country: locationData.country,
             region: locationData.region,
             city: locationData.city,
@@ -251,39 +249,33 @@ export class UnifiedEmailVerificationService {
             latitude: locationData.latitude,
             longitude: locationData.longitude,
             timezone: locationData.timezone,
-          }),
-        })
-        .select()
-        .single();
+          } : null
+        });
 
       if (error) {
-        // Provide more specific error messages for common issues
-        if (error.message?.includes('Failed to fetch')) {
-          throw new UnifiedEmailVerificationError(
-            'Network error: Please check your connection and try again.',
-            'NETWORK_ERROR',
-            { originalError: error }
-          );
-        }
-        throw handleServiceError(error, 'registerUser');
+        throw new UnifiedEmailVerificationError(
+          'Registration failed: ' + error.message,
+          'REGISTRATION_ERROR',
+          { originalError: error }
+        );
       }
 
-      // REMOVED: verification_tokens insertion - unnecessary since we auto-verify users immediately
-      // This was causing 401 errors due to RLS permissions and serves no purpose with instant verification
-      console.log('✅ Skipping verification_tokens insertion - using instant verification instead');
-
-      // Auto-verify all users immediately - no email verification needed
-      const { error: verifyError } = await supabase
-        .from('waitlist_users')
-        .update({ is_verified: true })
-        .eq('id', data.id);
-
-      if (verifyError) {
-        console.warn('Failed to auto-verify user:', verifyError);
+      // Check if RPC function returned success
+      if (!data?.success) {
+        throw new UnifiedEmailVerificationError(
+          data?.error || 'Registration failed',
+          'REGISTRATION_ERROR'
+        );
       }
 
-      // Return verified user data for all user types
-      return { user: { ...data, is_verified: true }, verificationToken };
+      // Extract user data from RPC response
+      const userData = data.user;
+      
+      // Return verified user data (RPC function auto-verifies)
+      return { 
+        user: userData, 
+        verificationToken: data.verificationToken 
+      };
     } catch (error) {
       if (error instanceof UnifiedEmailVerificationError) {
         throw error;
