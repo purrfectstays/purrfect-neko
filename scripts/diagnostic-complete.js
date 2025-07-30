@@ -94,7 +94,7 @@ async function runCompleteDiagnostic() {
   // 4. Edge Function Discovery
   console.log('\n4️⃣ EDGE FUNCTION DISCOVERY:');
   const edgeFunctions = [
-    'send-verification-email',
+    'send-welcome-email',
     'send-welcome-email'
   ];
   

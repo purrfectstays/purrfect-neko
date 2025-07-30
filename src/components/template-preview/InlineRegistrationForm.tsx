@@ -106,18 +106,7 @@ const InlineRegistrationForm: React.FC = () => {
       setIsSubmitting(true);
       try {
         // Use the Edge Function with CAPTCHA registration for production-ready flow
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-verification-email', {
-          body: {
-            email: formData.email,
-            name: formData.name,
-            userType: 'cat-parent',
-            skipEmailSending: true, // Skip actual email sending
-            autoVerify: true // Auto-verify after CAPTCHA
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        // Verification email sending removed - now using instant 6-digit verification
 
         if (emailError) {
           console.error('Edge Function failed:', emailError);

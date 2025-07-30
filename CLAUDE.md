@@ -280,7 +280,7 @@ With MCP integration, you can:
 ### Deployment Workflow
 
 The MCP setup enables streamlined deployments:
-- **Function Deployment**: `"Deploy send-verification-email function to Supabase"`
+- **Function Deployment**: `"Deploy send-welcome-email function to Supabase"`
 - **Status Monitoring**: `"Show deployment status and logs"`
 - **Testing**: `"Test email function with sample data"`
 - **Rollback**: `"Rollback function to previous version"`

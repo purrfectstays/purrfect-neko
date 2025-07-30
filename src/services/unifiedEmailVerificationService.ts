@@ -307,16 +307,8 @@ export class UnifiedEmailVerificationService {
       
       console.log('📧 Frontend sending:', requestBody);
       
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-verification-email`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: requestBody,
-      });
-      
-      if (!response.ok) {
+      // Verification email sending removed - now using instant 6-digit verification
+        if (!response.ok) {
         const errorText = await response.text();
         console.error('📧 Edge Function error:', errorText);
         throw new Error(`Email function failed: ${response.status}`);

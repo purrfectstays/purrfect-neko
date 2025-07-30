@@ -43,7 +43,7 @@ VITE_APP_URL=http://localhost:5173
 1. Create a new Supabase project
 2. Run the migration file: `supabase/migrations/create_waitlist_schema.sql`
 3. Deploy the edge functions:
-   - `supabase/functions/send-verification-email/`
+   - `supabase/functions/send-welcome-email/` (welcome emails only)
    - `supabase/functions/send-welcome-email/`
 4. Set environment variables in Supabase dashboard:
    - `RESEND_API_KEY`

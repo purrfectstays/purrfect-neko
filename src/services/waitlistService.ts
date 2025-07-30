@@ -173,19 +173,7 @@ export class WaitlistService {
 
       // Send verification email
       try {
-        // Calling Edge Function: send-verification-email
-        
-        const { error: emailError } = await supabase.functions.invoke('send-verification-email', {
-          body: {
-            email: userData.email,
-            name: userData.name,
-            verificationToken,
-            userType: userData.userType,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        // Verification email sending removed - now using instant 6-digit verification
 
         if (emailError) {
           console.error('Failed to send verification email:', emailError);

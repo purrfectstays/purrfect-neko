@@ -13,7 +13,7 @@
 ### Edge Functions Used
 - ✅ **`send-welcome-email`** - Sends welcome email AFTER quiz completion
 - ✅ **`auto-send-welcome-emails`** - Batch processing for welcome emails
-- ❌ **`send-verification-email`** - **NOT USED** - Legacy function, do not deploy
+- ✅ **`send-welcome-email`** - **ACTIVE** - Sends welcome emails after quiz completion
 
 ### Service Files
 - **`unifiedEmailVerificationService.ts`** - Handles instant 6-digit verification (no email sending)
@@ -29,4 +29,4 @@
 When deploying Edge Functions:
 - Deploy: `send-welcome-email`
 - Deploy: `auto-send-welcome-emails` 
-- Skip: `send-verification-email` (not used in current flow)
+- Active: `send-welcome-email` (sends welcome emails after quiz completion)

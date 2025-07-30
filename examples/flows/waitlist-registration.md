@@ -201,7 +201,8 @@ static async sendVerificationEmail(
 ): Promise<void> {
   try {
     // Send via Supabase Edge Function
-    await supabase.functions.invoke('send-verification-email', {
+    // Verification emails removed - now using instant 6-digit verification
+    await supabase.functions.invoke('send-welcome-email', {
       body: { email, token }
     });
   } catch (error) {

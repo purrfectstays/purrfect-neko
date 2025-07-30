@@ -31,7 +31,7 @@ The following functions will be deployed:
 - **Trigger**: Called from frontend after successful quiz submission
 - **Template**: Uses Resend API with custom HTML template
 
-### 2. `send-verification-email`
+### 2. `send-welcome-email` (verification emails removed)
 - **Purpose**: Sends verification codes for email confirmation
 - **Trigger**: Called during registration process
 - **Security**: Includes rate limiting and input validation

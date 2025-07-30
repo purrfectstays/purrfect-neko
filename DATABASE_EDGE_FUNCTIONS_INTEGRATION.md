@@ -76,7 +76,7 @@ ALLOWED_ORIGINS=https://purrfectstays.org,https://www.purrfectstays.org,http://l
 
 ### Updated Functions
 
-1. **send-verification-email**
+1. **send-welcome-email** (verification emails removed)
    - Now uses environment-driven CORS
    - Dynamic site URL configuration
    - Better error handling
@@ -174,7 +174,7 @@ ALLOWED_ORIGINS=https://purrfectstays.org,https://www.purrfectstays.org,http://l
 supabase functions deploy
 
 # Or deploy individually
-supabase functions deploy send-verification-email
+supabase functions deploy send-welcome-email
 supabase functions deploy send-welcome-email  
 supabase functions deploy verify-email
 ```

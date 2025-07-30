@@ -21,7 +21,7 @@ NODE_ENV=production
 ```
 
 ### Supabase Edge Function Environment Variables
-Add these in Supabase Dashboard > Edge Functions > send-verification-email > Environment Variables:
+Add these in Supabase Dashboard > Edge Functions > send-welcome-email > Environment Variables:
 
 ```bash
 SUPABASE_URL=https://your-project.supabase.co
