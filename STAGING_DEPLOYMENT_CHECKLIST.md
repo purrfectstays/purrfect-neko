@@ -91,7 +91,7 @@ Since all fixes are committed and API keys are rotated, the staging deployment i
 # Test CORS restrictions:
 # Open dev tools → Console
 # Execute:
-fetch('https://fahqkxrakcizftopskki.supabase.co/rest/v1/waitlist_users', {
+fetch('https://your-project.supabase.co/rest/v1/waitlist_users', {
   headers: { 'apikey': 'test' }
 }).catch(e => console.log('CORS blocked:', e))
 

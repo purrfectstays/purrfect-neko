@@ -64,7 +64,7 @@
 3. **Update All Three Keys**:
    ```bash
    # Replace these exact variable names:
-   VITE_SUPABASE_URL=https://fahqkxrakcizftopskki.supabase.co
+   VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=NEW_ANON_KEY_FROM_STEP_1
    SUPABASE_SERVICE_ROLE_KEY=NEW_SERVICE_ROLE_KEY_FROM_STEP_1
    RESEND_API_KEY=NEW_RESEND_KEY_FROM_STEP_2

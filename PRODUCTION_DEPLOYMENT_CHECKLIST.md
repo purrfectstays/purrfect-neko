@@ -13,7 +13,7 @@
 Add these in your Netlify Dashboard > Site Settings > Environment Variables:
 
 ```bash
-VITE_SUPABASE_URL=https://fahqkxrakcizftopskki.supabase.co
+VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key_here
 VITE_APP_URL=https://your-custom-domain.com
 VITE_GA_MEASUREMENT_ID=your_google_analytics_id
@@ -24,7 +24,7 @@ NODE_ENV=production
 Add these in Supabase Dashboard > Edge Functions > send-verification-email > Environment Variables:
 
 ```bash
-SUPABASE_URL=https://fahqkxrakcizftopskki.supabase.co
+SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 RESEND_API_KEY=your_resend_api_key_here
 ALLOWED_ORIGINS=https://your-custom-domain.com,https://localhost:5173,https://localhost:5174

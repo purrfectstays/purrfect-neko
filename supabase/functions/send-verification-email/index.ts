@@ -279,7 +279,7 @@ Deno.serve(async (req) => {
     if (skipEmailSending) {
       try {
         // Create Supabase client with service role key
-        const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://fahqkxrakcizftopskki.supabase.co';
+        const supabaseUrl = Deno.env.get('SUPABASE_URL') || Deno.env.get('VITE_SUPABASE_URL')!
         const supabaseServiceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
         
         if (!supabaseServiceRoleKey) {
