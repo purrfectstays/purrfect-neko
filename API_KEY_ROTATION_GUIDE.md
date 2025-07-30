@@ -39,7 +39,7 @@
    - Login to your account
 
 2. **Delete Old Key**:
-   - Find key: `re_cUAj61Sw_Bwwxft7M9sNw66LRYDLdeVyn`
+   - Find key: `re_[YOUR_CURRENT_RESEND_KEY]`
    - Click: **Delete** (if it exists)
 
 3. **Create New Key**:
