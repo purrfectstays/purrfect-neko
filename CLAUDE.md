@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**🚨 ATTENTION CLAUDE: This is the Purrfect Stays project - a lead generation landing page for cattery booking. Always read this file first when starting any session. Key context includes BMad-Method integration with Serena, never using Opus 4, and following all development rules below.**
+
 ## Startup Behavior
 
 When starting a new Claude Code session in this project, offer the following options:
@@ -294,18 +296,22 @@ When working with this codebase, follow these essential rules:
 4. **Then, begin working on the todo items, marking them as completed in real-time as you go.**
 5. **Use TodoWrite tool frequently to track progress and keep user informed**
 
+### 🤖 AI Model & Integration Rules
+6. **NEVER use Opus 4 model - always use alternative models for this project**
+7. **BMad Orchestrator and all BMad sub-agents MUST always work side-by-side with Serena for enhanced code intelligence and file operations**
+
 ### 🔍 Code Quality & Simplicity
-6. **Make every task and code change as simple as possible. Avoid massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.**
-7. **Please every step of the way just give me a high level explanation of what changes you made**
-8. **All data and information displayed to users must be factual and accurate. Never show simulated, mock, or fake data - only real information or clearly marked placeholders.**
+8. **Make every task and code change as simple as possible. Avoid massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.**
+9. **Please every step of the way just give me a high level explanation of what changes you made**
+10. **All data and information displayed to users must be factual and accurate. Never show simulated, mock, or fake data - only real information or clearly marked placeholders.**
 
 ### 🔒 Security-First Development
-9. **Always run security checks before deployment: verify no exposed secrets, test CSP headers, validate CORS settings**
-10. **Never expose sensitive keys with VITE_ prefix - use server-side environment variables**
-11. **Test all external API integrations after CSP/CORS changes**
+11. **Always run security checks before deployment: verify no exposed secrets, test CSP headers, validate CORS settings**
+12. **Never expose sensitive keys with VITE_ prefix - use server-side environment variables**
+13. **Test all external API integrations after CSP/CORS changes**
 
 ### 📈 User Communication
-12. **ALWAYS provide detailed step-by-step instructions for non-technical users. Since the user has zero coding experience, include:**
+14. **ALWAYS provide detailed step-by-step instructions for non-technical users. Since the user has zero coding experience, include:**
     - Exact button names and locations
     - What screens should look like
     - Where to click, what to type (exactly)
@@ -314,7 +320,7 @@ When working with this codebase, follow these essential rules:
     - Screenshots descriptions when helpful
     - Common mistakes to avoid
     - What to do if something goes wrong
-13. **Let me know when you have a better suggestion or idea so we can lockhorns**
+15. **Let me know when you have a better suggestion or idea so we can lockhorns**
 
 ### 🚀 Recent Best Practices Learned
 - **Use Task tool for complex research** rather than multiple grep/search operations

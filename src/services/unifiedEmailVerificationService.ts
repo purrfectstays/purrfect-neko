@@ -234,23 +234,26 @@ export class UnifiedEmailVerificationService {
         console.warn('Failed to get user location:', error);
       }
 
-      // Insert user into database using RPC function (bypasses RLS)
+      // Insert user directly into database using RLS policies
       const { data, error } = await supabase
-        .rpc('register_waitlist_user', {
-          p_name: userData.name,
-          p_email: userData.email,
-          p_user_type: userData.userType,
-          p_verification_token: verificationToken,
-          p_location_data: locationData ? {
-            country: locationData.country,
-            region: locationData.region,
-            city: locationData.city,
-            country_code: locationData.countryCode,
-            latitude: locationData.latitude,
-            longitude: locationData.longitude,
-            timezone: locationData.timezone,
-          } : null
-        });
+        .from('waitlist_users')
+        .insert({
+          name: userData.name,
+          email: userData.email,
+          user_type: userData.userType,
+          verification_token: verificationToken,
+          is_verified: true, // Auto-verify for instant experience
+          quiz_completed: false,
+          country: locationData?.country || null,
+          region: locationData?.region || null,
+          city: locationData?.city || null,
+          country_code: locationData?.countryCode || null,
+          latitude: locationData?.latitude || null,
+          longitude: locationData?.longitude || null,
+          timezone: locationData?.timezone || null,
+        })
+        .select()
+        .single();
 
       if (error) {
         throw new UnifiedEmailVerificationError(
@@ -260,21 +263,20 @@ export class UnifiedEmailVerificationService {
         );
       }
 
-      // Check if RPC function returned success
-      if (!data?.success) {
+      if (!data) {
         throw new UnifiedEmailVerificationError(
-          data?.error || 'Registration failed',
+          'Registration failed: No user data returned',
           'REGISTRATION_ERROR'
         );
       }
 
-      // Extract user data from RPC response
-      const userData = data.user;
+      // User data is already in the correct format from the database
+      const userResult = data;
       
-      // Return verified user data (RPC function auto-verifies)
+      // Return verified user data
       return { 
-        user: userData, 
-        verificationToken: data.verificationToken 
+        user: userResult, 
+        verificationToken: verificationToken 
       };
     } catch (error) {
       if (error instanceof UnifiedEmailVerificationError) {

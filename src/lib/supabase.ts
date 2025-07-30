@@ -45,8 +45,20 @@ export const supabase = createClient<Database>(
   supabaseAnonKey || 'placeholder-key',
   {
     auth: {
-      persistSession: false,
-      autoRefreshToken: false,
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: {
+        getItem: (key: string) => {
+          return localStorage.getItem(key);
+        },
+        setItem: (key: string, value: string) => {
+          localStorage.setItem(key, value);
+        },
+        removeItem: (key: string) => {
+          localStorage.removeItem(key);
+        },
+      },
     },
     realtime: {
       params: {
@@ -54,7 +66,7 @@ export const supabase = createClient<Database>(
       },
     },
   }
-);
+);;
 
 // Connection test disabled to prevent 401 errors on empty database
 // Re-enable after users are properly migrated to new database

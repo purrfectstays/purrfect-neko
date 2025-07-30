@@ -611,32 +611,25 @@ export class WaitlistService {
     }
 
     try {
-      // Insert quiz responses (basic format to match existing schema)
-      const { error: quizError } = await supabase
-        .from('quiz_responses')
-        .insert(
-          responses.map(response => ({
-            user_id: userId,
+      // Use the secure RPC function to submit quiz responses
+      const { data: rpcResult, error: rpcError } = await supabase
+        .rpc('submit_quiz_responses', {
+          p_user_id: userId,
+          p_responses: responses.map(response => ({
             question_id: response.question_id,
             answer: response.answer.toString(),
           }))
-        );
+        });
 
-      if (quizError) {
-        throw handleServiceError(quizError, 'Enhanced quiz submission');
+      if (rpcError) {
+        throw handleServiceError(rpcError, 'Enhanced quiz submission RPC');
       }
 
-      // Mark quiz as completed (this will trigger waitlist position assignment)
-      const { data, error } = await supabase
-        .from('waitlist_users')
-        .update({ quiz_completed: true })
-        .eq('id', userId)
-        .select()
-        .single();
-
-      if (error || !data) {
-        throw handleServiceError(error || new Error('No data returned'), 'Enhanced quiz completion');
+      if (!rpcResult || !rpcResult.success) {
+        throw new Error(rpcResult?.error || 'Quiz submission failed');
       }
+
+      const data = rpcResult.user;
 
       // Send welcome email with enhanced data using anon key
       try {
@@ -675,7 +668,7 @@ export class WaitlistService {
 
       return { 
         user: data, 
-        waitlistPosition: data.waitlist_position || 0,
+        waitlistPosition: rpcResult.waitlist_position || 0,
         scoreResult: scoreResult
       };
     } catch (error) {
