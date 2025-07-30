@@ -1,5 +1,15 @@
 import { useEffect, useState, useCallback } from 'react';
-import { userAgentService, type DeviceInfo } from '../services/userAgentService';
+
+interface DeviceInfo {
+  isMobile: boolean;
+  isTablet: boolean;
+  isDesktop: boolean;
+  isBot: boolean;
+  isSlowDevice: boolean;
+  connectionType: string;
+  deviceMemory?: number;
+  userAgent: string;
+}
 
 interface MobileOptimizationOptions {
   enablePrefetch?: boolean;
@@ -19,17 +29,80 @@ interface MobileOptimizationResult {
   preloadCriticalAssets: () => void;
 }
 
+// Inline device detection to replace deleted service
+const getDeviceInfo = (): DeviceInfo => {
+  const userAgent = navigator.userAgent;
+  const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  const isTablet = /iPad|Android(?=.*Tablet)|Kindle|PlayBook|Silk/i.test(userAgent);
+  const isBot = /bot|crawler|spider|crawling/i.test(userAgent);
+  
+  // Connection detection
+  const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+  const connectionType = connection?.effectiveType || 'unknown';
+  
+  // Device memory detection
+  const deviceMemory = (navigator as any).deviceMemory;
+  
+  // Detect slow devices based on various heuristics
+  const isSlowDevice = deviceMemory ? deviceMemory <= 4 : 
+    /Android\s[1-4]|iPhone\sOS\s[1-9]_|Windows\sPhone/i.test(userAgent);
+
+  return {
+    isMobile,
+    isTablet,
+    isDesktop: !isMobile && !isTablet,
+    isBot,
+    isSlowDevice,
+    connectionType,
+    deviceMemory,
+    userAgent
+  };
+};
+
+const shouldReduceMotion = (): boolean => {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
+
+const shouldUseLowQualityImages = (): boolean => {
+  const connection = (navigator as any).connection;
+  return connection?.saveData || ['slow-2g', '2g'].includes(connection?.effectiveType);
+};
+
+const shouldLazyLoadHeavyComponents = (): boolean => {
+  const connection = (navigator as any).connection;
+  const deviceMemory = (navigator as any).deviceMemory;
+  return deviceMemory ? deviceMemory <= 4 : ['slow-2g', '2g', '3g'].includes(connection?.effectiveType);
+};
+
+const getOptimalImageFormat = (): 'webp' | 'jpeg' => {
+  const canvas = document.createElement('canvas');
+  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'webp' : 'jpeg';
+};
+
+const getRecommendedChunkSize = (): number => {
+  const connection = (navigator as any).connection;
+  const deviceMemory = (navigator as any).deviceMemory;
+  
+  if (deviceMemory && deviceMemory <= 2) return 50000; // 50KB chunks for low-memory devices
+  if (['slow-2g', '2g'].includes(connection?.effectiveType)) return 30000; // 30KB for slow connections
+  if (['3g'].includes(connection?.effectiveType)) return 100000; // 100KB for 3G
+  return 200000; // 200KB for fast connections
+};
+
+const shouldPrefetch = (): boolean => {
+  const connection = (navigator as any).connection;
+  return !connection?.saveData && !['slow-2g', '2g'].includes(connection?.effectiveType);
+};
+
 export function useMobileOptimization(
   options: MobileOptimizationOptions = {}
 ): MobileOptimizationResult {
-  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>(
-    userAgentService.getDeviceInfo()
-  );
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>(getDeviceInfo());
 
   useEffect(() => {
     // Update device info on orientation change or resize
     const handleChange = () => {
-      setDeviceInfo(userAgentService.getDeviceInfo());
+      setDeviceInfo(getDeviceInfo());
     };
 
     window.addEventListener('resize', handleChange);
@@ -41,19 +114,12 @@ export function useMobileOptimization(
     };
   }, []);
 
-  const shouldReduceMotion = options.enableReducedMotion !== false && 
-    userAgentService.shouldReduceMotion();
-
-  const shouldUseLowQualityImages = userAgentService.shouldUseLowQualityImages();
-  
-  const shouldLazyLoad = options.enableLazyLoading !== false && 
-    userAgentService.shouldLazyLoadHeavyComponents();
-
-  const imageFormat = userAgentService.getOptimalImageFormat();
-  const chunkSize = userAgentService.getRecommendedChunkSize();
-  
-  const shouldPrefetch = options.enablePrefetch !== false && 
-    userAgentService.shouldPrefetch();
+  const shouldReduceMotionValue = options.enableReducedMotion !== false && shouldReduceMotion();
+  const shouldUseLowQualityImagesValue = shouldUseLowQualityImages();
+  const shouldLazyLoadValue = options.enableLazyLoading !== false && shouldLazyLoadHeavyComponents();
+  const imageFormat = getOptimalImageFormat();
+  const chunkSize = getRecommendedChunkSize();
+  const shouldPrefetchValue = options.enablePrefetch !== false && shouldPrefetch();
 
   const optimizeImage = useCallback((src: string, width?: number): string => {
     // For demo purposes, just return the original src
@@ -62,7 +128,7 @@ export function useMobileOptimization(
   }, []);
 
   const preloadCriticalAssets = useCallback(() => {
-    if (!shouldPrefetch || deviceInfo.isBot) return;
+    if (!shouldPrefetchValue || deviceInfo.isBot) return;
 
     // Preload critical fonts for mobile
     if (deviceInfo.isMobile) {
@@ -76,16 +142,16 @@ export function useMobileOptimization(
     }
 
     // Hero image preload removed - image doesn't exist
-  }, [shouldPrefetch, deviceInfo, optimizeImage]);
+  }, [shouldPrefetchValue, deviceInfo]);
 
   return {
     deviceInfo,
-    shouldReduceMotion,
-    shouldUseLowQualityImages,
-    shouldLazyLoad,
+    shouldReduceMotion: shouldReduceMotionValue,
+    shouldUseLowQualityImages: shouldUseLowQualityImagesValue,
+    shouldLazyLoad: shouldLazyLoadValue,
     imageFormat,
     chunkSize,
-    shouldPrefetch,
+    shouldPrefetch: shouldPrefetchValue,
     optimizeImage,
     preloadCriticalAssets
   };

@@ -69,10 +69,12 @@ const SuccessPage: React.FC = () => {
         <main role="main" aria-labelledby="success-heading">
           <div className="text-center mb-8">
             <div 
-              className="w-24 h-24 mx-auto mb-6 bg-green-500/20 rounded-full flex items-center justify-center"
+              className="w-24 h-24 mx-auto mb-6 bg-green-500/20 rounded-full flex items-center justify-center relative animate-pulse-slow"
               aria-hidden="true"
             >
-              <CheckCircle className="w-12 h-12 text-green-400" />
+              <CheckCircle className="w-12 h-12 text-green-400 animate-bounce" style={{ animationDuration: '2s' }} />
+              {/* Subtle Success Enhancement - Ripple Effect */}
+              <div className="absolute inset-0 rounded-full bg-green-400/10 animate-ping" style={{ animationDuration: '3s' }} />
             </div>
             
             <h1 

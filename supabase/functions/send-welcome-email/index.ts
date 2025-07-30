@@ -131,6 +131,27 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // CRITICAL FIX: Check for API key first
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    
+    if (!resendApiKey) {
+      console.error('❌ CRITICAL: RESEND_API_KEY not found in environment variables');
+      console.error('Available env vars:', Object.keys(Deno.env.toObject()).filter(k => !k.includes('KEY')));
+      
+      // Return user-friendly error
+      return new Response(
+        JSON.stringify({ 
+          error: 'Email service is temporarily unavailable. Please contact support.',
+          code: 'EMAIL_SERVICE_UNAVAILABLE',
+          details: 'Missing API configuration'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 503,
+        }
+      )
+    }
+
     // SECURITY: Validate API key (allow anon key for public access)
     const authHeader = req.headers.get('authorization');
     const apiKeyHeader = req.headers.get('apikey');
@@ -151,7 +172,6 @@ Deno.serve(async (req) => {
     
     // Extract token from Authorization header or apikey header
     const token = authHeader?.replace('Bearer ', '') || apiKeyHeader;
-    // SECURITY: Only use ANON key, never SERVICE_ROLE_KEY
     const expectedAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
     // Explicitly check we're NOT using service role key
@@ -217,59 +237,6 @@ Deno.serve(async (req) => {
       )
     }
 
-    // SECURITY: Validate request timing to prevent replay attacks
-    const timestamp = req.headers.get('x-timestamp');
-    if (timestamp) {
-      const requestTime = parseInt(timestamp);
-      const currentTime = Date.now();
-      if (Math.abs(currentTime - requestTime) > 300000) { // 5 minutes
-        return new Response(
-          JSON.stringify({ error: 'Request timestamp invalid' }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 400,
-          }
-        )
-      }
-    }
-
-    // SECURITY FIX: Only get API key from environment variables
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
-
-    console.log('🔑 RESEND_API_KEY status:', {
-      exists: !!resendApiKey,
-      length: resendApiKey?.length || 0,
-      startsWithRe: resendApiKey?.startsWith('re_') || false
-    });
-
-    if (!resendApiKey) {
-      console.error('❌ RESEND_API_KEY environment variable is not set');
-      console.error('📝 Available env vars:', Object.keys(Deno.env.toObject()));
-      return new Response(
-        JSON.stringify({ 
-          error: 'Email service configuration error. Please contact support.',
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500,
-        }
-      )
-    }
-
-    // FORCE production URL for all email links
-    let siteUrl = 'https://purrfectstays.org';
-    
-    // Allow localhost for development
-    const requestOrigin = req.headers.get('origin');
-    if (requestOrigin && requestOrigin.includes('localhost')) {
-      siteUrl = requestOrigin;
-    } else {
-      // Ensure the URL has a protocol for production
-      if (!siteUrl.startsWith('http://') && !siteUrl.startsWith('https://')) {
-        siteUrl = `https://${siteUrl}`;
-      }
-    }
-
     // Parse and validate request body
     let requestBody;
     try {
@@ -302,7 +269,7 @@ Deno.serve(async (req) => {
     // Sanitize inputs
     const email = requestBody.email.trim().toLowerCase();
     const name = sanitizeHtml(requestBody.name.trim());
-    const waitlistPosition = Math.max(1, parseInt(requestBody.waitlistPosition) || 1); // Ensure minimum position of 1
+    const waitlistPosition = Math.max(1, parseInt(requestBody.waitlistPosition) || 1);
     const userType = requestBody.userType;
     
     console.log('📧 Processing welcome email for:', {
@@ -312,76 +279,108 @@ Deno.serve(async (req) => {
       userType: userType
     });
 
+    // CRITICAL: Validate Resend API key format
+    if (!resendApiKey.startsWith('re_')) {
+      console.error('❌ Invalid RESEND_API_KEY format - must start with "re_"');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Email service configuration error',
+          code: 'INVALID_API_KEY_FORMAT'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
+    }
+
     const resend = new Resend(resendApiKey);
 
-    // Use actual Purrfect Stays logo from public folder
-    const logoBase64DataUrl = null; // Let it use the actual logo file
-    console.log('📷 Using actual Purrfect Stays logo from public folder');
+    // Force production URL for all email links
+    let siteUrl = 'https://purrfectstays.org';
+    
+    // Allow localhost for development
+    const requestOrigin = req.headers.get('origin');
+    if (requestOrigin && requestOrigin.includes('localhost')) {
+      siteUrl = requestOrigin;
+    }
 
     // Prepare email payload
-    const emailPayload: {
-      to: string[];
-      subject: string;
-      html: string;
-    } = {
+    const emailHtml = getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email, null);
+    
+    const emailPayload = {
       to: [email],
       subject: `🎉 Welcome to Purrfect Stays! You're #${waitlistPosition} in Line`,
-      html: getWelcomeEmailTemplate(name, waitlistPosition, userType, siteUrl, email, logoBase64DataUrl),
+      html: emailHtml,
     };
 
-    // TEMPORARILY force Resend default domain for testing
-    const fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
+    // Try custom domain first, then fallback to Resend default
+    let emailResult;
+    let fromAddress = 'Purrfect Stays <hello@purrfectstays.org>';
     
-    console.log('📧 Attempting to send welcome email with payload:', {
-      to: emailPayload.to,
-      subject: emailPayload.subject,
-      from: fromAddress
-    });
-    
-    console.log('📧 Using Resend default domain for guaranteed delivery: onboarding@resend.dev');
-    const emailResult = await resend.emails.send({
-      ...emailPayload,
-      from: fromAddress,
-    });
-    
-    console.log('📧 Resend default domain result:', emailResult);
-    
-    if (emailResult.error) {
-      console.error('❌ Resend default domain error:', emailResult.error);
-      throw new Error(`Email sending failed with Resend default: ${emailResult.error.message}`);
-    }
-
-    const { data, error } = emailResult;
-
-    if (error) {
-      console.error('Welcome email error:', error);
+    try {
+      console.log('📧 Attempting to send from custom domain:', fromAddress);
+      emailResult = await resend.emails.send({
+        ...emailPayload,
+        from: fromAddress,
+      });
       
-      // Handle rate limit errors specifically
-      if (error.message?.includes('Too many requests') || error.message?.includes('rate limit')) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Rate limit exceeded. Please try again later.',
-            type: 'rate_limit'
-          }),
-          {
-            headers: { 
-              ...corsHeaders, 
-              'Content-Type': 'application/json',
-              'Retry-After': '1'
-            },
-            status: 429,
-          }
-        )
+      if (emailResult.error) {
+        throw new Error(emailResult.error.message);
       }
+    } catch (customError) {
+      console.log('⚠️ Custom domain failed, using Resend default:', customError.message);
       
-      throw error;
+      // Fallback to Resend default domain
+      fromAddress = 'Purrfect Stays <onboarding@resend.dev>';
+      try {
+        emailResult = await resend.emails.send({
+          ...emailPayload,
+          from: fromAddress,
+        });
+      } catch (fallbackError) {
+        console.error('❌ Both email attempts failed:', fallbackError);
+        
+        // Check if it's a rate limit error
+        if (fallbackError.message?.includes('rate limit') || fallbackError.message?.includes('Too many requests')) {
+          return new Response(
+            JSON.stringify({ 
+              error: 'Too many email requests. Please try again in a few minutes.',
+              type: 'rate_limit'
+            }),
+            {
+              headers: { 
+                ...corsHeaders, 
+                'Content-Type': 'application/json',
+                'Retry-After': '60'
+              },
+              status: 429,
+            }
+          )
+        }
+        
+        throw fallbackError;
+      }
     }
+
+    // Check final result
+    if (emailResult?.error) {
+      console.error('❌ Email sending failed:', emailResult.error);
+      throw new Error(emailResult.error.message || 'Email sending failed');
+    }
+
+    const { data } = emailResult;
+    console.log('✅ Email sent successfully:', {
+      messageId: data?.id,
+      from: fromAddress,
+      to: email
+    });
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         messageId: data?.id,
-        note: fromAddress.includes('resend.dev') ? 'Sent using default domain. Custom domain verification needed.' : 'Sent using custom domain.'
+        note: fromAddress.includes('resend.dev') ? 'Sent using Resend default domain' : 'Sent using custom domain'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -389,10 +388,15 @@ Deno.serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Welcome email error:', error);
+    console.error('❌ Welcome email error:', error);
+    console.error('Stack trace:', error.stack);
+    
+    // Provide detailed error response for debugging
     return new Response(
       JSON.stringify({ 
-        error: 'An unexpected error occurred while sending welcome email.',
+        error: 'Failed to send welcome email',
+        message: error.message || 'An unexpected error occurred',
+        code: 'EMAIL_SEND_FAILED'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

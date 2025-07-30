@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { ArrowRight, Shield, Clock, Users, Search, Calendar, BarChart3, Zap, MapPin, TrendingUp } from 'lucide-react';
 import Header from './Header';
-import SocialProof from './SocialProof';
 import RegionalUrgency from './RegionalUrgency';
 import PerformanceOptimizedImage from './PerformanceOptimizedImage';
 import { useApp } from '../context/AppContext';
-import { useProgressiveEnhancement } from '../hooks/useProgressiveEnhancement';
-
 // Lazy load landing page sections for better performance
 const HeroSection = React.lazy(() => import('./landing/HeroSection'));
 const PainPointSection = React.lazy(() => import('./landing/PainPointSection'));
@@ -60,8 +57,11 @@ const CatteryOwnerCTA: React.FC = () => {
 };
 
 const TemplatePreviewOptimized: React.FC = () => {
-  const { currentStep, shouldLoadEnhanced } = useProgressiveEnhancement();
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Inline device detection to replace deleted hook
+  const deviceInfo = {
+    isMobile: /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  };
+  const shouldLoadEnhanced = !deviceInfo.isMobile;const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [waitlistStats, setWaitlistStats] = useState<{
     totalUsers: number;
     verifiedUsers: number;
@@ -249,9 +249,7 @@ const TemplatePreviewOptimized: React.FC = () => {
       </section>
 
       {/* Social Proof Section */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <SocialProof />
-      </div>
+      <div className="max-w-6xl mx-auto px-4 py-8"></div>
 
       {/* Mobile Sticky CTA */}
       <Suspense fallback={null}>

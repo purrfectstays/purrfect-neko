@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { ArrowRight, Star, Users, Clock, Shield, TrendingUp, Search, Calendar, BarChart3, Zap, MapPin } from 'lucide-react';
 import Header from './Header';
-import SocialProof from './SocialProof';
-import RegionalUrgency from './RegionalUrgency';
 import OptimizedImage from './OptimizedImage';
-import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { useApp } from '../context/AppContext';
-import MobileStickyCTAEnhanced from './template-preview/MobileStickyCTAEnhanced';
+
+// Performance Enhancement: Lazy load non-critical components
+const RegionalUrgency = lazy(() => import('./RegionalUrgency'));
+const MobileStickyCTAEnhanced = lazy(() => import('./template-preview/MobileStickyCTAEnhanced'));
 
 // Animated text cycling component
 const AnimatedPerfect: React.FC = () => {
@@ -150,6 +150,26 @@ const MobileOptimizedHeroSection: React.FC = () => {
               </p>
             </div>
 
+            {/* Enhanced Trust & Transparency Indicators */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center mb-4">
+              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-2">
+                <div className="text-green-400 font-bold text-xs">✓ TRANSPARENT</div>
+                <div className="text-zinc-400 text-xs">Open Development</div>
+              </div>
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2">
+                <div className="text-blue-400 font-bold text-xs">✓ SECURE</div>
+                <div className="text-zinc-400 text-xs">Data Protected</div>
+              </div>
+              <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-2">
+                <div className="text-purple-400 font-bold text-xs">✓ FACTUAL</div>
+                <div className="text-zinc-400 text-xs">No False Claims</div>
+              </div>
+              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-2">
+                <div className="text-indigo-400 font-bold text-xs">✓ COMMUNITY</div>
+                <div className="text-zinc-400 text-xs">Member Driven</div>
+              </div>
+            </div>
+
             {/* Primary CTAs - Desktop Aligned */}
             <div className="space-y-4">
               {/* CTA Buttons Row - Aligned on Desktop */}
@@ -173,6 +193,13 @@ const MobileOptimizedHeroSection: React.FC = () => {
                 >
                   Join Community + Free Resources
                 </button>
+              </div>
+
+              {/* Process Clarity Enhancement */}
+              <div className="text-center lg:text-left">
+                <p className="text-xs text-zinc-400 mb-3">
+                  → Takes 2 minutes: Quick signup → Answer 7 questions → Instant resource access
+                </p>
               </div>
 
               {/* Enhanced Benefits with Toolkit Details */}
@@ -563,15 +590,7 @@ const FinalCTA: React.FC = () => {
 };
 
 const LandingPage: React.FC = () => {
-  // Track detailed user behavior for conversion optimization
-  useBehaviorTracking('landing_page', {
-    trackScrollDepth: true,
-    trackTimeOnPage: true,
-    trackClickHeatmap: true,
-    trackFormInteractions: false
-  });
-
-  return (
+return (
     <div className="min-h-screen bg-zinc-900">
       {/* Skip Navigation Link */}
       <a 
@@ -585,14 +604,22 @@ const LandingPage: React.FC = () => {
       <main id="main-content" role="main">
         <MobileOptimizedHeroSection />
         <div className="max-w-6xl mx-auto px-4 py-4 lg:py-8">
-          <RegionalUrgency variant="banner" showDetails={true} />
+          <Suspense fallback={
+            <div className="animate-pulse bg-zinc-800/30 rounded-lg h-24 flex items-center justify-center">
+              <div className="text-zinc-400 text-sm">Loading regional information...</div>
+            </div>
+          }>
+            <RegionalUrgency variant="banner" showDetails={true} />
+          </Suspense>
         </div>
-        <MobileValueProposition />
-        <SocialProof />
-        <FinalCTA />
+        <MobileValueProposition /><FinalCTA />
       </main>
-      {/* Mobile Sticky CTA */}
-      <MobileStickyCTAEnhanced />
+      {/* Mobile Sticky CTA - Performance Enhanced */}
+      <Suspense fallback={
+        <div className="fixed bottom-0 left-0 right-0 h-16 bg-zinc-900/90 animate-pulse" />
+      }>
+        <MobileStickyCTAEnhanced />
+      </Suspense>
       {/* Add bottom padding to prevent overlap */}
       <div className="h-20 lg:h-24"></div>
     </div>

@@ -5,7 +5,6 @@ import UnifiedEmailVerificationService from '../services/unifiedEmailVerificatio
 import { analytics } from '../lib/analytics';
 import RegionalUrgency from './RegionalUrgency';
 import { useGeolocation } from '../hooks/useGeolocation';
-import { useBehaviorTracking } from '../hooks/useBehaviorTracking';
 import { rateLimiter, RateLimiter } from '../lib/rateLimiter';
 import {
   isDisposableEmail,
@@ -20,13 +19,8 @@ const RegistrationForm: React.FC = () => {
   const { setCurrentStep, setUser, setWaitlistUser, setVerificationToken } = useApp();
   const { location, waitlistData } = useGeolocation();
 
-  // Track registration form behavior for optimization
-  const { trackFormSubmission } = useBehaviorTracking('registration_form', {
-    trackScrollDepth: false,
-    trackTimeOnPage: true,
-    trackClickHeatmap: true,
-    trackFormInteractions: true
-  });
+  // Tracking removed - analytics handled elsewhere
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -164,8 +158,7 @@ const RegistrationForm: React.FC = () => {
         waitlistPosition: waitlistUser.waitlist_position
       });
 
-      // Track successful form submission
-      trackFormSubmission('waitlist_registration', true);
+      // Registration successful - analytics handled by context
 
       // Show success message before redirecting
       setErrors({
@@ -179,8 +172,7 @@ const RegistrationForm: React.FC = () => {
     } catch (error) {
       console.error('Registration error:', error);
 
-      // Track failed form submission
-      trackFormSubmission('waitlist_registration', false, error instanceof Error ? error.message : 'Unknown error');
+      // Registration failed - error logged above
 
       // Track registration error
       analytics.trackError('registration_failed', error instanceof Error ? error.message : 'Unknown error');

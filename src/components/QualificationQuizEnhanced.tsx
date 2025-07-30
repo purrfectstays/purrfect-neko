@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { getEnhancedQuizQuestionsForUser, calculateQuizScoreEnhanced, QuizQuestion, getProgressMilestones } from '../data/quizQuestionsEnhanced';
-import { LocalizedQuizService } from '../services/localizedQuizService';
+// LocalizedQuizService removed - using direct quiz data
 import { GeolocationService, LocationData } from '../services/geolocationService';
 import { WaitlistService } from '../services/waitlistService';
 import { UnifiedEmailVerificationService } from '../services/unifiedEmailVerificationService';
@@ -69,16 +69,9 @@ const QualificationQuizEnhanced: React.FC = () => {
           setLocation(userLocation);
           
           // Preload currency rates for better performance
-          await LocalizedQuizService.preloadCurrencyRates();
-          
-          // Get enhanced questions with localization
+          // Get questions directly without localization service
           const enhancedQuestions = getEnhancedQuizQuestionsForUser(user.userType);
-          
-          // Apply localization to enhanced questions
-          const localizedQuestions = await LocalizedQuizService.localizeEnhancedQuestions(
-            enhancedQuestions,
-            userLocation
-          );
+          const localizedQuestions = enhancedQuestions; // Use questions as-is
           
           setQuestions(localizedQuestions);
           console.log('✅ Loaded enhanced localized quiz questions for:', userLocation.country);
@@ -391,12 +384,17 @@ const QualificationQuizEnhanced: React.FC = () => {
             </p>
           )}
           
-          {/* Enhanced Progress Bar with Milestones */}
+          {/* Enhanced Progress Bar with Milestones + Pulse Effect */}
           <div className="relative w-full bg-slate-700 rounded-full h-4 mb-6">
             <div 
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 h-4 rounded-full transition-all duration-500 ease-out progress-milestone"
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 h-4 rounded-full transition-all duration-500 ease-out progress-milestone relative overflow-hidden"
               style={{ width: `${progress}%` }}
-            ></div>
+            >
+              {/* Subtle Completion Enhancement - Pulse Effect for Active Progress */}
+              {progress > 0 && (
+                <div className="absolute inset-0 bg-white/20 animate-pulse-slow rounded-full" />
+              )}
+            </div>
             
             {/* Milestone indicators */}
             {milestones.map((milestone, index) => {

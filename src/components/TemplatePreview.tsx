@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Star, Check, Shield, Clock, Users, BarChart3, MapPin, TrendingUp } from 'lucide-react';
 import Header from './Header';
-import SocialProof from './SocialProof';
 import RegionalUrgency from './RegionalUrgency';
 import { useApp } from '../context/AppContext';
-import { useProgressiveEnhancement } from '../hooks/useProgressiveEnhancement';
 import InlineRegistrationForm from './template-preview/InlineRegistrationForm';
 import AnimatedPerfect from './template-preview/AnimatedPerfect';
 import CatteryOwnerCTA from './template-preview/CatteryOwnerCTA';
@@ -15,8 +13,12 @@ import MobileStickyCTA from './template-preview/MobileStickyCTA';
 
 const TemplatePreview: React.FC = () => {
   const { setCurrentStep } = useApp();
-  const { deviceInfo, shouldLoadEnhanced } = useProgressiveEnhancement();
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Inline device detection to replace deleted hook
+  const deviceInfo = {
+    isMobile: /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+    isTablet: /iPad|Android(?=.*Tablet)|Kindle|PlayBook|Silk/i.test(navigator.userAgent)
+  };
+  const shouldLoadEnhanced = !deviceInfo.isMobile;const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -553,10 +555,7 @@ const TemplatePreview: React.FC = () => {
         </div>
       </section>
 
-      {/* SocialProof Component */}
-      <SocialProof />
-
-      {/* Final CTA Section */}
+      {/* SocialProof Component */}{/* Final CTA Section */}
       <section className="py-16 bg-gradient-to-b from-zinc-800 to-zinc-900">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
