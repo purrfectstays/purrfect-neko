@@ -183,10 +183,14 @@ export const catteryOwnerQuestionsEnhanced: QuizQuestion[] = [
   {
     id: 'capacity',
     question: 'How many cats can you accommodate at maximum capacity?',
-    type: 'range',
-    min: 1,
-    max: 100,
-    step: 1,
+    type: 'multiple-choice',
+    options: [
+      '🏠 Small cattery (20-40 cats)',
+      '🏢 Medium cattery (41-60 cats)',
+      '🏛️ Large cattery (61-80 cats)',
+      '🏰 Very large cattery (81-100 cats)',
+      '🌆 Enterprise cattery (101+ cats)'
+    ],
     required: true,
     emoji: '🏢',
     description: 'Understanding your scale helps us customize business features',

@@ -4,14 +4,6 @@ import { Database } from '../types/database';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// TEMPORARY: Debug logging in production to diagnose API key issue
-console.log('🔧 Supabase Config Status:', {
-  hasUrl: !!supabaseUrl,
-  hasAnonKey: !!supabaseAnonKey,
-  urlPreview: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'MISSING',
-  keyPreview: supabaseAnonKey ? supabaseAnonKey.substring(0, 20) + '...' : 'MISSING',
-  environment: import.meta.env.MODE
-});
 
 // Enhanced validation with better error messages
 const validateSupabaseConfig = () => {
@@ -72,7 +64,7 @@ export const supabase = createClient<Database>(
 // Connection test disabled to prevent 401 errors on empty database
 // Re-enable after users are properly migrated to new database
 if (isConfigValid && supabaseUrl && supabaseAnonKey) {
-  console.log('✅ Supabase client initialized successfully (connection test disabled)');
+  console.log('✅ Supabase client initialized successfully');
 } else {
   console.warn('Supabase configuration invalid - client may not work properly');
 }

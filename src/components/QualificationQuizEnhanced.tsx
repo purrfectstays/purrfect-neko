@@ -459,7 +459,7 @@ const QualificationQuizEnhanced: React.FC = () => {
                   key={index}
                   onClick={() => handleAnswer(index)}
                   onKeyDown={(e) => handleKeyDown(e, () => handleAnswer(index))}
-                  className={`w-full p-5 text-left rounded-xl border-2 transition-all duration-300 touch-target-optimized focus:outline-none focus:ring-4 focus:ring-indigo-500/50 ${
+                  className={`w-full p-4 sm:p-5 text-left rounded-xl border-2 transition-all duration-300 touch-manipulation active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-indigo-500/50 ${
                     isSelected
                       ? 'border-indigo-500 bg-indigo-500/20 text-white animate-pulse-glow'
                       : 'border-slate-600 bg-slate-700 text-slate-300 hover:border-indigo-400 hover:bg-slate-600'
@@ -469,14 +469,14 @@ const QualificationQuizEnhanced: React.FC = () => {
                   aria-label={`Option ${index + 1}: ${option}`}
                 >
                   <div className="flex items-center">
-                    <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center ${
+                    <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 mr-3 sm:mr-4 flex items-center justify-center flex-shrink-0 ${
                       isSelected ? 'border-indigo-500 bg-indigo-500' : 'border-slate-500'
                     }`}>
                       {isSelected && (
-                        <div className="w-3 h-3 bg-white rounded-full"></div>
+                        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white rounded-full"></div>
                       )}
                     </div>
-                    <span className="text-lg">{option}</span>
+                    <span className="text-base sm:text-lg break-words">{option}</span>
                   </div>
                 </button>
               );
@@ -487,35 +487,53 @@ const QualificationQuizEnhanced: React.FC = () => {
                 <div className="text-center">
                   <div className="flex items-center justify-center space-x-2 mb-4">
                     {currentQuestion.id === 'cat-count' && (
-                      <div className="flex space-x-1">
+                      <div className="flex space-x-1 flex-wrap justify-center">
                         {Array.from({ length: Math.min(answers[currentQuestion.id] || 1, 10) }, (_, i) => (
                           <span key={i} className="text-2xl">🐱</span>
                         ))}
                       </div>
                     )}
                   </div>
-                  <span className="text-4xl font-bold text-indigo-400">
-                    {answers[currentQuestion.id] || currentQuestion.min || 1}
-                  </span>
-                  <p className="text-slate-400 text-sm mt-2">
-                    {currentQuestion.min} - {currentQuestion.max}
-                  </p>
+                  
+                  {/* Button Grid for Range Selection - Mobile & Elderly Friendly */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 max-w-md mx-auto px-2 sm:px-0">
+                    {Array.from(
+                      { length: (currentQuestion.max || 10) - (currentQuestion.min || 1) + 1 }, 
+                      (_, i) => {
+                        const value = (currentQuestion.min || 1) + i;
+                        const isSelected = answers[currentQuestion.id] === value;
+                        return (
+                          <button
+                            key={value}
+                            onClick={() => handleRangeAnswer(value)}
+                            className={`
+                              min-h-[60px] sm:min-h-[70px] px-3 sm:px-4 py-3 rounded-xl border-2 
+                              font-bold text-lg sm:text-xl transition-all duration-200
+                              touch-manipulation active:scale-95
+                              focus:outline-none focus:ring-4 focus:ring-indigo-500/50
+                              ${isSelected
+                                ? 'border-indigo-500 bg-indigo-500 text-white scale-105 shadow-lg'
+                                : 'border-slate-600 bg-slate-700 text-slate-300 hover:border-indigo-400 hover:bg-slate-600'
+                              }
+                            `}
+                            aria-label={`Select ${value} ${currentQuestion.id === 'cat-count' ? 'cat' + (value !== 1 ? 's' : '') : ''}`}
+                            aria-pressed={isSelected}
+                          >
+                            {value}
+                            {isSelected && (
+                              <span className="block text-xs mt-1">✓</span>
+                            )}
+                          </button>
+                        );
+                      }
+                    )}
+                  </div>
+                  
                   {currentQuestion.description && (
-                    <p className="text-green-400 text-sm mt-2 italic">
+                    <p className="text-green-400 text-sm mt-4 italic">
                       {currentQuestion.description}
                     </p>
                   )}
-                </div>
-                <div className="px-4">
-                  <input
-                    type="range"
-                    min={currentQuestion.min || 1}
-                    max={currentQuestion.max || 10}
-                    step={currentQuestion.step || 1}
-                    value={answers[currentQuestion.id] || currentQuestion.min || 1}
-                    onChange={(e) => handleRangeAnswer(parseInt(e.target.value))}
-                    className="w-full h-3 bg-slate-700 rounded-lg appearance-none slider-thumb cursor-pointer"
-                  />
                 </div>
               </div>
             )}

@@ -7,6 +7,72 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-specific quiz optimizations */
+@layer utilities {
+  /* Ensure touch targets are at least 44x44px on mobile */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Prevent text selection on buttons */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Smooth scrolling for mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Mobile quiz button optimizations */
+@media (max-width: 640px) {
+  /* Ensure minimum touch target size */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Optimize quiz button spacing on mobile */
+  .quiz-button-grid {
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  /* Prevent zoom on double tap */
+  button, input, select, textarea {
+    touch-action: manipulation;
+  }
+  
+  /* Improve readability on small screens */
+  .quiz-text {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  button[aria-pressed="true"] {
+    outline: 3px solid white;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Quiz range slider styling */
 .slider::-webkit-slider-thumb {
   appearance: none;
