@@ -4,13 +4,14 @@ import { Database } from '../types/database';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Secure debug logging (development only)
-if (import.meta.env.DEV) {
-  console.log('🔧 Supabase Config Status:', {
-    hasUrl: !!supabaseUrl,
-    hasAnonKey: !!supabaseAnonKey
-  });
-}
+// TEMPORARY: Debug logging in production to diagnose API key issue
+console.log('🔧 Supabase Config Status:', {
+  hasUrl: !!supabaseUrl,
+  hasAnonKey: !!supabaseAnonKey,
+  urlPreview: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'MISSING',
+  keyPreview: supabaseAnonKey ? supabaseAnonKey.substring(0, 20) + '...' : 'MISSING',
+  environment: import.meta.env.MODE
+});
 
 // Enhanced validation with better error messages
 const validateSupabaseConfig = () => {
