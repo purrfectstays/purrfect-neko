@@ -491,9 +491,12 @@ export class WaitlistService {
       const functionResult = await safeApiCall(
         async () => {
           const { data, error } = await supabase
-            .rpc('submit_quiz_responses', {
-              p_user_id: userId,
-              p_responses: responses
+            .rpc('submit_quiz_response', {
+              user_id_param: userId,
+              responses: responses.reduce((acc, response) => {
+                acc[response.question_id] = response.answer.toString();
+                return acc;
+              }, {} as Record<string, string>)
             });
           
           if (error) {
@@ -503,7 +506,7 @@ export class WaitlistService {
           return data;
         },
         null,
-        'submit_quiz_responses'
+        'submit_quiz_response'
       );
       
       const functionError = functionResult === null ? new Error('Quiz submission failed') : null;
@@ -601,12 +604,12 @@ export class WaitlistService {
     try {
       // Use the secure RPC function to submit quiz responses
       const { data: rpcResult, error: rpcError } = await supabase
-        .rpc('submit_quiz_responses', {
-          p_user_id: userId,
-          p_responses: responses.map(response => ({
-            question_id: response.question_id,
-            answer: response.answer.toString(),
-          }))
+        .rpc('submit_quiz_response', {
+          user_id_param: userId,
+          responses: responses.reduce((acc, response) => {
+            acc[response.question_id] = response.answer.toString();
+            return acc;
+          }, {} as Record<string, string>)
         });
 
       if (rpcError) {

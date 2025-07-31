@@ -482,9 +482,12 @@ export class UnifiedEmailVerificationService {
       try {
         console.log('🔒 Attempting secure function approach...');
         const { data: functionResult, error: functionError } = await supabase
-          .rpc('submit_quiz_responses', {
-            p_user_id: userId,
-            p_responses: responsesForFunction
+          .rpc('submit_quiz_response', {
+            user_id_param: userId,
+            responses: responsesForFunction.reduce((acc, response) => {
+              acc[response.question_id] = response.answer.toString();
+              return acc;
+            }, {} as Record<string, string>)
           });
 
         if (functionError) {
