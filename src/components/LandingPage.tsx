@@ -6,7 +6,7 @@ import { useApp } from '../context/AppContext';
 
 // Performance Enhancement: Lazy load non-critical components
 const RegionalUrgency = lazy(() => import('./RegionalUrgency'));
-const MobileStickyCTAEnhanced = lazy(() => import('./template-preview/MobileStickyCTAEnhanced'));
+const MobileCTAManager = lazy(() => import('./MobileCTAManager'));
 
 // Animated text cycling component
 const AnimatedPerfect: React.FC = () => {
@@ -618,7 +618,7 @@ return (
       <Suspense fallback={
         <div className="fixed bottom-0 left-0 right-0 h-16 bg-zinc-900/90 animate-pulse" />
       }>
-        <MobileStickyCTAEnhanced />
+        <MobileCTAManager />
       </Suspense>
       {/* Add bottom padding to prevent overlap */}
       <div className="h-20 lg:h-24"></div>

@@ -9,7 +9,7 @@ const HeroSection = React.lazy(() => import('./landing/HeroSection'));
 const PainPointSection = React.lazy(() => import('./landing/PainPointSection'));
 const CommunityEngagementSection = React.lazy(() => import('./landing/CommunityEngagementSection'));
 const HowItWorksSection = React.lazy(() => import('./landing/HowItWorksSection'));
-const MobileStickyCTA = React.lazy(() => import('./template-preview/MobileStickyCTA'));
+const MobileCTAManager = React.lazy(() => import('./MobileCTAManager'));
 
 // Loading component for lazy sections
 const SectionLoader: React.FC = () => (
@@ -253,7 +253,7 @@ const TemplatePreviewOptimized: React.FC = () => {
 
       {/* Mobile Sticky CTA */}
       <Suspense fallback={null}>
-        <MobileStickyCTA />
+        <MobileCTAManager />
       </Suspense>
     </div>
   );

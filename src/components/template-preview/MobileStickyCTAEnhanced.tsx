@@ -3,27 +3,73 @@ import { createPortal } from 'react-dom';
 import { useApp } from '../../context/AppContext';
 import { useLocation } from 'react-router-dom';
 
+// Singleton tracking to prevent multiple instances
+let activeInstance: string | null = null;
+
 /**
  * Enhanced Mobile sticky CTA bar with context awareness
+ * - Singleton pattern to prevent multiple instances
  * - Hides during quiz to prevent overlap
  * - Smart positioning to avoid accidental clicks
  * - Respects user interaction zones
+ * - Device-specific positioning
  */
 const MobileStickyCTAEnhanced: React.FC = memo(() => {
+  const instanceId = React.useRef(`cta-${Date.now()}-${Math.random()}`).current;
   const { setCurrentStep, currentStep } = useApp();
   const location = useLocation();
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [hasInteractiveContent, setHasInteractiveContent] = useState(false);
+  const [hasInteractiveContent] = useState(false);
+  const [deviceType, setDeviceType] = useState<'desktop' | 'ios' | 'android' | 'mobile'>('mobile');
 
   useEffect(() => {
+    // Implement singleton pattern - allow initial mount
+    if (!activeInstance) {
+      activeInstance = instanceId;
+    } else if (activeInstance !== instanceId) {
+      // Another instance exists, don't mount this one
+      return;
+    }
+    
     setMounted(true);
+
+    return () => {
+      if (activeInstance === instanceId) {
+        activeInstance = null;
+      }
+    };
+  }, [instanceId]);
+
+  useEffect(() => {
+    // Detect device type
+    const detectDevice = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const width = window.innerWidth;
+      
+      if (width >= 1024) {
+        setDeviceType('desktop');
+      } else if (/iphone|ipad|ipod/.test(userAgent)) {
+        setDeviceType('ios');
+      } else if (/android/.test(userAgent)) {
+        setDeviceType('android');
+      } else {
+        setDeviceType('mobile');
+      }
+    };
+    
+    detectDevice();
+    window.addEventListener('resize', detectDevice);
+    
+    return () => {
+      window.removeEventListener('resize', detectDevice);
+    };
   }, []);
 
   useEffect(() => {
     const checkVisibility = () => {
       // Hide on desktop
-      if (window.innerWidth >= 1024) {
+      if (deviceType === 'desktop' || window.innerWidth >= 1024) {
         setIsVisible(false);
         return;
       }
@@ -42,24 +88,10 @@ const MobileStickyCTAEnhanced: React.FC = memo(() => {
         return;
       }
 
-      // Check for interactive elements near bottom
-      const bottomElements = document.elementsFromPoint(
-        window.innerWidth / 2,
-        window.innerHeight - 100
-      );
+      // Simple visibility check - show after minimal scroll on mobile
+      const scrollThreshold = 20; // Very low threshold for immediate visibility
+      const shouldShow = window.scrollY > scrollThreshold;
       
-      const hasBottomInteractive = bottomElements.some(el => {
-        const tagName = el.tagName.toLowerCase();
-        return ['button', 'a', 'input', 'select', 'textarea'].includes(tagName) ||
-               el.getAttribute('role') === 'button' ||
-               el.onclick !== null;
-      });
-
-      setHasInteractiveContent(hasBottomInteractive);
-
-      // Show only when scrolled down and no interactive content at bottom
-      const scrollThreshold = 200;
-      const shouldShow = window.scrollY > scrollThreshold && !hasBottomInteractive;
       setIsVisible(shouldShow);
     };
 
@@ -84,7 +116,7 @@ const MobileStickyCTAEnhanced: React.FC = memo(() => {
       window.removeEventListener('resize', checkVisibility);
       observer.disconnect();
     };
-  }, [currentStep, location.pathname]);
+  }, [currentStep, location.pathname, deviceType]);
 
   const scrollToHeroRegistration = () => {
     const heroRegistration = document.querySelector('[data-hero-registration]') || 
@@ -108,16 +140,27 @@ const MobileStickyCTAEnhanced: React.FC = memo(() => {
     }
   };
 
-  if (!mounted || !isVisible) return null;
+  // Ensure only one instance renders
+  if (!mounted || !isVisible || activeInstance !== instanceId) return null;
 
-  // Adaptive positioning based on content
+  // Adaptive positioning based on device
   const getAdaptiveStyles = () => {
     const screenWidth = window.innerWidth;
-    const baseBottom = hasInteractiveContent ? 120 : 20; // Move up if interactive content below
+    const baseBottom = 20; // Base bottom spacing
+    
+    // Device-specific adjustments
+    let deviceOffset = 0;
+    if (deviceType === 'ios') {
+      // iOS has bottom safe area for home indicator
+      deviceOffset = 20;
+    } else if (deviceType === 'android') {
+      // Android might have navigation bar
+      deviceOffset = 10;
+    }
     
     if (screenWidth <= 480) {
       return {
-        bottom: `${baseBottom}px`,
+        bottom: `${baseBottom + deviceOffset}px`,
         left: '50%',
         transform: 'translateX(-50%)',
         right: 'auto',
@@ -126,7 +169,7 @@ const MobileStickyCTAEnhanced: React.FC = memo(() => {
       };
     } else if (screenWidth <= 768) {
       return {
-        bottom: `${baseBottom + 40}px`,
+        bottom: `${baseBottom + 20 + deviceOffset}px`, // Reduced from 40 to 20
         right: '20px',
         transform: 'none',
         left: 'auto',
@@ -134,7 +177,7 @@ const MobileStickyCTAEnhanced: React.FC = memo(() => {
       };
     } else {
       return {
-        bottom: `${baseBottom + 60}px`,
+        bottom: `${baseBottom + 30 + deviceOffset}px`, // Reduced from 60 to 30
         right: '40px',
         transform: 'none',
         left: 'auto',
@@ -151,13 +194,11 @@ const MobileStickyCTAEnhanced: React.FC = memo(() => {
       style={{ 
         position: 'fixed', 
         ...responsiveStyles,
-        zIndex: 999,  // Reduced from 999999 to be below modals but above content
+        zIndex: 9999,  // High z-index to ensure visibility above all content
         pointerEvents: 'auto',
         transition: 'all 0.3s ease-in-out',
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible 
-          ? responsiveStyles.transform 
-          : `${responsiveStyles.transform} translateY(20px)`
+        opacity: 1, // Always fully opaque when rendered
+        transform: responsiveStyles.transform || 'none'
       }}
     >
       {/* Semi-transparent backdrop for better visibility */}
@@ -173,10 +214,11 @@ const MobileStickyCTAEnhanced: React.FC = memo(() => {
       <div style={{ 
         display: 'flex', 
         flexDirection: screenWidth <= 480 ? 'column' : 'row', 
-        gap: screenWidth <= 480 ? '6px' : '8px',
+        gap: screenWidth <= 480 ? '12px' : '8px', // Increased mobile gap from 6px to 12px
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'relative'
+        position: 'relative',
+        padding: '8px' // Add padding to prevent edge overlap
       }}>
         {/* Close button for better UX */}
         <button
@@ -202,66 +244,90 @@ const MobileStickyCTAEnhanced: React.FC = memo(() => {
           ×
         </button>
 
-        {/* Primary CTA */}
+        {/* Primary CTA - Cat Parent Priority */}
         <button
           onClick={scrollToHeroRegistration}
           style={{
             backgroundColor: '#22c55e',
             color: 'white',
             border: 'none',
-            padding: screenWidth <= 480 ? '10px 16px' : '8px 12px',
+            padding: screenWidth <= 480 ? '14px 20px' : '10px 14px', // Increased mobile padding for better separation
             borderRadius: '9999px',
-            fontSize: screenWidth <= 480 ? '14px' : '12px',
+            fontSize: screenWidth <= 480 ? '15px' : '13px',
             fontWeight: 'bold',
             cursor: 'pointer',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 12px -1px rgba(34, 197, 94, 0.4)',
             whiteSpace: 'nowrap',
             transition: 'all 0.3s ease',
-            minWidth: screenWidth <= 480 ? '160px' : 'auto',
-            textAlign: 'center'
+            minWidth: screenWidth <= 480 ? '180px' : 'auto',
+            textAlign: 'center',
+            position: 'relative'
           }}
           onMouseEnter={(e) => {
             const target = e.target as HTMLButtonElement;
             target.style.backgroundColor = '#16a34a';
             target.style.transform = 'scale(1.05)';
+            target.style.boxShadow = '0 6px 16px -1px rgba(34, 197, 94, 0.5)';
           }}
           onMouseLeave={(e) => {
             const target = e.target as HTMLButtonElement;
             target.style.backgroundColor = '#22c55e';
             target.style.transform = 'scale(1)';
+            target.style.boxShadow = '0 4px 12px -1px rgba(34, 197, 94, 0.4)';
           }}
         >
-          {screenWidth <= 480 ? 'Register as PurrParent' : 'Register as a PurrParent'}
+          😻 {screenWidth <= 480 ? 'Find Perfect Catteries!' : 'Find My Perfect Cattery!'}
+          {screenWidth <= 480 && (
+            <div style={{
+              position: 'absolute',
+              top: '-8px',
+              right: '-8px',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              padding: '2px 6px',
+              borderRadius: '9999px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            }}>
+              PRIORITY
+            </div>
+          )}
         </button>
         
+        {/* Secondary CTA - Cattery Owner (Still Welcome) */}
         <button
           onClick={() => setCurrentStep('registration')}
           style={{
-            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+            backgroundColor: 'rgba(99, 102, 241, 0.7)',
             color: '#e0e7ff',
-            border: '1px solid rgba(99, 102, 241, 0.7)',
-            padding: screenWidth <= 480 ? '10px 16px' : '8px 12px',
+            border: '1px solid rgba(99, 102, 241, 0.6)',
+            padding: screenWidth <= 480 ? '12px 18px' : '8px 12px', // Increased mobile padding to match spacing
             borderRadius: '9999px',
-            fontSize: screenWidth <= 480 ? '14px' : '12px',
+            fontSize: screenWidth <= 480 ? '13px' : '11px',
             fontWeight: '500',
             cursor: 'pointer',
             whiteSpace: 'nowrap',
             transition: 'all 0.3s ease',
             minWidth: screenWidth <= 480 ? '160px' : 'auto',
-            textAlign: 'center'
+            textAlign: 'center',
+            opacity: 0.9,
+            marginTop: screenWidth <= 480 ? '4px' : '0' // Extra margin for mobile separation
           }}
           onMouseEnter={(e) => {
             const target = e.target as HTMLButtonElement;
             target.style.backgroundColor = '#6366f1';
             target.style.transform = 'scale(1.05)';
+            target.style.opacity = '1';
           }}
           onMouseLeave={(e) => {
             const target = e.target as HTMLButtonElement;
-            target.style.backgroundColor = 'rgba(99, 102, 241, 0.8)';
+            target.style.backgroundColor = 'rgba(99, 102, 241, 0.7)';
             target.style.transform = 'scale(1)';
+            target.style.opacity = '0.9';
           }}
         >
-          Cattery Owner
+          🏢 {screenWidth <= 480 ? 'Cattery Partner' : 'Cattery Owner'}
         </button>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { useApp } from '../context/AppContext';
 import InlineRegistrationForm from './template-preview/InlineRegistrationForm';
 import AnimatedPerfect from './template-preview/AnimatedPerfect';
 import CatteryOwnerCTA from './template-preview/CatteryOwnerCTA';
-import MobileStickyCTA from './template-preview/MobileStickyCTA';
+import MobileCTAManager from './MobileCTAManager';
 
 // Lazy load non-critical components for better performance
 
@@ -626,7 +626,7 @@ const TemplatePreview: React.FC = () => {
 
 
       {/* Mobile Sticky CTA Bar */}
-      <MobileStickyCTA />
+      <MobileCTAManager />
 
       {/* Add bottom padding to prevent overlap */}
       <div className="h-20 lg:h-24"></div>
